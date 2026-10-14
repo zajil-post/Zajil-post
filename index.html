@@ -1,383 +1,400 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#120216">
-<meta name="description" content="أسعار الصرف في السوق الموازي بالسودان، وشروحات مصرفية وأخبار التطبيقات البنكية من منصة زاجل للنشر.">
-<title>زاجل | أسعار الصرف والخدمات المصرفية في السودان</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<style>
-:root{
-  --bg:#120216; --surface:#1d0626; --surface-2:#260a31; --line:rgba(255,255,255,.09);
-  --text:#f4eef6; --muted:#a999b0; --brand:#e02480; --brand-2:#6b0f5b; --ok:#34d399; --warn:#fbbf24; --danger:#fb7185;
-  --r:16px;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
-  background-image:radial-gradient(60% 40% at 100% 0,rgba(224,36,128,.14),transparent),radial-gradient(60% 40% at 0 0,rgba(107,15,91,.35),transparent);background-attachment:fixed}
-a{color:inherit;text-decoration:none}
-button,input,select,textarea{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
-.wrap{max-width:760px;margin:0 auto;padding:0 16px}
-.hidden{display:none!important}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#3B0736" />
+  <title>منصة زاجل للنشر | دائماً معكم .. بكل جديد</title>
 
-/* Header */
-.header{position:sticky;top:0;z-index:30;background:rgba(18,2,22,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-.header .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
-.brand{display:flex;align-items:center;gap:12px}
-.logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--brand-2),var(--brand));border:0;font-size:22px;cursor:pointer;display:grid;place-items:center;transition:transform .15s}
-.logo:active{transform:scale(.94)}
-.brand h1{font-size:18px;font-weight:700;line-height:1.2}
-.brand p{font-size:12px;color:var(--muted)}
-.header-actions{display:flex;align-items:center;gap:8px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;border-radius:12px;font-weight:600;font-size:13px;padding:10px 16px;transition:filter .15s,background .15s}
-.btn-primary{background:linear-gradient(135deg,var(--brand-2),var(--brand));color:#fff}
-.btn-primary:hover{filter:brightness(1.12)}
-.btn-ghost{background:rgba(255,255,255,.06);border:1px solid var(--line)}
-.btn-ghost:hover{background:rgba(255,255,255,.1)}
-.btn-block{width:100%}
+  <!-- خط IBM Plex Sans Arabic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-/* Layout */
-main{padding:20px 0 8px;display:grid;gap:20px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
-.status{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;font-size:14px}
-.dot{width:9px;height:9px;border-radius:50%;background:var(--ok);display:inline-block;margin-inline-end:8px;box-shadow:0 0 0 4px rgba(52,211,153,.18)}
-.status b{color:var(--ok);font-weight:600;font-size:13px}
+  <!-- FontAwesome للأيقونات -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-/* About Intro Card */
-.about-teaser{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.about-teaser .txt{display:flex;align-items:center;gap:10px}
-.about-teaser h3{font-size:14px;font-weight:700}
-.about-teaser p{font-size:12px;color:var(--muted)}
-.about-teaser button{color:var(--brand);background:none;border:0;font-size:12px;font-weight:600;cursor:pointer}
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"IBM Plex Sans Arabic"', 'sans-serif'],
+          },
+          colors: {
+            zajilBg: '#F7F3FA',
+            zajilDark: '#2A0529',
+            zajilPlum: '#420A3D',
+            zajilPurple: '#6B0F5B',
+            zajilPink: '#D81B7A',
+            zajilPinkLight: '#F42C90',
+            zajilSoft: '#EFE8F4',
+          }
+        }
+      }
+    }
+  </script>
 
-/* Hero rate */
-.hero{padding:24px 20px 8px}
-.hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
-.hero small{color:var(--muted);font-size:13px}
-.hero h2{font-size:20px;font-weight:700;margin-top:2px}
-.hero-rates{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}
-.rate-box{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:16px}
-.rate-box span{font-size:13px;color:var(--muted)}
-.rate-box strong{display:block;font-size:30px;font-weight:700;line-height:1.2;margin-top:2px;font-variant-numeric:tabular-nums}
-.rate-box em{font-style:normal;font-size:12px;color:var(--muted)}
-.rate-box.sell strong{color:var(--brand)}
+  <style>
+    body {
+      background-color: #F6F2F9;
+      font-family: 'IBM Plex Sans Arabic', sans-serif;
+      color: #2A0529;
+      -webkit-tap-highlight-color: transparent;
+      padding-bottom: 84px;
+    }
 
-/* Table */
-.table{width:100%;border-collapse:collapse;font-size:14px}
-.table th{font-weight:500;font-size:12px;color:var(--muted);text-align:start;padding:10px 20px;border-top:1px solid var(--line)}
-.table td{padding:13px 20px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
-.table th:not(:first-child),.table td:not(:first-child){text-align:end}
-.table td:first-child{display:flex;align-items:center;gap:10px;font-weight:500}
-.table .flag{font-size:20px}
-.table tbody tr:hover{background:rgba(255,255,255,.03)}
-.note{padding:14px 20px 18px;font-size:12px;color:var(--muted);border-top:1px solid var(--line);display:grid;gap:4px}
-.note b{color:var(--warn);font-weight:600}
+    /* خلفية الهيدر مع الموجات العلوية */
+    .header-wave {
+      background: radial-gradient(circle at 95% 10%, rgba(216, 27, 122, 0.14) 0%, transparent 45%),
+                  radial-gradient(circle at 10% 0%, rgba(107, 15, 91, 0.12) 0%, transparent 50%),
+                  linear-gradient(180deg, #FFFFFF 0%, #F7F3FA 100%);
+      position: relative;
+      overflow: hidden;
+    }
 
-/* Calculator */
-.calc{padding:20px;display:grid;gap:14px}
-.calc h3,.section-title{font-size:16px;font-weight:700}
-.field{display:grid;gap:6px;font-size:12px;color:var(--muted)}
-.input{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:15px;color:var(--text)}
-.input:focus{border-color:var(--brand);outline:none}
-select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%23a999b0' stroke-width='2'%3E%3Cpath d='m1 1 5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 14px center;padding-left:36px}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.result{background:var(--surface-2);border-radius:14px;padding:14px;text-align:center}
-.result span{font-size:12px;color:var(--muted)}
-.result div{font-size:24px;font-weight:700;color:var(--brand);font-variant-numeric:tabular-nums}
+    /* كرت الحاسبة البنفسجي المتدرج */
+    .calc-gradient {
+      background: linear-gradient(135deg, #380734 0%, #640F55 50%, #2B0528 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .calc-gradient::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      left: -20%;
+      width: 240px;
+      height: 240px;
+      background: radial-gradient(circle, rgba(232, 34, 130, 0.32) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
 
-/* Tool */
-.tool{padding:20px;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-.tool .txt{flex:1 1 320px}
-.tool h3{font-size:16px;font-weight:700}
-.tool p{font-size:13px;color:var(--muted);margin-top:4px}
-.badge{display:inline-block;font-size:11px;font-weight:600;background:rgba(224,36,128,.16);color:#ff6fb1;border-radius:999px;padding:2px 10px;margin-bottom:6px}
+    /* زر احسب المتدرج */
+    .btn-calc {
+      background: linear-gradient(90deg, #5E1151 0%, #D81B7A 60%, #E82A8A 100%);
+    }
 
-/* Articles */
-.articles{display:grid;gap:12px;margin-top:12px}
-.article{display:grid;grid-template-columns:1fr;overflow:hidden}
-.article img{width:100%;max-height:220px;object-fit:cover;display:block}
-.article .body{padding:16px 18px}
-.article .tag{font-size:12px;color:#ff6fb1;font-weight:600}
-.article h4{font-size:16px;font-weight:700;margin:4px 0 6px;line-height:1.5}
-.article p{font-size:14px;color:#cfc3d4;white-space:pre-line}
-.article time{display:block;font-size:12px;color:var(--muted);margin-top:10px}
+    /* شريط أبرز العناوين */
+    .headline-header {
+      background: linear-gradient(90deg, #380734 0%, #6E115B 60%, #430A3E 100%);
+    }
 
-/* Modal */
-.modal{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
-.sheet{width:100%;max-width:460px;max-height:92vh;overflow-y:auto;padding:22px;display:grid;gap:16px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
-.sheet-head{display:flex;justify-content:space-between;align-items:center}
-.sheet-head h3{font-size:17px;font-weight:700}
-.icon-btn{background:none;border:0;color:var(--muted);cursor:pointer;font-size:18px;padding:4px 8px}
-.icon-btn:hover{color:var(--text)}
-.panel{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:12px}
-.panel h4{font-size:14px;font-weight:600}
-.hint{font-size:12px;color:var(--muted)}
-.err{color:var(--danger);font-size:12px;text-align:center}
-.mini-list{display:grid;gap:6px}
-.mini-item{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;background:var(--surface);border-radius:10px;padding:8px 12px}
-.mini-item button{background:none;border:0;color:var(--danger);cursor:pointer}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--surface-2);border:1px solid var(--line);padding:10px 18px;border-radius:12px;font-size:13px;z-index:60;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+    /* تنسيق الأرقام */
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
 
-/* About Page Links */
-.social-links{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.social-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--line);font-size:13px;font-weight:500;transition:border-color .15s}
-.social-card:hover{border-color:var(--brand)}
-.social-card i{font-size:18px}
-.c-wa{color:#25d366}
-.c-tg{color:#229ed9}
-.c-fb{color:#1877f2}
-.c-ig{color:#e1306c}
-
-footer{margin-top:28px;border-top:1px solid var(--line);padding:20px 0 32px;text-align:center;font-size:12px;color:var(--muted)}
-.footer-links{display:flex;justify-content:center;gap:16px;margin-bottom:8px}
-.footer-links button,.footer-links a{color:var(--brand);background:none;border:0;cursor:pointer;font-size:12px;font-weight:600}
-
-@media (max-width:480px){
-  .rate-box strong{font-size:24px}
-  .table th,.table td{padding-inline:14px}
-  .hide-sm{display:none}
-  .social-links{grid-template-columns:1fr}
-}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
-</style>
+    /* إخفاء السكرول بار */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
 </head>
-<body>
+<body class="min-h-screen select-none">
 
-<header class="header">
-  <div class="wrap">
-    <div class="brand">
-      <button class="logo" id="logoBtn" aria-label="زاجل" title="زاجل">🕊️</button>
-      <div>
-        <h1>زاجل</h1>
-        <p>البنوك وأسعار الصرف في السودان</p>
-      </div>
-    </div>
-    <div class="header-actions">
-      <button class="btn btn-ghost" id="aboutBtn"><i class="fa-solid fa-circle-info"></i><span class="hide-sm">عن زاجل</span></button>
-      <a id="waLink" class="btn btn-primary" href="https://whatsapp.com/channel/0029Vax0vtQ2ZjCuuF4u0k0x" target="_blank" rel="noopener">
-        <i class="fa-brands fa-whatsapp"></i><span class="hide-sm">قناة زاجل</span>
-      </a>
-    </div>
-  </div>
-</header>
+  <!-- الشريط الزخرفي العلوي -->
+  <div class="h-2 w-full bg-gradient-to-l from-zajilPink via-zajilPurple to-zajilDark"></div>
 
-<main class="wrap">
+  <!-- ==================== الهيدر العلوي ==================== -->
+  <header class="header-wave pt-4 pb-3 px-4">
+    <!-- حمام زاجل مائي في الخلفية -->
+    <svg class="w-16 h-16 text-purple-900/[0.06] absolute left-16 top-3 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M21.7 5.3c-.3-.2-.7-.1-.9.1l-4.2 4.2c-1.3-.9-2.9-1.4-4.6-1.4-2.8 0-5.3 1.4-6.8 3.5l-2.4-.8c-.4-.1-.8.1-.9.5-.1.4.1.8.5.9l2.8 1c-.1.5-.1 1-.1 1.6 0 4.1 3.4 7.5 7.5 7.5 2.5 0 4.8-1.2 6.2-3.2l2.6.9c.4.1.8-.1.9-.5.1-.4-.1-.8-.5-.9l-2.1-.7c.8-1.4 1.3-3 1.3-4.7 0-1.1-.2-2.1-.6-3.1l3.5-3.5c.3-.3.3-.8.1-1.1z"/>
+    </svg>
 
-  <div class="card status">
-    <div><span class="dot"></span>حالة التطبيقات المصرفية الآن</div>
-    <b><i class="fa-solid fa-circle-check"></i> مستقرة وتعمل</b>
-  </div>
+    <div class="max-w-md mx-auto">
+      <div class="flex items-center justify-between">
+        
+        <!-- اللوجو واسم المنصة (الضغط 5 مرات يفتح الداشبورد) -->
+        <div class="flex items-center gap-3">
+          <button id="secretLogoBtn" onclick="handleSecretTap()" class="relative w-14 h-14 flex items-center justify-center active:scale-90 transition focus:outline-none" title="منصة زاجل">
+            <!-- شعار طائر زاجل المطابق للصورة -->
+            <svg class="w-13 h-13 drop-shadow-sm" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="zajilGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#D81B7A" />
+                  <stop offset="60%" stop-color="#6B0F5B" />
+                  <stop offset="100%" stop-color="#2D0429" />
+                </linearGradient>
+              </defs>
+              <!-- الجناح العلوي -->
+              <path d="M15 20 C25 45, 55 40, 65 62 C67 50, 52 28, 15 20 Z" fill="url(#zajilGrad)"/>
+              <!-- الجناح الأوسط -->
+              <path d="M22 44 C32 58, 52 52, 60 68 C55 62, 36 62, 22 44 Z" fill="url(#zajilGrad)"/>
+              <!-- الذيل السفلي -->
+              <path d="M32 88 C36 68, 52 62, 60 60 C58 72, 45 76, 32 88 Z" fill="url(#zajilGrad)"/>
+              <!-- الرأس والمنقار -->
+              <path d="M58 40 C64 30, 76 32, 80 37 C85 37, 90 39, 92 41 C86 41, 82 42, 78 46 C73 52, 71 62, 69 68 C69 56, 65 46, 58 40 Z" fill="url(#zajilGrad)"/>
+              <!-- فتحة العين -->
+              <path d="M68 38 C72 36, 76 37, 78 39 C74 39, 71 40, 68 38 Z" fill="#FFFFFF"/>
+            </svg>
+          </button>
 
-  <div class="card about-teaser">
-    <div class="txt">
-      <span style="font-size:20px">🕊️</span>
-      <div>
-        <h3>منصة زاجل للنشر · الرسالة الحقيقية</h3>
-        <p>المعلومة الأقرب إليك منذ سبتمبر 2019</p>
-      </div>
-    </div>
-    <button id="aboutTeaserBtn">اقرأ المزيد ←</button>
-  </div>
-
-  <section class="card" aria-labelledby="ratesTitle">
-    <div class="hero">
-      <div class="hero-top">
-        <div>
-          <small id="dateLabel"></small>
-          <h2 id="ratesTitle">أسعار الصرف اليوم · السوق الموازي</h2>
+          <div>
+            <h1 class="text-[22px] font-bold text-[#2D062B] leading-tight tracking-tight">منصة زاجل للنشر</h1>
+            <p class="text-xs font-medium text-[#6E5673]">دائماً معكم .. بكل جديد</p>
+          </div>
         </div>
-        <button class="btn btn-ghost" id="calcToggle" aria-expanded="false"><i class="fa-solid fa-calculator"></i> حاسبة العملات</button>
+
+        <!-- أيقونات البحث والقائمة -->
+        <div class="flex items-center gap-3 text-[#380835]">
+          <button onclick="openModal('channelsModal')" class="w-9 h-9 rounded-full hover:bg-purple-100 flex items-center justify-center transition" aria-label="بحث">
+            <i class="fa-solid fa-magnifying-glass text-lg"></i>
+          </button>
+          <button onclick="openModal('aboutModal')" class="w-9 h-9 rounded-full hover:bg-purple-100 flex items-center justify-center transition" aria-label="القائمة">
+            <i class="fa-solid fa-bars text-xl"></i>
+          </button>
+        </div>
       </div>
-      <div class="hero-rates">
-        <div class="rate-box"><span>الدولار · شراء</span><strong id="heroBuy">—</strong><em>جنيه سوداني</em></div>
-        <div class="rate-box sell"><span>الدولار · بيع</span><strong id="heroSell">—</strong><em>جنيه سوداني</em></div>
+
+      <!-- كبسولة التاريخ والوقت بتوقيت السودان -->
+      <div class="mt-3 bg-[#EFE9F4]/90 border border-purple-200/60 rounded-2xl py-2 px-4 flex items-center justify-between shadow-sm">
+        <div class="text-center flex-1">
+          <div id="currentDateText" class="text-[13px] font-bold text-[#3D0B3A]">الأربعاء 14 أكتوبر 2026</div>
+          <div class="text-[10px] text-[#7A627F] -mt-0.5">بتوقيت السودان</div>
+        </div>
+
+        <div class="flex items-center gap-3 px-2 text-[#4A1246]">
+          <i class="fa-regular fa-calendar-days text-base"></i>
+          <span class="h-5 w-[1px] bg-purple-300"></span>
+        </div>
+
+        <div class="flex items-center gap-1.5 pl-1 tabular-nums">
+          <span id="currentTimeText" class="text-sm font-bold text-[#3D0B3A]">12:43 م</span>
+          <i class="fa-regular fa-clock text-xs text-[#6E5673]"></i>
+        </div>
       </div>
     </div>
+  </header>
 
-    <div id="calcBox" class="calc hidden" style="border-top:1px solid var(--line)">
-      <h3>حاسبة التحويل إلى الجنيه السوداني</h3>
-      <div class="grid-2">
-        <label class="field">المبلغ
-          <input class="input" type="number" id="calcAmount" value="100" min="0" inputmode="decimal">
-        </label>
-        <label class="field">العملة
-          <select class="input" id="calcCurrency"></select>
-        </label>
+  <!-- ==================== المحتوى الرئيسي ==================== -->
+  <main class="max-w-md mx-auto px-3.5 space-y-3.5 mt-1">
+
+    <!-- شريط أحدث الأخبار -->
+    <div class="bg-gradient-to-l from-[#380734] via-[#480B43] to-[#2B0528] rounded-full p-1.5 flex items-center justify-between shadow-md">
+      <span class="bg-gradient-to-r from-[#C81971] to-[#E62988] text-white text-xs font-bold px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shrink-0 shadow-sm">
+        <i class="fa-solid fa-bullhorn text-[11px]"></i>
+        <span>أحدث الأخبار</span>
+      </span>
+
+      <div class="flex-1 px-3 overflow-hidden">
+        <p id="breakingNewsText" class="text-white text-xs font-medium truncate">
+          الذهب السوداني يتجاوز 2.2 مليار دولار حتى نهاية سبتمبر 2026
+        </p>
       </div>
-      <div class="result"><span>القيمة التقديرية بسعر الشراء</span><div id="calcResult">0 ج.س</div></div>
+
+      <button onclick="scrollToSection('newsSection')" class="text-pink-400 pl-2 hover:text-white transition">
+        <i class="fa-solid fa-chevron-left text-xs"></i>
+      </button>
     </div>
 
-    <div style="overflow-x:auto">
-      <table class="table">
-        <thead><tr><th>العملة</th><th>شراء</th><th>بيع</th></tr></thead>
-        <tbody id="rateRows"></tbody>
-      </table>
-    </div>
-
-    <div class="note">
-      <b><i class="fa-solid fa-triangle-exclamation"></i> تنويه</b>
-      <span>الأسعار استرشادية لحركة السوق الموازي وقد تختلف من تاجر لآخر ومع حجم التعامل.</span>
-      <span>قارن بين أكثر من مصدر قبل إتمام أي تحويل أو شراء.</span>
-    </div>
-  </section>
-
-  <section class="card tool">
-    <div class="txt">
-      <span class="badge">أداة تفاعلية</span>
-      <h3>استخراج وفحص الـ BBAN</h3>
-      <p>حوّل رقم الـ IBAN إلى BBAN وتعرّف على رمز البنك للتحويل بين بنكك وأوكاش وفوري.</p>
-    </div>
-    <a class="btn btn-primary" href="https://aywa.sd/bban.php" target="_blank" rel="noopener">فتح الأداة <i class="fa-solid fa-arrow-left"></i></a>
-  </section>
-
-  <section aria-labelledby="artTitle">
-    <h3 class="section-title" id="artTitle">الشروحات والأخبار</h3>
-    <div class="articles" id="articlesList"></div>
-  </section>
-</main>
-
-<footer>
-  <div class="wrap">
-    <div class="footer-links">
-      <button id="aboutFootBtn">حول منصة زاجل</button>
-      <span>·</span>
-      <a href="https://whatsapp.com/channel/0029Vax0vtQ2ZjCuuF4u0k0x" target="_blank" rel="noopener">واتساب</a>
-      <span>·</span>
-      <a href="https://t.me/zajil_post" target="_blank" rel="noopener">تلجرام</a>
-      <span>·</span>
-      <a href="https://www.facebook.com/zajil.post" target="_blank" rel="noopener">فيسبوك</a>
-    </div>
-    © <span id="year"></span> زاجل · الرسالة الحقيقية
-  </div>
-</footer>
-
-<!-- About Modal -->
-<div id="aboutModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
-  <div class="card sheet">
-    <div class="sheet-head">
-      <h3 id="aboutTitle">🕊️ حول منصة زاجل للنشر | Zajil</h3>
-      <button class="icon-btn" data-close="aboutModal" aria-label="إغلاق"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    
-    <div style="font-size:13.5px;color:#cfc3d4;display:grid;gap:12px;line-height:1.8">
-      <p><strong>زاجل للنشر</strong> منصة إعلامية ومعلوماتية سودانية، انطلقت في <b style="color:var(--brand)">سبتمبر 2019</b> عبر حالة الواتساب، بهدف نقل أخبار السودان ومشاركة المعلومات والخدمات التي تهم المواطن السوداني.</p>
+    <!-- ==================== كرت أسعار العملات في السوق الموازي ==================== -->
+    <section id="ratesSection" class="bg-white rounded-[24px] p-4 shadow-sm border border-purple-100">
       
-      <p>على مدار رحلتها، توسعت زاجل لتشمل الأخبار، والاقتصاد، وأسعار الصرف، والتحديثات المصرفية، وخدمات السفر والجامعات، ومشاركة المعلومات التي تساعد الناس على الوصول إلى ما يحتاجونه بسهولة.</p>
+      <!-- رأس الكرت -->
+      <div class="flex items-center justify-between pb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-arrow-trend-up text-zajilPink text-base"></i>
+          <h2 class="text-[17px] font-bold text-[#2D062B]">أسعار العملات في السوق الموازي</h2>
+        </div>
 
-      <div style="background:var(--bg);border-right:3px solid var(--brand);padding:10px 14px;border-radius:8px">
-        «نؤمن في زاجل بأن المعلومة حق، وأن رسالتنا تقوم على خدمة المتابعين، ونقل الأخبار والمعلومات، ومتابعة المستجدات التي تمس حياتهم اليومية، بعيداً عن الأجندات والمصالح الخفية.»
+        <div class="flex items-center gap-2">
+          <button onclick="refreshRatesEffect()" class="w-8 h-8 rounded-full bg-[#F6F1F9] text-[#4A1246] flex items-center justify-center hover:bg-purple-100 active:rotate-180 transition duration-300" title="تحديث">
+            <i class="fa-solid fa-arrows-rotate text-sm"></i>
+          </button>
+          <div class="text-left leading-tight">
+            <span class="block text-[10px] text-gray-400">آخر تحديث:</span>
+            <span id="lastUpdateLabel" class="block text-[10px] font-semibold text-[#4A1246]">الأربعاء 14 أكتوبر 2026</span>
+          </div>
+        </div>
       </div>
 
-      <p>بدأت رحلتنا من حالة واتساب، واستمرت بفضل ثقة المتابعين، واليوم نواصل العمل عبر منصاتنا المختلفة، حاملين الرسالة ذاتها: <b>المعلومة الأقرب إليك، والخدمة التي تحتاجها.</b></p>
+      <!-- ترويسة الجدول -->
+      <div class="grid grid-cols-12 bg-[#F6F1F9] rounded-xl py-2 px-3 text-[11px] font-semibold text-[#5A425E] mb-1">
+        <div class="col-span-5 text-right">العملة</div>
+        <div class="col-span-3 text-center">سعر الشراء</div>
+        <div class="col-span-2 text-center">سعر البيع</div>
+        <div class="col-span-2 text-left">التغير</div>
+      </div>
+
+      <!-- صفوف العملات -->
+      <div id="currenciesContainer" class="divide-y divide-purple-50">
+        <!-- يتعبأ بالجافاسكربت -->
+      </div>
+
+      <!-- زر عرض جميع العملات -->
+      <div class="mt-3 text-center">
+        <button id="toggleAllCurrenciesBtn" onclick="toggleAllCurrencies()" class="inline-flex items-center gap-2 bg-[#F5EFF8] hover:bg-[#EAE0F0] text-[#4A1246] text-xs font-bold px-5 py-2 rounded-full transition">
+          <i class="fa-solid fa-sliders text-zajilPink text-xs"></i>
+          <span id="toggleCurrenciesText">عرض جميع العملات (10)</span>
+          <i id="toggleCurrenciesIcon" class="fa-solid fa-chevron-left text-[10px]"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== كرت حاسبة العملات ==================== -->
+    <section id="calcSection" class="calc-gradient rounded-[24px] p-4 shadow-md text-white">
       
-      <p style="text-align:center;color:var(--text);font-weight:600">زاجل ليست مجرد منصة للنشر، بل رحلة بدأت بثقة الناس، وتستمر بهم ومن أجلهم.</p>
-    </div>
+      <!-- هيدر الحاسبة -->
+      <div class="flex items-center justify-between mb-3 relative z-10">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center text-pink-200">
+            <i class="fa-solid fa-calculator text-lg"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold leading-tight">حاسبة العملات</h3>
+            <p class="text-[11px] text-purple-200">حوّل بين العملات بسهولة</p>
+          </div>
+        </div>
+      </div>
 
-    <div class="panel">
-      <h4>تابعوا زاجل عبر منصاتنا الرسمية</h4>
-      <div class="social-links">
-        <a class="social-card" href="https://whatsapp.com/channel/0029Vax0vtQ2ZjCuuF4u0k0x" target="_blank" rel="noopener">
-          <i class="fa-brands fa-whatsapp c-wa"></i> قناة واتساب
-        </a>
-        <a class="social-card" href="https://t.me/zajil_post" target="_blank" rel="noopener">
-          <i class="fa-brands fa-telegram c-tg"></i> تلجرام زاجل
-        </a>
-        <a class="social-card" href="https://www.facebook.com/zajil.post" target="_blank" rel="noopener">
-          <i class="fa-brands fa-facebook c-fb"></i> فيسبوك زاجل
-        </a>
-        <a class="social-card" href="https://instagram.com/zajil.post" target="_blank" rel="noopener">
-          <i class="fa-brands fa-instagram c-ig"></i> إنستغرام (@zajil.post)
+      <!-- الصندوق الأبيض الداخلي للحاسبة -->
+      <div class="bg-white rounded-2xl p-3 text-[#2D062B] relative z-10 space-y-2.5 shadow-inner">
+        
+        <!-- الصف الأول: من عملة -->
+        <div class="grid grid-cols-12 gap-2 items-center">
+          <div class="col-span-5">
+            <input type="number" id="calcFromAmount" value="100" oninput="runCurrencyConverter()" class="w-full bg-[#F6F2F9] border border-purple-200/70 rounded-xl px-3 py-2.5 text-left font-bold text-base text-[#2D062B] focus:outline-none focus:border-zajilPink tabular-nums" />
+          </div>
+          <div class="col-span-7">
+            <div class="relative flex items-center bg-[#F6F2F9] border border-purple-200/70 rounded-xl px-2.5 py-2">
+              <img id="fromFlagImg" src="https://flagcdn.com/w40/us.png" class="w-6 h-6 rounded-full object-cover ml-2 shrink-0 border border-gray-200" alt="flag">
+              <select id="calcFromSelect" onchange="runCurrencyConverter()" class="w-full bg-transparent text-xs font-bold text-[#2D062B] focus:outline-none appearance-none cursor-pointer pr-1">
+                <!-- يتعبأ بالجافاسكربت -->
+              </select>
+              <i class="fa-solid fa-chevron-down text-[10px] text-gray-400 pointer-events-none"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- زر التبديل الدائري في المنتصف ⇅ -->
+        <div class="relative flex items-center justify-center -my-3 z-20">
+          <button onclick="swapCalculatorCurrencies()" class="w-9 h-9 rounded-full bg-gradient-to-tr from-zajilPurple to-zajilPink text-white shadow-md flex items-center justify-center hover:scale-105 active:rotate-180 transition duration-200 border-2 border-white" title="تبديل العملات">
+            <i class="fa-solid fa-arrow-right-arrow-left rotate-90 text-xs"></i>
+          </button>
+        </div>
+
+        <!-- الصف الثاني: إلى عملة -->
+        <div class="grid grid-cols-12 gap-2 items-center">
+          <div class="col-span-5">
+            <input type="text" id="calcToAmount" readonly value="832,500" class="w-full bg-[#F6F2F9] border border-purple-200/70 rounded-xl px-3 py-2.5 text-left font-bold text-base text-zajilPink focus:outline-none tabular-nums" />
+          </div>
+          <div class="col-span-7">
+            <div class="relative flex items-center bg-[#F6F2F9] border border-purple-200/70 rounded-xl px-2.5 py-2">
+              <img id="toFlagImg" src="https://flagcdn.com/w40/sd.png" class="w-6 h-6 rounded-full object-cover ml-2 shrink-0 border border-gray-200" alt="flag">
+              <select id="calcToSelect" onchange="runCurrencyConverter()" class="w-full bg-transparent text-xs font-bold text-[#2D062B] focus:outline-none appearance-none cursor-pointer pr-1">
+                <!-- يتعبأ بالجافاسكربت -->
+              </select>
+              <i class="fa-solid fa-chevron-down text-[10px] text-gray-400 pointer-events-none"></i>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- زر احسب -->
+      <button onclick="runCurrencyConverter()" class="btn-calc w-full mt-3 py-2.5 rounded-xl font-bold text-sm text-white shadow-md hover:brightness-110 active:scale-[0.99] transition flex items-center justify-center gap-2 relative z-10">
+        <i class="fa-solid fa-calculator"></i>
+        <span>احسب</span>
+      </button>
+    </section>
+
+    <!-- ==================== قسم أبرز العناوين والأخبار ==================== -->
+    <section id="newsSection" class="bg-white rounded-[22px] overflow-hidden shadow-sm border border-purple-100">
+      <div class="headline-header px-4 py-2.5 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i class="fa-regular fa-newspaper text-sm"></i>
+          <h3 class="text-sm font-bold">أبرز العناوين والشروحات</h3>
+        </div>
+        <a href="https://aywa.sd/bban.php" target="_blank" class="text-[11px] bg-white/15 hover:bg-white/25 px-2.5 py-1 rounded-full font-semibold transition">
+          أداة فحص الـ BBAN ←
         </a>
       </div>
-    </div>
-  </div>
-</div>
 
-<!-- Login Modal -->
-<div id="loginModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
-  <div class="card sheet" style="max-width:360px">
-    <div class="sheet-head"><h3 id="loginTitle">دخول الإدارة</h3><button class="icon-btn" data-close="loginModal" aria-label="إغلاق"><i class="fa-solid fa-xmark"></i></button></div>
-    <input class="input" type="password" id="passInput" placeholder="كلمة المرور" autocomplete="current-password" style="text-align:center">
-    <p class="err hidden" id="loginErr">كلمة المرور غير صحيحة.</p>
-    <button class="btn btn-primary btn-block" id="loginBtn">دخول</button>
-  </div>
-</div>
-
-<!-- Dashboard Modal -->
-<div id="dashModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="dashTitle">
-  <div class="card sheet">
-    <div class="sheet-head"><h3 id="dashTitle">🕊️ لوحة الإدارة</h3><button class="icon-btn" data-close="dashModal" aria-label="إغلاق"><i class="fa-solid fa-xmark"></i></button></div>
-
-    <div class="panel">
-      <h4>تحديث الأسعار عبر الدولار</h4>
-      <p class="hint">أدخل سعر الدولار وسيُحسب باقي العملات تلقائيًا.</p>
-      <div class="grid-2">
-        <label class="field">دولار شراء<input class="input" type="number" id="usdBuyIn" inputmode="decimal"></label>
-        <label class="field">دولار بيع<input class="input" type="number" id="usdSellIn" inputmode="decimal"></label>
+      <!-- شريط العناوين السريع -->
+      <div class="p-3 bg-[#FAF7FC] border-b border-purple-50 flex items-center justify-between text-xs text-[#3D0B3A] font-medium">
+        <div class="flex items-center gap-2 truncate">
+          <span class="w-2 h-2 rounded-full bg-zajilPink shrink-0"></span>
+          <span class="truncate">ارتفاع أسعار الذهب في السودان</span>
+          <span class="text-zajilPink font-bold">•</span>
+          <span class="truncate">استقرار تطبيقات بنكك وأوكاش وفوري</span>
+        </div>
+        <i class="fa-solid fa-chevron-left text-[10px] text-gray-400 mr-2"></i>
       </div>
-      <button class="btn btn-primary btn-block" id="saveRatesBtn"><i class="fa-solid fa-arrows-rotate"></i> تحديث كل العملات</button>
-    </div>
 
-    <div class="panel">
-      <h4>نشر مقال أو شرح</h4>
-      <label class="field">العنوان<input class="input" id="postTitle" placeholder="مثال: تنبيه أمني لمستخدمي بنكك"></label>
-      <div class="grid-2">
-        <label class="field">التصنيف
-          <select class="input" id="postTag"><option>توعية مصرفية</option><option>شروحات وتطبيقات</option><option>أخبار عاجلة</option></select>
-        </label>
-        <label class="field">رابط صورة (اختياري)<input class="input" type="url" id="postImage" placeholder="https://" dir="ltr"></label>
+      <!-- قائمة المقالات والشروحات المضافة -->
+      <div id="articlesContainer" class="divide-y divide-purple-50 p-3 space-y-2.5">
+        <!-- يتعبأ بالجافاسكربت -->
       </div>
-      <label class="field">النص<textarea class="input" id="postContent" rows="4" placeholder="اكتب التفاصيل هنا"></textarea></label>
-      <button class="btn btn-primary btn-block" id="publishBtn"><i class="fa-solid fa-cloud-arrow-up"></i> نشر</button>
+    </section>
+
+    <!-- ==================== الأزرار الثلاثة السفلية (حول زاجل، القنوات، الحقوق) ==================== -->
+    <div class="grid grid-cols-3 gap-2.5 pt-1">
+      <button onclick="openModal('aboutModal')" class="bg-white hover:bg-purple-50 border border-purple-100 rounded-2xl py-3 px-2 shadow-sm flex items-center justify-center gap-2 transition">
+        <div class="w-7 h-7 rounded-full bg-[#3D0B3A] text-white flex items-center justify-center text-xs shrink-0">
+          <i class="fa-solid fa-info"></i>
+        </div>
+        <span class="text-xs font-bold text-[#2D062B]">حول زاجل</span>
+      </button>
+
+      <button onclick="openModal('channelsModal')" class="bg-white hover:bg-purple-50 border border-purple-100 rounded-2xl py-3 px-2 shadow-sm flex items-center justify-center gap-2 transition">
+        <div class="w-7 h-7 rounded-full bg-[#3D0B3A] text-white flex items-center justify-center text-xs shrink-0">
+          <i class="fa-solid fa-paper-plane"></i>
+        </div>
+        <span class="text-xs font-bold text-[#2D062B]">القنوات</span>
+      </button>
+
+      <button onclick="openModal('rightsModal')" class="bg-white hover:bg-purple-50 border border-purple-100 rounded-2xl py-3 px-2 shadow-sm flex items-center justify-center gap-2 transition">
+        <div class="w-7 h-7 rounded-full bg-[#3D0B3A] text-white flex items-center justify-center text-xs shrink-0">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <span class="text-xs font-bold text-[#2D062B]">الحقوق</span>
+      </button>
     </div>
 
-    <div class="panel">
-      <h4>المقالات المنشورة</h4>
-      <div class="mini-list" id="adminArticles"></div>
+  </main>
+
+  <!-- ==================== شريط التنقل السفلي الثابت ==================== -->
+  <nav class="fixed bottom-0 inset-x-0 z-40 bg-[#250423] text-white border-t border-purple-900/40 shadow-2xl">
+    <div class="max-w-md mx-auto grid grid-cols-5 h-16">
+      
+      <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="flex flex-col items-center justify-center gap-1 text-zajilPinkLight relative">
+        <i class="fa-solid fa-house text-base"></i>
+        <span class="text-[11px] font-bold">الرئيسية</span>
+        <span class="absolute bottom-0 w-10 h-1 bg-zajilPinkLight rounded-t-full"></span>
+      </button>
+
+      <button onclick="scrollToSection('ratesSection')" class="flex flex-col items-center justify-center gap-1 text-gray-300 hover:text-white transition">
+        <i class="fa-solid fa-chart-line text-base"></i>
+        <span class="text-[11px]">الأسعار</span>
+      </button>
+
+      <button onclick="scrollToSection('calcSection')" class="flex flex-col items-center justify-center gap-1 text-gray-300 hover:text-white transition">
+        <i class="fa-solid fa-calculator text-base"></i>
+        <span class="text-[11px]">حاسبة العملات</span>
+      </button>
+
+      <button onclick="scrollToSection('newsSection')" class="flex flex-col items-center justify-center gap-1 text-gray-300 hover:text-white transition">
+        <i class="fa-regular fa-newspaper text-base"></i>
+        <span class="text-[11px]">الأخبار</span>
+      </button>
+
+      <button onclick="openModal('aboutModal')" class="flex flex-col items-center justify-center gap-1 text-gray-300 hover:text-white transition">
+        <i class="fa-solid fa-ellipsis text-base"></i>
+        <span class="text-[11px]">المزيد</span>
+      </button>
+
     </div>
-  </div>
-</div>
+  </nav>
 
-<script>
-(() => {
-  'use strict';
-
-  /* ===== الإعدادات ===== */
-  const CONFIG = {
-    whatsappUrl: 'https://whatsapp.com/channel/0029Vax0vtQ2ZjCuuF4u0k0x',
-    // SHA-256 لكلمة المرور ZAJIL@201919
-    adminHash: '926dcfabd62bfab6ec5872c8bdd4f1ad32204dd78f62f2c3f7f98f9c65aee6aa',
-    secretTaps: 5,
-    defaultUsd: { buy: 8325, sell: 8950 }
-  };
-
-  const CURRENCIES = [
-    { name: 'الدولار الأمريكي', flag: '🇺🇸', ratio: 1 },
-    { name: 'اليورو', flag: '🇪🇺', ratio: 1.0905 },
-    { name: 'الريال السعودي', flag: '🇸🇦', ratio: 0.2667 },
-    { name: 'الدرهم الإماراتي', flag: '🇦🇪', ratio: 0.2723 },
-    { name: 'الجنيه المصري', flag: '🇪🇬', ratio: 0.01913 },
-    { name: 'الريال القطري', flag: '🇶🇦', ratio: 0.2747 },
-    { name: 'الدينار الكويتي', flag: '🇰🇼', ratio: 3.278 },
-    { name: 'الريال العُماني', flag: '🇴🇲', ratio: 2.597 },
-    { name: 'الدينار البحريني', flag: '🇧🇭', ratio: 2.652 },
-    { name: 'البير الإثيوبي', flag: '🇪🇹', ratio: 0.00616 }
-  ];
-
-  const DEFAULT_ARTICLES = [{
-    id: 1, tag: 'توعية مصرفية', image: '', date: Date.now(),
-    title: 'كيف تحمي حسابك البنكي وتتأكد من صحة التحويلات؟',
-    content: 'إرشادات للتحقق من الإشعارات المزيفة وطرق التأكد من وصول الأموال عبر التطبيقات البنكية (بنكك، فوري، أوكاش).'
-  }];
-
-  /* ===== أدوات مساعدة ===== */
-  const $ = id => document.getElementById(id);
-  const store = {
-    get(k, fb) { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? fb; } catch { return fb; } },
-    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } c
+  <!-- ==================== 1. نافذة حول منصة زاجل ==================== -->
+  <div id="aboutModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white w-full max-w-md rounded-3xl p-6 text-[#2D062B] shadow-2xl space-y-4 max-h-[88vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-purple-100 pb-3">
+        <h3 class="text-base font-bold flex items-center gap-2">
+          <span class="text-xl">🕊️</span> حول منصة زاجل للنشر | Zajil
+        </h3>
+        <button onclick="closeModal('aboutModal')" class="text-gray-400 hover:text-zajilP
