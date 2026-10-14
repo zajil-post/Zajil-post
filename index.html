@@ -1,25 +1,394 @@
-  $('calcToggle').addEventListener('click', () => {
-    const box = $('calcBox'), shown = box.classList.toggle('hidden') === false;
-    $('calcToggle').setAttribute('aria-expanded', shown);
-  });
-  $('calcAmount').addEventListener('input', calculate);
-  $('calcCurrency').addEventListener('change', calculate);
-  $('loginBtn').addEventListener('click', login);
-  $('passInput').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
-  $('saveRatesBtn').addEventListener('click', saveRates);
-  $('publishBtn').addEventListener('click', publish);
-  $('adminArticles').addEventListener('click', e => {
-    const b = e.target.closest('[data-del]'); if (!b) return;
-    articles = articles.filter(a => String(a.id) !== b.dataset.del);
-    store.set('zajil_articles', articles); renderArticles();
-  });
-  document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => close(b.dataset.close)));
-  document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.add('hidden'); }));
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal').forEach(m => m.classList.add('hidden')); });
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#120216">
+<meta name="description" content="أسعار الصرف في السوق الموازي بالسودان، وشروحات مصرفية وأخبار التطبيقات البنكية.">
+<title>زاجل | أسعار الصرف والخدمات المصرفية في السودان</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+:root{
+  --bg:#120216; --surface:#1d0626; --surface-2:#260a31; --line:rgba(255,255,255,.09);
+  --text:#f4eef6; --muted:#a999b0; --brand:#e02480; --brand-2:#6b0f5b; --ok:#34d399; --warn:#fbbf24; --danger:#fb7185;
+  --r:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh;
+  background-image:radial-gradient(60% 40% at 100% 0,rgba(224,36,128,.14),transparent),radial-gradient(60% 40% at 0 0,rgba(107,15,91,.35),transparent);background-attachment:fixed}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px}
+.hidden{display:none!important}
 
-  renderRates();
-  renderArticles();
-})();
-</script>
-</body>
-</html>
+/* Header */
+.header{position:sticky;top:0;z-index:30;background:rgba(18,2,22,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.header .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--brand-2),var(--brand));border:0;font-size:22px;cursor:pointer;display:grid;place-items:center;transition:transform .15s}
+.logo:active{transform:scale(.94)}
+.brand h1{font-size:18px;font-weight:700;line-height:1.2}
+.brand p{font-size:12px;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;border-radius:12px;font-weight:600;font-size:13px;padding:10px 16px;transition:filter .15s,background .15s}
+.btn-primary{background:linear-gradient(135deg,var(--brand-2),var(--brand));color:#fff}
+.btn-primary:hover{filter:brightness(1.12)}
+.btn-ghost{background:rgba(255,255,255,.06);border:1px solid var(--line)}
+.btn-ghost:hover{background:rgba(255,255,255,.1)}
+.btn-block{width:100%}
+
+/* Layout */
+main{padding:20px 0 8px;display:grid;gap:20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.status{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;font-size:14px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--ok);display:inline-block;margin-inline-end:8px;box-shadow:0 0 0 4px rgba(52,211,153,.18)}
+.status b{color:var(--ok);font-weight:600;font-size:13px}
+
+/* Hero rate */
+.hero{padding:24px 20px 8px}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.hero small{color:var(--muted);font-size:13px}
+.hero h2{font-size:20px;font-weight:700;margin-top:2px}
+.hero-rates{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}
+.rate-box{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:16px}
+.rate-box span{font-size:13px;color:var(--muted)}
+.rate-box strong{display:block;font-size:30px;font-weight:700;line-height:1.2;margin-top:2px;font-variant-numeric:tabular-nums}
+.rate-box em{font-style:normal;font-size:12px;color:var(--muted)}
+.rate-box.sell strong{color:var(--brand)}
+
+/* Table */
+.table{width:100%;border-collapse:collapse;font-size:14px}
+.table th{font-weight:500;font-size:12px;color:var(--muted);text-align:start;padding:10px 20px;border-top:1px solid var(--line)}
+.table td{padding:13px 20px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.table th:not(:first-child),.table td:not(:first-child){text-align:end}
+.table td:first-child{display:flex;align-items:center;gap:10px;font-weight:500}
+.table .flag{font-size:20px}
+.table tbody tr:hover{background:rgba(255,255,255,.03)}
+.note{padding:14px 20px 18px;font-size:12px;color:var(--muted);border-top:1px solid var(--line);display:grid;gap:4px}
+.note b{color:var(--warn);font-weight:600}
+
+/* Calculator */
+.calc{padding:20px;display:grid;gap:14px}
+.calc h3,.section-title{font-size:16px;font-weight:700}
+.field{display:grid;gap:6px;font-size:12px;color:var(--muted)}
+.input{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:15px;color:var(--text)}
+.input:focus{border-color:var(--brand);outline:none}
+select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%23a999b0' stroke-width='2'%3E%3Cpath d='m1 1 5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 14px center;padding-left:36px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.result{background:var(--surface-2);border-radius:14px;padding:14px;text-align:center}
+.result span{font-size:12px;color:var(--muted)}
+.result div{font-size:24px;font-weight:700;color:var(--brand);font-variant-numeric:tabular-nums}
+
+/* Tool */
+.tool{padding:20px;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.tool .txt{flex:1 1 320px}
+.tool h3{font-size:16px;font-weight:700}
+.tool p{font-size:13px;color:var(--muted);margin-top:4px}
+.badge{display:inline-block;font-size:11px;font-weight:600;background:rgba(224,36,128,.16);color:#ff6fb1;border-radius:999px;padding:2px 10px;margin-bottom:6px}
+
+/* Articles */
+.articles{display:grid;gap:12px;margin-top:12px}
+.article{display:grid;grid-template-columns:1fr;overflow:hidden}
+.article img{width:100%;max-height:220px;object-fit:cover;display:block}
+.article .body{padding:16px 18px}
+.article .tag{font-size:12px;color:#ff6fb1;font-weight:600}
+.article h4{font-size:16px;font-weight:700;margin:4px 0 6px;line-height:1.5}
+.article p{font-size:14px;color:#cfc3d4;white-space:pre-line}
+.article time{display:block;font-size:12px;color:var(--muted);margin-top:10px}
+
+/* Modal */
+.modal{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
+.sheet{width:100%;max-width:440px;max-height:92vh;overflow-y:auto;padding:22px;display:grid;gap:16px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.sheet-head{display:flex;justify-content:space-between;align-items:center}
+.sheet-head h3{font-size:17px;font-weight:700}
+.icon-btn{background:none;border:0;color:var(--muted);cursor:pointer;font-size:18px;padding:4px 8px}
+.icon-btn:hover{color:var(--text)}
+.panel{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:12px}
+.panel h4{font-size:14px;font-weight:600}
+.hint{font-size:12px;color:var(--muted)}
+.err{color:var(--danger);font-size:12px;text-align:center}
+.mini-list{display:grid;gap:6px}
+.mini-item{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;background:var(--surface);border-radius:10px;padding:8px 12px}
+.mini-item button{background:none;border:0;color:var(--danger);cursor:pointer}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--surface-2);border:1px solid var(--line);padding:10px 18px;border-radius:12px;font-size:13px;z-index:60;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+
+footer{margin-top:28px;border-top:1px solid var(--line);padding:20px 0 32px;text-align:center;font-size:12px;color:var(--muted)}
+
+@media (max-width:480px){
+  .rate-box strong{font-size:24px}
+  .table th,.table td{padding-inline:14px}
+  .hide-sm{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="wrap">
+    <div class="brand">
+      <button class="logo" id="logoBtn" aria-label="زاجل" title="زاجل">🕊️</button>
+      <div>
+        <h1>زاجل</h1>
+        <p>البنوك وأسعار الصرف في السودان</p>
+      </div>
+    </div>
+    <a id="waLink" class="btn btn-primary" href="#" target="_blank" rel="noopener">
+      <i class="fa-brands fa-whatsapp"></i><span class="hide-sm">قناة زاجل</span>
+    </a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="card status">
+    <div><span class="dot"></span>حالة التطبيقات المصرفية الآن</div>
+    <b><i class="fa-solid fa-circle-check"></i> مستقرة وتعمل</b>
+  </div>
+
+  <section class="card" aria-labelledby="ratesTitle">
+    <div class="hero">
+      <div class="hero-top">
+        <div>
+          <small id="dateLabel"></small>
+          <h2 id="ratesTitle">أسعار الصرف اليوم · السوق الموازي</h2>
+        </div>
+        <button class="btn btn-ghost" id="calcToggle" aria-expanded="false"><i class="fa-solid fa-calculator"></i> حاسبة العملات</button>
+      </div>
+      <div class="hero-rates">
+        <div class="rate-box"><span>الدولار · شراء</span><strong id="heroBuy">—</strong><em>جنيه سوداني</em></div>
+        <div class="rate-box sell"><span>الدولار · بيع</span><strong id="heroSell">—</strong><em>جنيه سوداني</em></div>
+      </div>
+    </div>
+
+    <div id="calcBox" class="calc hidden" style="border-top:1px solid var(--line)">
+      <h3>حاسبة التحويل إلى الجنيه السوداني</h3>
+      <div class="grid-2">
+        <label class="field">المبلغ
+          <input class="input" type="number" id="calcAmount" value="100" min="0" inputmode="decimal">
+        </label>
+        <label class="field">العملة
+          <select class="input" id="calcCurrency"></select>
+        </label>
+      </div>
+      <div class="result"><span>القيمة التقديرية بسعر الشراء</span><div id="calcResult">0 ج.س</div></div>
+    </div>
+
+    <div style="overflow-x:auto">
+      <table class="table">
+        <thead><tr><th>العملة</th><th>شراء</th><th>بيع</th></tr></thead>
+        <tbody id="rateRows"></tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      <b><i class="fa-solid fa-triangle-exclamation"></i> تنويه</b>
+      <span>الأسعار استرشادية لحركة السوق الموازي وقد تختلف من تاجر لآخر ومع حجم التعامل.</span>
+      <span>قارن بين أكثر من مصدر قبل إتمام أي تحويل أو شراء.</span>
+    </div>
+  </section>
+
+  <section class="card tool">
+    <div class="txt">
+      <span class="badge">أداة تفاعلية</span>
+      <h3>استخراج وفحص الـ BBAN</h3>
+      <p>حوّل رقم الـ IBAN إلى BBAN وتعرّف على رمز البنك للتحويل بين بنكك وأوكاش وفوري.</p>
+    </div>
+    <a class="btn btn-primary" href="https://aywa.sd/bban.php" target="_blank" rel="noopener">فتح الأداة <i class="fa-solid fa-arrow-left"></i></a>
+  </section>
+
+  <section aria-labelledby="artTitle">
+    <h3 class="section-title" id="artTitle">الشروحات والأخبار</h3>
+    <div class="articles" id="articlesList"></div>
+  </section>
+</main>
+
+<footer><div class="wrap">© <span id="year"></span> زاجل · جميع الحقوق محفوظة</div></footer>
+
+<!-- Login -->
+<div id="loginModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+  <div class="card sheet" style="max-width:360px">
+    <div class="sheet-head"><h3 id="loginTitle">دخول الإدارة</h3><button class="icon-btn" data-close="loginModal" aria-label="إغلاق"><i class="fa-solid fa-xmark"></i></button></div>
+    <input class="input" type="password" id="passInput" placeholder="كلمة المرور" autocomplete="current-password" style="text-align:center">
+    <p class="err hidden" id="loginErr">كلمة المرور غير صحيحة.</p>
+    <button class="btn btn-primary btn-block" id="loginBtn">دخول</button>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="dashTitle">
+  <div class="card sheet">
+    <div class="sheet-head"><h3 id="dashTitle">🕊️ لوحة الإدارة</h3><button class="icon-btn" data-close="dashModal" aria-label="إغلاق"><i class="fa-solid fa-xmark"></i></button></div>
+
+    <div class="panel">
+      <h4>تحديث الأسعار عبر الدولار</h4>
+      <p class="hint">أدخل سعر الدولار وسيُحسب باقي العملات تلقائيًا.</p>
+      <div class="grid-2">
+        <label class="field">دولار شراء<input class="input" type="number" id="usdBuyIn" inputmode="decimal"></label>
+        <label class="field">دولار بيع<input class="input" type="number" id="usdSellIn" inputmode="decimal"></label>
+      </div>
+      <button class="btn btn-primary btn-block" id="saveRatesBtn"><i class="fa-solid fa-arrows-rotate"></i> تحديث كل العملات</button>
+    </div>
+
+    <div class="panel">
+      <h4>نشر مقال أو شرح</h4>
+      <label class="field">العنوان<input class="input" id="postTitle" placeholder="مثال: تنبيه أمني لمستخدمي بنكك"></label>
+      <div class="grid-2">
+        <label class="field">التصنيف
+          <select class="input" id="postTag"><option>توعية مصرفية</option><option>شروحات وتطبيقات</option><option>أخبار عاجلة</option></select>
+        </label>
+        <label class="field">رابط صورة (اختياري)<input class="input" type="url" id="postImage" placeholder="https://" dir="ltr"></label>
+      </div>
+      <label class="field">النص<textarea class="input" id="postContent" rows="4" placeholder="اكتب التفاصيل هنا"></textarea></label>
+      <button class="btn btn-primary btn-block" id="publishBtn"><i class="fa-solid fa-cloud-arrow-up"></i> نشر</button>
+    </div>
+
+    <div class="panel">
+      <h4>المقالات المنشورة</h4>
+      <div class="mini-list" id="adminArticles"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ===== الإعدادات ===== */
+  const CONFIG = {
+    whatsappUrl: 'https://whatsapp.com',                 // ضع رابط قناة الواتساب هنا
+    // SHA-256 لكلمة المرور (بدل تخزينها نصًا). لتغييرها: احسب SHA-256 لكلمة جديدة وضعها هنا.
+    adminHash: '926dcfabd62bfab6ec5872c8bdd4f1ad32204dd78f62f2c3f7f98f9c65aee6aa',
+    secretTaps: 5,
+    defaultUsd: { buy: 8325, sell: 8950 }
+  };
+
+  // نسبة كل عملة إلى الدولار
+  const CURRENCIES = [
+    { name: 'الدولار الأمريكي', flag: '🇺🇸', ratio: 1 },
+    { name: 'اليورو', flag: '🇪🇺', ratio: 1.0905 },
+    { name: 'الريال السعودي', flag: '🇸🇦', ratio: 0.2667 },
+    { name: 'الدرهم الإماراتي', flag: '🇦🇪', ratio: 0.2723 },
+    { name: 'الجنيه المصري', flag: '🇪🇬', ratio: 0.01913 },
+    { name: 'الريال القطري', flag: '🇶🇦', ratio: 0.2747 },
+    { name: 'الدينار الكويتي', flag: '🇰🇼', ratio: 3.278 },
+    { name: 'الريال العُماني', flag: '🇴🇲', ratio: 2.597 },
+    { name: 'الدينار البحريني', flag: '🇧🇭', ratio: 2.652 },
+    { name: 'البير الإثيوبي', flag: '🇪🇹', ratio: 0.00616 }
+  ];
+
+  const DEFAULT_ARTICLES = [{
+    id: 1, tag: 'توعية مصرفية', image: '', date: Date.now(),
+    title: 'كيف تحمي حسابك البنكي وتتأكد من صحة التحويلات؟',
+    content: 'إرشادات للتحقق من الإشعارات المزيفة وطرق التأكد من وصول الأموال عبر التطبيقات البنكية (بنكك، فوري، أوكاش).'
+  }];
+
+  /* ===== أدوات مساعدة ===== */
+  const $ = id => document.getElementById(id);
+  const store = {
+    get(k, fb) { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? fb; } catch { return fb; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+  };
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const safeUrl = u => /^https?:\/\//i.test(u) ? u : '';
+  const fmt = n => n >= 100 ? Math.round(n).toLocaleString('en-US') : n.toLocaleString('en-US', { maximumFractionDigits: 2 });
+  const dateAr = ts => new Date(ts).toLocaleDateString('ar-u-nu-latn', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+  function toast(msg) {
+    const t = document.createElement('div');
+    t.className = 'toast'; t.textContent = msg; t.setAttribute('role', 'status');
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2200);
+  }
+  const open = id => $(id).classList.remove('hidden');
+  const close = id => $(id).classList.add('hidden');
+
+  /* ===== الحالة ===== */
+  let rates = store.get('zajil_rates', null) || { usdBuy: CONFIG.defaultUsd.buy, usdSell: CONFIG.defaultUsd.sell, updated: Date.now() };
+  let articles = store.get('zajil_articles', DEFAULT_ARTICLES);
+
+  /* ===== عرض الأسعار ===== */
+  function renderRates() {
+    $('dateLabel').textContent = 'آخر تحديث: ' + dateAr(rates.updated);
+    $('heroBuy').textContent = fmt(rates.usdBuy);
+    $('heroSell').textContent = fmt(rates.usdSell);
+
+    $('rateRows').innerHTML = CURRENCIES.map(c =>
+      `<tr><td><span class="flag">${c.flag}</span>${c.name}</td>
+       <td>${fmt(rates.usdBuy * c.ratio)}</td><td>${fmt(rates.usdSell * c.ratio)}</td></tr>`).join('');
+
+    const sel = $('calcCurrency'), keep = sel.value || '0';
+    sel.innerHTML = CURRENCIES.map((c, i) => `<option value="${i}">${c.flag} ${c.name}</option>`).join('');
+    sel.value = keep;
+    calculate();
+  }
+
+  function calculate() {
+    const c = CURRENCIES[+$('calcCurrency').value] || CURRENCIES[0];
+    const amount = parseFloat($('calcAmount').value) || 0;
+    $('calcResult').textContent = fmt(amount * rates.usdBuy * c.ratio) + ' ج.س';
+  }
+
+  /* ===== عرض المقالات ===== */
+  function renderArticles() {
+    const list = $('articlesList');
+    if (!articles.length) { list.innerHTML = '<p class="hint">لا توجد مقالات منشورة بعد.</p>'; }
+    else list.innerHTML = articles.map(a => {
+      const img = safeUrl(a.image);
+      return `<article class="card article">
+        ${img ? `<img src="${esc(img)}" alt="" loading="lazy">` : ''}
+        <div class="body"><span class="tag">${esc(a.tag)}</span><h4>${esc(a.title)}</h4><p>${esc(a.content)}</p>
+        <time>${dateAr(a.date || Date.now())}</time></div></article>`;
+    }).join('');
+
+    $('adminArticles').innerHTML = articles.length ? articles.map(a =>
+      `<div class="mini-item"><span>${esc(a.title)}</span><button data-del="${a.id}" aria-label="حذف"><i class="fa-solid fa-trash"></i></button></div>`).join('')
+      : '<p class="hint">لا توجد مقالات.</p>';
+  }
+
+  /* ===== الدخول السري ===== */
+  let taps = 0, tapTimer;
+  $('logoBtn').addEventListener('click', () => {
+    taps++; clearTimeout(tapTimer);
+    tapTimer = setTimeout(() => taps = 0, 2000);
+    if (taps >= CONFIG.secretTaps) { taps = 0; open('loginModal'); $('passInput').focus(); }
+  });
+
+  async function sha256(text) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  async function login() {
+    const err = $('loginErr');
+    let ok = false;
+    try { ok = (await sha256($('passInput').value.trim())) === CONFIG.adminHash; } catch {}
+    if (!ok) { err.classList.remove('hidden'); return; }
+    err.classList.add('hidden');
+    $('passInput').value = '';
+    close('loginModal');
+    $('usdBuyIn').value = rates.usdBuy;
+    $('usdSellIn').value = rates.usdSell;
+    open('dashModal');
+  }
+
+  /* ===== إجراءات الإدارة ===== */
+  function saveRates() {
+    const buy = parseFloat($('usdBuyIn').value), sell = parseFloat($('usdSellIn').value);
+    if (!(buy > 0) || !(sell > 0)) return toast('أدخل سعرًا صحيحًا للشراء والبيع');
+    if (sell < buy) return toast('سعر البيع يجب ألا يقل عن سعر الشراء');
+    rates = { usdBuy: buy, usdSell: sell, updated: Date.now() };
+    store.set('zajil_rates', rates);
+    renderRates();
+    toast('تم تحديث الأسعار');
+  }
+
+  function publish() {
+    const title = $('postTitle').value.trim(), content = $('postContent').value.trim();
+    if (!title || !content) return toast('العنوان والنص مطلوبان');
+    articles.unshift({ id: Date.now(), title, content, tag: $('postTag').value, image: $('postImage').value.trim(), date: Date.now() });
+    store.set(
