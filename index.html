@@ -1,400 +1,257 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="theme-color" content="#3B0736" />
-  <title>منصة زاجل للنشر | دائماً معكم .. بكل جديد</title>
-
-  <!-- خط IBM Plex Sans Arabic -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- FontAwesome للأيقونات -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['"IBM Plex Sans Arabic"', 'sans-serif'],
-          },
-          colors: {
-            zajilBg: '#F7F3FA',
-            zajilDark: '#2A0529',
-            zajilPlum: '#420A3D',
-            zajilPurple: '#6B0F5B',
-            zajilPink: '#D81B7A',
-            zajilPinkLight: '#F42C90',
-            zajilSoft: '#EFE8F4',
-          }
-        }
-      }
-    }
-  </script>
-
-  <style>
-    body {
-      background-color: #F6F2F9;
-      font-family: 'IBM Plex Sans Arabic', sans-serif;
-      color: #2A0529;
-      -webkit-tap-highlight-color: transparent;
-      padding-bottom: 84px;
-    }
-
-    /* خلفية الهيدر مع الموجات العلوية */
-    .header-wave {
-      background: radial-gradient(circle at 95% 10%, rgba(216, 27, 122, 0.14) 0%, transparent 45%),
-                  radial-gradient(circle at 10% 0%, rgba(107, 15, 91, 0.12) 0%, transparent 50%),
-                  linear-gradient(180deg, #FFFFFF 0%, #F7F3FA 100%);
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* كرت الحاسبة البنفسجي المتدرج */
-    .calc-gradient {
-      background: linear-gradient(135deg, #380734 0%, #640F55 50%, #2B0528 100%);
-      position: relative;
-      overflow: hidden;
-    }
-    .calc-gradient::before {
-      content: '';
-      position: absolute;
-      top: -40%;
-      left: -20%;
-      width: 240px;
-      height: 240px;
-      background: radial-gradient(circle, rgba(232, 34, 130, 0.32) 0%, transparent 70%);
-      border-radius: 50%;
-      pointer-events: none;
-    }
-
-    /* زر احسب المتدرج */
-    .btn-calc {
-      background: linear-gradient(90deg, #5E1151 0%, #D81B7A 60%, #E82A8A 100%);
-    }
-
-    /* شريط أبرز العناوين */
-    .headline-header {
-      background: linear-gradient(90deg, #380734 0%, #6E115B 60%, #430A3E 100%);
-    }
-
-    /* تنسيق الأرقام */
-    .tabular-nums {
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* إخفاء السكرول بار */
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#3B0736">
+<title>منصة زاجل للنشر | دائماً معكم .. بكل جديد</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body{background:#F6F2F9;font-family:'IBM Plex Sans Arabic',sans-serif;color:#2A0529;padding-bottom:84px;-webkit-tap-highlight-color:transparent}
+.h-wave{background:radial-gradient(circle at 95% 10%,rgba(216,27,122,.14),transparent 45%),linear-gradient(180deg,#FFF,#F7F3FA)}
+.c-grad{background:linear-gradient(135deg,#380734,#640F55 50%,#2B0528)}
+.b-calc{background:linear-gradient(90deg,#5E1151,#D81B7A 60%,#E82A8A)}
+.h-bar{background:linear-gradient(90deg,#380734,#6E115B 60%,#430A3E)}
+.t-num{font-variant-numeric:tabular-nums}
+</style>
 </head>
-<body class="min-h-screen select-none">
+<body class="select-none">
+<div class="h-2 w-full bg-gradient-to-l from-[#D81B7A] via-[#6B0F5B] to-[#2A0529]"></div>
 
-  <!-- الشريط الزخرفي العلوي -->
-  <div class="h-2 w-full bg-gradient-to-l from-zajilPink via-zajilPurple to-zajilDark"></div>
-
-  <!-- ==================== الهيدر العلوي ==================== -->
-  <header class="header-wave pt-4 pb-3 px-4">
-    <!-- حمام زاجل مائي في الخلفية -->
-    <svg class="w-16 h-16 text-purple-900/[0.06] absolute left-16 top-3 pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M21.7 5.3c-.3-.2-.7-.1-.9.1l-4.2 4.2c-1.3-.9-2.9-1.4-4.6-1.4-2.8 0-5.3 1.4-6.8 3.5l-2.4-.8c-.4-.1-.8.1-.9.5-.1.4.1.8.5.9l2.8 1c-.1.5-.1 1-.1 1.6 0 4.1 3.4 7.5 7.5 7.5 2.5 0 4.8-1.2 6.2-3.2l2.6.9c.4.1.8-.1.9-.5.1-.4-.1-.8-.5-.9l-2.1-.7c.8-1.4 1.3-3 1.3-4.7 0-1.1-.2-2.1-.6-3.1l3.5-3.5c.3-.3.3-.8.1-1.1z"/>
-    </svg>
-
-    <div class="max-w-md mx-auto">
-      <div class="flex items-center justify-between">
-        
-        <!-- اللوجو واسم المنصة (الضغط 5 مرات يفتح الداشبورد) -->
-        <div class="flex items-center gap-3">
-          <button id="secretLogoBtn" onclick="handleSecretTap()" class="relative w-14 h-14 flex items-center justify-center active:scale-90 transition focus:outline-none" title="منصة زاجل">
-            <!-- شعار طائر زاجل المطابق للصورة -->
-            <svg class="w-13 h-13 drop-shadow-sm" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="zajilGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#D81B7A" />
-                  <stop offset="60%" stop-color="#6B0F5B" />
-                  <stop offset="100%" stop-color="#2D0429" />
-                </linearGradient>
-              </defs>
-              <!-- الجناح العلوي -->
-              <path d="M15 20 C25 45, 55 40, 65 62 C67 50, 52 28, 15 20 Z" fill="url(#zajilGrad)"/>
-              <!-- الجناح الأوسط -->
-              <path d="M22 44 C32 58, 52 52, 60 68 C55 62, 36 62, 22 44 Z" fill="url(#zajilGrad)"/>
-              <!-- الذيل السفلي -->
-              <path d="M32 88 C36 68, 52 62, 60 60 C58 72, 45 76, 32 88 Z" fill="url(#zajilGrad)"/>
-              <!-- الرأس والمنقار -->
-              <path d="M58 40 C64 30, 76 32, 80 37 C85 37, 90 39, 92 41 C86 41, 82 42, 78 46 C73 52, 71 62, 69 68 C69 56, 65 46, 58 40 Z" fill="url(#zajilGrad)"/>
-              <!-- فتحة العين -->
-              <path d="M68 38 C72 36, 76 37, 78 39 C74 39, 71 40, 68 38 Z" fill="#FFFFFF"/>
-            </svg>
-          </button>
-
-          <div>
-            <h1 class="text-[22px] font-bold text-[#2D062B] leading-tight tracking-tight">منصة زاجل للنشر</h1>
-            <p class="text-xs font-medium text-[#6E5673]">دائماً معكم .. بكل جديد</p>
-          </div>
-        </div>
-
-        <!-- أيقونات البحث والقائمة -->
-        <div class="flex items-center gap-3 text-[#380835]">
-          <button onclick="openModal('channelsModal')" class="w-9 h-9 rounded-full hover:bg-purple-100 flex items-center justify-center transition" aria-label="بحث">
-            <i class="fa-solid fa-magnifying-glass text-lg"></i>
-          </button>
-          <button onclick="openModal('aboutModal')" class="w-9 h-9 rounded-full hover:bg-purple-100 flex items-center justify-center transition" aria-label="القائمة">
-            <i class="fa-solid fa-bars text-xl"></i>
-          </button>
-        </div>
-      </div>
-
-      <!-- كبسولة التاريخ والوقت بتوقيت السودان -->
-      <div class="mt-3 bg-[#EFE9F4]/90 border border-purple-200/60 rounded-2xl py-2 px-4 flex items-center justify-between shadow-sm">
-        <div class="text-center flex-1">
-          <div id="currentDateText" class="text-[13px] font-bold text-[#3D0B3A]">الأربعاء 14 أكتوبر 2026</div>
-          <div class="text-[10px] text-[#7A627F] -mt-0.5">بتوقيت السودان</div>
-        </div>
-
-        <div class="flex items-center gap-3 px-2 text-[#4A1246]">
-          <i class="fa-regular fa-calendar-days text-base"></i>
-          <span class="h-5 w-[1px] bg-purple-300"></span>
-        </div>
-
-        <div class="flex items-center gap-1.5 pl-1 tabular-nums">
-          <span id="currentTimeText" class="text-sm font-bold text-[#3D0B3A]">12:43 م</span>
-          <i class="fa-regular fa-clock text-xs text-[#6E5673]"></i>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- ==================== المحتوى الرئيسي ==================== -->
-  <main class="max-w-md mx-auto px-3.5 space-y-3.5 mt-1">
-
-    <!-- شريط أحدث الأخبار -->
-    <div class="bg-gradient-to-l from-[#380734] via-[#480B43] to-[#2B0528] rounded-full p-1.5 flex items-center justify-between shadow-md">
-      <span class="bg-gradient-to-r from-[#C81971] to-[#E62988] text-white text-xs font-bold px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shrink-0 shadow-sm">
-        <i class="fa-solid fa-bullhorn text-[11px]"></i>
-        <span>أحدث الأخبار</span>
-      </span>
-
-      <div class="flex-1 px-3 overflow-hidden">
-        <p id="breakingNewsText" class="text-white text-xs font-medium truncate">
-          الذهب السوداني يتجاوز 2.2 مليار دولار حتى نهاية سبتمبر 2026
-        </p>
-      </div>
-
-      <button onclick="scrollToSection('newsSection')" class="text-pink-400 pl-2 hover:text-white transition">
-        <i class="fa-solid fa-chevron-left text-xs"></i>
-      </button>
-    </div>
-
-    <!-- ==================== كرت أسعار العملات في السوق الموازي ==================== -->
-    <section id="ratesSection" class="bg-white rounded-[24px] p-4 shadow-sm border border-purple-100">
-      
-      <!-- رأس الكرت -->
-      <div class="flex items-center justify-between pb-3">
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-arrow-trend-up text-zajilPink text-base"></i>
-          <h2 class="text-[17px] font-bold text-[#2D062B]">أسعار العملات في السوق الموازي</h2>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <button onclick="refreshRatesEffect()" class="w-8 h-8 rounded-full bg-[#F6F1F9] text-[#4A1246] flex items-center justify-center hover:bg-purple-100 active:rotate-180 transition duration-300" title="تحديث">
-            <i class="fa-solid fa-arrows-rotate text-sm"></i>
-          </button>
-          <div class="text-left leading-tight">
-            <span class="block text-[10px] text-gray-400">آخر تحديث:</span>
-            <span id="lastUpdateLabel" class="block text-[10px] font-semibold text-[#4A1246]">الأربعاء 14 أكتوبر 2026</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- ترويسة الجدول -->
-      <div class="grid grid-cols-12 bg-[#F6F1F9] rounded-xl py-2 px-3 text-[11px] font-semibold text-[#5A425E] mb-1">
-        <div class="col-span-5 text-right">العملة</div>
-        <div class="col-span-3 text-center">سعر الشراء</div>
-        <div class="col-span-2 text-center">سعر البيع</div>
-        <div class="col-span-2 text-left">التغير</div>
-      </div>
-
-      <!-- صفوف العملات -->
-      <div id="currenciesContainer" class="divide-y divide-purple-50">
-        <!-- يتعبأ بالجافاسكربت -->
-      </div>
-
-      <!-- زر عرض جميع العملات -->
-      <div class="mt-3 text-center">
-        <button id="toggleAllCurrenciesBtn" onclick="toggleAllCurrencies()" class="inline-flex items-center gap-2 bg-[#F5EFF8] hover:bg-[#EAE0F0] text-[#4A1246] text-xs font-bold px-5 py-2 rounded-full transition">
-          <i class="fa-solid fa-sliders text-zajilPink text-xs"></i>
-          <span id="toggleCurrenciesText">عرض جميع العملات (10)</span>
-          <i id="toggleCurrenciesIcon" class="fa-solid fa-chevron-left text-[10px]"></i>
+<header class="h-wave pt-4 pb-3 px-4">
+  <div class="max-w-md mx-auto">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button onclick="secretTap()" class="w-14 h-14 flex items-center justify-center active:scale-90 transition">
+          <svg class="w-12 h-12" viewBox="0 0 100 100" fill="none">
+            <defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#D81B7A"/><stop offset="60%" stop-color="#6B0F5B"/><stop offset="100%" stop-color="#2D0429"/></linearGradient></defs>
+            <path d="M15 20C25 45 55 40 65 62 67 50 52 28 15 20Z" fill="url(#g)"/>
+            <path d="M22 44C32 58 52 52 60 68 55 62 36 62 22 44Z" fill="url(#g)"/>
+            <path d="M32 88C36 68 52 62 60 60 58 72 45 76 32 88Z" fill="url(#g)"/>
+            <path d="M58 40C64 30 76 32 80 37 85 37 90 39 92 41 86 41 82 42 78 46 73 52 71 62 69 68 69 56 65 46 58 40Z" fill="url(#g)"/>
+            <path d="M68 38C72 36 76 37 78 39 74 39 71 40 68 38Z" fill="#FFF"/>
+          </svg>
         </button>
-      </div>
-    </section>
-
-    <!-- ==================== كرت حاسبة العملات ==================== -->
-    <section id="calcSection" class="calc-gradient rounded-[24px] p-4 shadow-md text-white">
-      
-      <!-- هيدر الحاسبة -->
-      <div class="flex items-center justify-between mb-3 relative z-10">
-        <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center text-pink-200">
-            <i class="fa-solid fa-calculator text-lg"></i>
-          </div>
-          <div>
-            <h3 class="text-base font-bold leading-tight">حاسبة العملات</h3>
-            <p class="text-[11px] text-purple-200">حوّل بين العملات بسهولة</p>
-          </div>
+        <div>
+          <h1 class="text-[21px] font-bold text-[#2D062B] leading-tight">منصة زاجل للنشر</h1>
+          <p class="text-xs font-medium text-[#6E5673]">دائماً معكم .. بكل جديد</p>
         </div>
       </div>
-
-      <!-- الصندوق الأبيض الداخلي للحاسبة -->
-      <div class="bg-white rounded-2xl p-3 text-[#2D062B] relative z-10 space-y-2.5 shadow-inner">
-        
-        <!-- الصف الأول: من عملة -->
-        <div class="grid grid-cols-12 gap-2 items-center">
-          <div class="col-span-5">
-            <input type="number" id="calcFromAmount" value="100" oninput="runCurrencyConverter()" class="w-full bg-[#F6F2F9] border border-purple-200/70 rounded-xl px-3 py-2.5 text-left font-bold text-base text-[#2D062B] focus:outline-none focus:border-zajilPink tabular-nums" />
-          </div>
-          <div class="col-span-7">
-            <div class="relative flex items-center bg-[#F6F2F9] border border-purple-200/70 rounded-xl px-2.5 py-2">
-              <img id="fromFlagImg" src="https://flagcdn.com/w40/us.png" class="w-6 h-6 rounded-full object-cover ml-2 shrink-0 border border-gray-200" alt="flag">
-              <select id="calcFromSelect" onchange="runCurrencyConverter()" class="w-full bg-transparent text-xs font-bold text-[#2D062B] focus:outline-none appearance-none cursor-pointer pr-1">
-                <!-- يتعبأ بالجافاسكربت -->
-              </select>
-              <i class="fa-solid fa-chevron-down text-[10px] text-gray-400 pointer-events-none"></i>
-            </div>
-          </div>
-        </div>
-
-        <!-- زر التبديل الدائري في المنتصف ⇅ -->
-        <div class="relative flex items-center justify-center -my-3 z-20">
-          <button onclick="swapCalculatorCurrencies()" class="w-9 h-9 rounded-full bg-gradient-to-tr from-zajilPurple to-zajilPink text-white shadow-md flex items-center justify-center hover:scale-105 active:rotate-180 transition duration-200 border-2 border-white" title="تبديل العملات">
-            <i class="fa-solid fa-arrow-right-arrow-left rotate-90 text-xs"></i>
-          </button>
-        </div>
-
-        <!-- الصف الثاني: إلى عملة -->
-        <div class="grid grid-cols-12 gap-2 items-center">
-          <div class="col-span-5">
-            <input type="text" id="calcToAmount" readonly value="832,500" class="w-full bg-[#F6F2F9] border border-purple-200/70 rounded-xl px-3 py-2.5 text-left font-bold text-base text-zajilPink focus:outline-none tabular-nums" />
-          </div>
-          <div class="col-span-7">
-            <div class="relative flex items-center bg-[#F6F2F9] border border-purple-200/70 rounded-xl px-2.5 py-2">
-              <img id="toFlagImg" src="https://flagcdn.com/w40/sd.png" class="w-6 h-6 rounded-full object-cover ml-2 shrink-0 border border-gray-200" alt="flag">
-              <select id="calcToSelect" onchange="runCurrencyConverter()" class="w-full bg-transparent text-xs font-bold text-[#2D062B] focus:outline-none appearance-none cursor-pointer pr-1">
-                <!-- يتعبأ بالجافاسكربت -->
-              </select>
-              <i class="fa-solid fa-chevron-down text-[10px] text-gray-400 pointer-events-none"></i>
-            </div>
-          </div>
-        </div>
-
+      <div class="flex items-center gap-2 text-[#380835]">
+        <button onclick="modal('chanM',1)" class="w-9 h-9 rounded-full hover:bg-purple-100"><i class="fa-solid fa-magnifying-glass text-lg"></i></button>
+        <button onclick="modal('aboutM',1)" class="w-9 h-9 rounded-full hover:bg-purple-100"><i class="fa-solid fa-bars text-xl"></i></button>
       </div>
-
-      <!-- زر احسب -->
-      <button onclick="runCurrencyConverter()" class="btn-calc w-full mt-3 py-2.5 rounded-xl font-bold text-sm text-white shadow-md hover:brightness-110 active:scale-[0.99] transition flex items-center justify-center gap-2 relative z-10">
-        <i class="fa-solid fa-calculator"></i>
-        <span>احسب</span>
-      </button>
-    </section>
-
-    <!-- ==================== قسم أبرز العناوين والأخبار ==================== -->
-    <section id="newsSection" class="bg-white rounded-[22px] overflow-hidden shadow-sm border border-purple-100">
-      <div class="headline-header px-4 py-2.5 text-white flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <i class="fa-regular fa-newspaper text-sm"></i>
-          <h3 class="text-sm font-bold">أبرز العناوين والشروحات</h3>
-        </div>
-        <a href="https://aywa.sd/bban.php" target="_blank" class="text-[11px] bg-white/15 hover:bg-white/25 px-2.5 py-1 rounded-full font-semibold transition">
-          أداة فحص الـ BBAN ←
-        </a>
+    </div>
+    <div class="mt-3 bg-[#EFE9F4] border border-purple-200/60 rounded-2xl py-2 px-4 flex items-center justify-between shadow-sm">
+      <div class="text-center flex-1">
+        <div id="dateTxt" class="text-[13px] font-bold text-[#3D0B3A]">الأربعاء 14 أكتوبر 2026</div>
+        <div class="text-[10px] text-[#7A627F]">بتوقيت السودان</div>
       </div>
+      <div class="flex items-center gap-3 px-2 text-[#4A1246]"><i class="fa-regular fa-calendar-days"></i><span class="h-5 w-[1px] bg-purple-300"></span></div>
+      <div class="flex items-center gap-1.5 t-num"><span id="timeTxt" class="text-sm font-bold text-[#3D0B3A]">12:43 م</span><i class="fa-regular fa-clock text-xs text-[#6E5673]"></i></div>
+    </div>
+  </div>
+</header>
 
-      <!-- شريط العناوين السريع -->
-      <div class="p-3 bg-[#FAF7FC] border-b border-purple-50 flex items-center justify-between text-xs text-[#3D0B3A] font-medium">
-        <div class="flex items-center gap-2 truncate">
-          <span class="w-2 h-2 rounded-full bg-zajilPink shrink-0"></span>
-          <span class="truncate">ارتفاع أسعار الذهب في السودان</span>
-          <span class="text-zajilPink font-bold">•</span>
-          <span class="truncate">استقرار تطبيقات بنكك وأوكاش وفوري</span>
-        </div>
-        <i class="fa-solid fa-chevron-left text-[10px] text-gray-400 mr-2"></i>
+<main class="max-w-md mx-auto px-3.5 space-y-3.5 mt-1">
+  <div class="bg-gradient-to-l from-[#380734] via-[#480B43] to-[#2B0528] rounded-full p-1.5 flex items-center justify-between shadow-md">
+    <span class="bg-gradient-to-r from-[#C81971] to-[#E62988] text-white text-xs font-bold px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shrink-0">
+      <i class="fa-solid fa-bullhorn text-[11px]"></i><span>أحدث الأخبار</span>
+    </span>
+    <p id="tickerTxt" class="text-white text-xs font-medium truncate px-3 flex-1"></p>
+    <i class="fa-solid fa-chevron-left text-xs text-pink-400 pl-2"></i>
+  </div>
+
+  <section id="secRates" class="bg-white rounded-[24px] p-4 shadow-sm border border-purple-100">
+    <div class="flex items-center justify-between pb-3">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-arrow-trend-up text-[#D81B7A]"></i>
+        <h2 class="text-[16px] font-bold text-[#2D062B]">أسعار العملات في السوق الموازي</h2>
       </div>
-
-      <!-- قائمة المقالات والشروحات المضافة -->
-      <div id="articlesContainer" class="divide-y divide-purple-50 p-3 space-y-2.5">
-        <!-- يتعبأ بالجافاسكربت -->
+      <div class="flex items-center gap-2">
+        <button onclick="render()" class="w-8 h-8 rounded-full bg-[#F6F1F9] text-[#4A1246] active:rotate-180 transition"><i class="fa-solid fa-arrows-rotate text-xs"></i></button>
+        <div class="text-left leading-tight"><span class="block text-[10px] text-gray-400">آخر تحديث:</span><span id="updTxt" class="block text-[10px] font-semibold text-[#4A1246]"></span></div>
       </div>
-    </section>
-
-    <!-- ==================== الأزرار الثلاثة السفلية (حول زاجل، القنوات، الحقوق) ==================== -->
-    <div class="grid grid-cols-3 gap-2.5 pt-1">
-      <button onclick="openModal('aboutModal')" class="bg-white hover:bg-purple-50 border border-purple-100 rounded-2xl py-3 px-2 shadow-sm flex items-center justify-center gap-2 transition">
-        <div class="w-7 h-7 rounded-full bg-[#3D0B3A] text-white flex items-center justify-center text-xs shrink-0">
-          <i class="fa-solid fa-info"></i>
-        </div>
-        <span class="text-xs font-bold text-[#2D062B]">حول زاجل</span>
-      </button>
-
-      <button onclick="openModal('channelsModal')" class="bg-white hover:bg-purple-50 border border-purple-100 rounded-2xl py-3 px-2 shadow-sm flex items-center justify-center gap-2 transition">
-        <div class="w-7 h-7 rounded-full bg-[#3D0B3A] text-white flex items-center justify-center text-xs shrink-0">
-          <i class="fa-solid fa-paper-plane"></i>
-        </div>
-        <span class="text-xs font-bold text-[#2D062B]">القنوات</span>
-      </button>
-
-      <button onclick="openModal('rightsModal')" class="bg-white hover:bg-purple-50 border border-purple-100 rounded-2xl py-3 px-2 shadow-sm flex items-center justify-center gap-2 transition">
-        <div class="w-7 h-7 rounded-full bg-[#3D0B3A] text-white flex items-center justify-center text-xs shrink-0">
-          <i class="fa-solid fa-shield-halved"></i>
-        </div>
-        <span class="text-xs font-bold text-[#2D062B]">الحقوق</span>
+    </div>
+    <div class="grid grid-cols-12 bg-[#F6F1F9] rounded-xl py-2 px-3 text-[11px] font-semibold text-[#5A425E] mb-1">
+      <div class="col-span-5">العملة</div><div class="col-span-3 text-center">سعر الشراء</div><div class="col-span-2 text-center">سعر البيع</div><div class="col-span-2 text-left">التغير</div>
+    </div>
+    <div id="currList" class="divide-y divide-purple-50"></div>
+    <div class="mt-3 text-center">
+      <button onclick="allC=!allC;render()" class="inline-flex items-center gap-2 bg-[#F5EFF8] text-[#4A1246] text-xs font-bold px-5 py-2 rounded-full">
+        <i class="fa-solid fa-sliders text-[#D81B7A]"></i><span id="moreBtnTxt">عرض جميع العملات</span><i class="fa-solid fa-chevron-left text-[10px]"></i>
       </button>
     </div>
+  </section>
 
-  </main>
-
-  <!-- ==================== شريط التنقل السفلي الثابت ==================== -->
-  <nav class="fixed bottom-0 inset-x-0 z-40 bg-[#250423] text-white border-t border-purple-900/40 shadow-2xl">
-    <div class="max-w-md mx-auto grid grid-cols-5 h-16">
-      
-      <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="flex flex-col items-center justify-center gap-1 text-zajilPinkLight relative">
-        <i class="fa-solid fa-house text-base"></i>
-        <span class="text-[11px] font-bold">الرئيسية</span>
-        <span class="absolute bottom-0 w-10 h-1 bg-zajilPinkLight rounded-t-full"></span>
-      </button>
-
-      <button onclick="scrollToSection('ratesSection')" class="flex flex-col items-center justify-center gap-1 text-gray-300 hover:text-white transition">
-        <i class="fa-solid fa-chart-line text-base"></i>
-        <span class="text-[11px]">الأسعار</span>
-      </button>
-
-      <button onclick="scrollToSection('calcSection')" class="flex flex-col items-center justify-center gap-1 text-gray-300 hover:text-white transition">
-        <i class="fa-solid fa-calculator text-base"></i>
-        <span class="text-[11px]">حاسبة العملات</span>
-      </button>
-
-      <button onclick="scrollToSection('newsSection')" class="flex flex-col items-center justify-center gap-1 text-gray-300 hover:text-white transition">
-        <i class="fa-regular fa-newspaper text-base"></i>
-        <span class="text-[11px]">الأخبار</span>
-      </button>
-
-      <button onclick="openModal('aboutModal')" class="flex flex-col items-center justify-center gap-1 text-gray-300 hover:text-white transition">
-        <i class="fa-solid fa-ellipsis text-base"></i>
-        <span class="text-[11px]">المزيد</span>
-      </button>
-
+  <section id="secCalc" class="c-grad rounded-[24px] p-4 shadow-md text-white">
+    <div class="flex items-center gap-2.5 mb-3">
+      <div class="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center text-pink-200"><i class="fa-solid fa-calculator text-lg"></i></div>
+      <div><h3 class="text-base font-bold">حاسبة العملات</h3><p class="text-[11px] text-purple-200">حوّل بين العملات بسهولة</p></div>
     </div>
-  </nav>
+    <div class="bg-white rounded-2xl p-3 text-[#2D062B] space-y-2.5">
+      <div class="grid grid-cols-12 gap-2 items-center">
+        <input type="number" id="cAmt" value="100" oninput="calc()" class="col-span-5 bg-[#F6F2F9] border border-purple-200 rounded-xl px-3 py-2 text-left font-bold text-base t-num">
+        <div class="col-span-7 flex items-center bg-[#F6F2F9] border border-purple-200 rounded-xl px-2 py-2">
+          <img id="fFlg" src="https://flagcdn.com/w40/us.png" class="w-6 h-6 rounded-full object-cover ml-2">
+          <select id="fSel" onchange="calc()" class="w-full bg-transparent text-xs font-bold focus:outline-none"></select>
+        </div>
+      </div>
+      <div class="flex justify-center -my-3 relative z-10">
+        <button onclick="swapC()" class="w-9 h-9 rounded-full bg-gradient-to-tr from-[#6B0F5B] to-[#D81B7A] text-white shadow flex items-center justify-center border-2 border-white"><i class="fa-solid fa-arrow-right-arrow-left rotate-90 text-xs"></i></button>
+      </div>
+      <div class="grid grid-cols-12 gap-2 items-center">
+        <input type="text" id="cRes" readonly class="col-span-5 bg-[#F6F2F9] border border-purple-200 rounded-xl px-3 py-2 text-left font-bold text-base text-[#D81B7A] t-num">
+        <div class="col-span-7 flex items-center bg-[#F6F2F9] border border-purple-200 rounded-xl px-2 py-2">
+          <img id="tFlg" src="https://flagcdn.com/w40/sd.png" class="w-6 h-6 rounded-full object-cover ml-2">
+          <select id="tSel" onchange="calc()" class="w-full bg-transparent text-xs font-bold focus:outline-none"></select>
+        </div>
+      </div>
+    </div>
+    <button onclick="calc()" class="b-calc w-full mt-3 py-2.5 rounded-xl font-bold text-sm text-white shadow flex items-center justify-center gap-2"><i class="fa-solid fa-calculator"></i><span>احسب</span></button>
+  </section>
 
-  <!-- ==================== 1. نافذة حول منصة زاجل ==================== -->
-  <div id="aboutModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white w-full max-w-md rounded-3xl p-6 text-[#2D062B] shadow-2xl space-y-4 max-h-[88vh] overflow-y-auto">
-      <div class="flex items-center justify-between border-b border-purple-100 pb-3">
-        <h3 class="text-base font-bold flex items-center gap-2">
-          <span class="text-xl">🕊️</span> حول منصة زاجل للنشر | Zajil
-        </h3>
-        <button onclick="closeModal('aboutModal')" class="text-gray-400 hover:text-zajilP
+  <section id="secNews" class="bg-white rounded-[22px] overflow-hidden shadow-sm border border-purple-100">
+    <div class="h-bar px-4 py-2.5 text-white flex items-center justify-between">
+      <div class="flex items-center gap-2"><i class="fa-regular fa-newspaper text-sm"></i><h3 class="text-sm font-bold">أبرز العناوين والشروحات</h3></div>
+      <a href="https://aywa.sd/bban.php" target="_blank" class="text-[11px] bg-white/15 px-2.5 py-1 rounded-full font-semibold">أداة الـ BBAN ←</a>
+    </div>
+    <div id="artList" class="divide-y divide-purple-50 p-3 space-y-2.5"></div>
+  </section>
+
+  <div class="grid grid-cols-3 gap-2.5">
+    <button onclick="modal('aboutM',1)" class="bg-white border border-purple-100 rounded-2xl py-3 px-2 shadow-sm flex items-center justify-center gap-2"><span class="w-7 h-7 rounded-full bg-[#3D0B3A] text-white flex items-center justify-center text-xs"><i class="fa-solid fa-info"></i></span><span class="text-xs font-bold">حول زاجل</span></button>
+    <button onclick="modal('chanM',1)" class="bg-white border border-purple-100 rounded-2xl py-3 px-2 shadow-sm flex items-center justify-center gap-2"><span class="w-7 h-7 rounded-full bg-[#3D0B3A] text-white flex items-center justify-center text-xs"><i class="fa-solid fa-paper-plane"></i></span><span class="text-xs font-bold">القنوات</span></button>
+    <button onclick="modal('rightM',1)" class="bg-white border border-purple-100 rounded-2xl py-3 px-2 shadow-sm flex items-center justify-center gap-2"><span class="w-7 h-7 rounded-full bg-[#3D0B3A] text-white flex items-center justify-center text-xs"><i class="fa-solid fa-shield-halved"></i></span><span class="text-xs font-bold">الحقوق</span></button>
+  </div>
+</main>
+
+<nav class="fixed bottom-0 inset-x-0 z-40 bg-[#250423] text-white border-t border-purple-900/40">
+  <div class="max-w-md mx-auto grid grid-cols-5 h-16 text-[11px]">
+    <button onclick="scrollTo({top:0,behavior:'smooth'})" class="flex flex-col items-center justify-center gap-1 text-[#F42C90] font-bold"><i class="fa-solid fa-house text-base"></i><span>الرئيسية</span></button>
+    <button onclick="go('secRates')" class="flex flex-col items-center justify-center gap-1 text-gray-300"><i class="fa-solid fa-chart-line text-base"></i><span>الأسعار</span></button>
+    <button onclick="go('secCalc')" class="flex flex-col items-center justify-center gap-1 text-gray-300"><i class="fa-solid fa-calculator text-base"></i><span>حاسبة العملات</span></button>
+    <button onclick="go('secNews')" class="flex flex-col items-center justify-center gap-1 text-gray-300"><i class="fa-regular fa-newspaper text-base"></i><span>الأخبار</span></button>
+    <button onclick="modal('aboutM',1)" class="flex flex-col items-center justify-center gap-1 text-gray-300"><i class="fa-solid fa-ellipsis text-base"></i><span>المزيد</span></button>
+  </div>
+</nav>
+
+<div id="aboutM" class="hidden fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-md rounded-3xl p-5 space-y-3 max-h-[85vh] overflow-y-auto">
+    <div class="flex justify-between items-center border-b pb-2"><h3 class="font-bold text-sm">🕊️ حول منصة زاجل للنشر | Zajil</h3><button onclick="modal('aboutM',0)"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="text-xs leading-relaxed space-y-2 text-gray-700">
+      <p><b>زاجل للنشر</b> منصة إعلامية ومعلوماتية سودانية، انطلقت في <b>سبتمبر 2019</b> عبر حالة الواتساب، بهدف نقل أخبار السودان ومشاركة المعلومات والخدمات التي تهم المواطن السوداني.</p>
+      <p>توسعت زاجل لتشمل الأخبار، والاقتصاد، وأسعار الصرف، والتحديثات المصرفية، وخدمات السفر والجامعات.</p>
+      <p class="p-2.5 rounded-xl bg-purple-50 text-[#3D0B3A] font-medium">«نؤمن في زاجل بأن المعلومة حق، وأن رسالتنا تقوم على خدمة المتابعين بعيداً عن الأجندات والمصالح الخفية.»</p>
+      <p class="text-center font-bold text-[#D81B7A]">منصة زاجل للنشر | الرسالة الحقيقية</p>
+    </div>
+  </div>
+</div>
+
+<div id="chanM" class="hidden fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-sm rounded-3xl p-5 space-y-3">
+    <div class="flex justify-between items-center border-b pb-2"><h3 class="font-bold text-sm">منصات زاجل الرسمية</h3><button onclick="modal('chanM',0)"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="space-y-2 text-xs font-bold">
+      <a href="https://whatsapp.com/channel/0029Vax0vtQ2ZjCuuF4u0k0x" target="_blank" class="flex justify-between p-3 rounded-xl bg-emerald-50 text-emerald-800"><span><i class="fa-brands fa-whatsapp ml-2"></i>قناة واتساب زاجل</span><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+      <a href="https://t.me/zajil_post" target="_blank" class="flex justify-between p-3 rounded-xl bg-sky-50 text-sky-800"><span><i class="fa-brands fa-telegram ml-2"></i>تلجرام زاجل</span><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+      <a href="https://www.facebook.com/zajil.post" target="_blank" class="flex justify-between p-3 rounded-xl bg-blue-50 text-blue-800"><span><i class="fa-brands fa-facebook ml-2"></i>فيسبوك زاجل</span><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+      <a href="https://instagram.com/zajil.post" target="_blank" class="flex justify-between p-3 rounded-xl bg-pink-50 text-pink-800"><span><i class="fa-brands fa-instagram ml-2"></i>إنستغرام (@zajil.post)</span><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+    </div>
+  </div>
+</div>
+
+<div id="rightM" class="hidden fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-sm rounded-3xl p-5 space-y-3 text-xs">
+    <div class="flex justify-between items-center border-b pb-2"><h3 class="font-bold text-sm">تنويه هام وحقوق النشر</h3><button onclick="modal('rightM',0)"><i class="fa-solid fa-xmark"></i></button></div>
+    <p>• الأسعار الموضحة هي أسعار تأشيرية للحركة العامة في السوق الموازي، وقد تختلف من تاجر لآخر وحسب كمية الصرف.</p>
+    <p>• يُنصح بمقارنة الأسعار بين أكثر من مصدر قبل اعتماد التحويل أو الشراء.</p>
+    <p class="text-center font-bold text-[#6B0F5B] pt-2">© 2019 - 2026 منصة زاجل للنشر</p>
+  </div>
+</div>
+
+<div id="logM" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-xs rounded-3xl p-5 text-center space-y-3">
+    <h3 class="font-bold text-sm">دخول إدارة زاجل</h3>
+    <input type="password" id="passIn" placeholder="كلمة المرور..." class="w-full bg-[#F6F2F9] border rounded-xl p-2 text-center text-sm">
+    <div class="flex gap-2">
+      <button onclick="login()" class="flex-1 b-calc text-white font-bold text-xs py-2.5 rounded-xl">دخول</button>
+      <button onclick="modal('logM',0)" class="px-4 py-2.5 rounded-xl bg-gray-100 text-xs font-bold">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div id="dashM" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 overflow-y-auto">
+  <div class="bg-white w-full max-w-md rounded-3xl p-5 space-y-3 max-h-[90vh] overflow-y-auto text-xs">
+    <div class="flex justify-between items-center border-b pb-2"><h3 class="font-bold text-sm">🕊️ لوحة تحكم زاجل</h3><button onclick="modal('dashM',0)"><i class="fa-solid fa-xmark"></i></button></div>
+    <div class="p-3 rounded-2xl bg-[#F7F3FA] space-y-2">
+      <div class="font-bold text-[#6B0F5B]">تحديث الأسعار (بالدولار)</div>
+      <div class="grid grid-cols-2 gap-2">
+        <input type="number" id="dBuy" placeholder="دولار شراء" class="bg-white border rounded-xl p-2 font-bold">
+        <input type="number" id="dSell" placeholder="دولار بيع" class="bg-white border rounded-xl p-2 font-bold">
+      </div>
+      <input type="text" id="dTick" placeholder="شريط الأخبار العلوي" class="w-full bg-white border rounded-xl p-2">
+      <button onclick="saveR()" class="w-full b-calc text-white font-bold py-2 rounded-xl">حفظ وتحديث العملات</button>
+    </div>
+    <div class="p-3 rounded-2xl bg-[#F7F3FA] space-y-2">
+      <div class="font-bold text-[#6B0F5B]">إضافة مقال أو شرح</div>
+      <input type="text" id="pTit" placeholder="العنوان..." class="w-full bg-white border rounded-xl p-2 font-bold">
+      <input type="url" id="pImg" placeholder="رابط الصورة (اختياري)..." class="w-full bg-white border rounded-xl p-2" dir="ltr">
+      <textarea id="pBod" rows="2" placeholder="التفاصيل..." class="w-full bg-white border rounded-xl p-2"></textarea>
+      <button onclick="addArt()" class="w-full bg-[#380734] text-white font-bold py-2 rounded-xl">نشر المقال</button>
+    </div>
+    <button onclick="dlFile()" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl"><i class="fa-solid fa-download ml-1"></i> تحميل ملف index.html جاهز</button>
+  </div>
+</div>
+
+<script>
+const PASS="ZAJIL@201919"; let allC=false, taps=0, tmr;
+const CURR=[
+  {c:"USD",n:"دولار أمريكي",f:"us",rb:1,rs:1,ch:"+50"},
+  {c:"SAR",n:"ريال سعودي",f:"sa",rb:2220/8325,rs:2387/8950,ch:"+20"},
+  {c:"EGP",n:"جنيه مصري",f:"eg",rb:159.3/8325,rs:171.3/8950,ch:"+2"},
+  {c:"EUR",n:"يورو",f:"eu",rb:9079/8325,rs:9760/8950,ch:"+80"},
+  {c:"AED",n:"درهم إماراتي",f:"ae",rb:2267/8325,rs:2437/8950,ch:"+25"},
+  {c:"QAR",n:"ريال قطري",f:"qa",rb:2287/8325,rs:2459/8950,ch:"+22"},
+  {c:"KWD",n:"دينار كويتي",f:"kw",rb:27295/8325,rs:29344/8950,ch:"+120"},
+  {c:"OMR",n:"ريال عُماني",f:"om",rb:21623/8325,rs:23247/8950,ch:"+95"},
+  {c:"BHD",n:"دينار بحريني",f:"bh",rb:22082/8325,rs:23740/8950,ch:"+90"},
+  {c:"ETB",n:"بير إثيوبي",f:"et",rb:51.33/8325,rs:55.18/8950,ch:"+1"}
+];
+let st=JSON.parse(localStorage.getItem('zj_st'))||{
+  b:8325,s:8950,dt:"الأربعاء 14 أكتوبر 2026",tk:"الذهب السوداني يتجاوز 2.2 مليار دولار حتى نهاية سبتمبر 2026",
+  arts:[{t:"استخراج وفحص رقم الـ BBAN للتحويل بين البنوك",b:"حوّل رقم حسابك إلى BBAN بضغطة زر عبر أداة زاجل التفاعلية.",i:""}]
+};
+const fmt=n=>n>=500?Math.round(n).toLocaleString('en-US'):Number(n.toFixed(2)).toLocaleString('en-US');
+function clock(){
+  try{
+    const d=new Date();
+    document.getElementById('timeTxt').textContent=d.toLocaleTimeString('ar-EG',{timeZone:'Africa/Khartoum',hour:'2-digit',minute:'2-digit'});
+    document.getElementById('dateTxt').textContent=d.toLocaleDateString('ar-u-nu-latn',{timeZone:'Africa/Khartoum',weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  }catch(e){}
+}
+setInterval(clock,10000); clock();
+function render(){
+  document.getElementById('tickerTxt').textContent=st.tk;
+  document.getElementById('updTxt').textContent=st.dt;
+  const list=allC?CURR:CURR.slice(0,6);
+  document.getElementById('currList').innerHTML=list.map(x=>`
+    <div class="grid grid-cols-12 items-center py-2.5 px-2 t-num">
+      <div class="col-span-5 flex items-center gap-2.5">
+        <img src="https://flagcdn.com/w40/${x.f}.png" class="w-8 h-8 rounded-full object-cover border">
+        <div><div class="text-xs font-bold">${x.n}</div><div class="text-[10px] text-gray-400 font-semibold">${x.c}</div></div>
+      </div>
+      <div class="col-span-3 text-center text-sm font-bold">${fmt(st.b*x.rb)}</div>
+      <div class="col-span-2 text-center text-sm font-bold">${fmt(st.s*x.rs)}</div>
+      <div class="col-span-2 text-left text-xs font-bold text-emerald-600" dir="ltr">↑ ${x.ch}</div>
+    </div>`).join('');
+  document.getElementById('moreBtnTxt').textContent=allC?'عرض عملات أقل':'عرض جميع العملات (10)';
+  document.getElementById('artList').innerHTML=st.arts.map(a=>`
+    <div class="pt-2 first:pt-0">${a.i?`<img src="${a.i}" class="w-full h-32 object-cover rounded-xl mb-1.5">`:''}
+    <h4 class="text-xs font-bold">${a.t}</h4><p class="text-[11px] text-gray-600">${a.b}</p></div>`).join('');
+}
+function initCalc(){
+  const all=[...CURR.map(x=>({c:x.c,n:x.n,f:x.f,r:st.b*x.rb})),{c:"SDG",n:"جنيه سوداني",f:"sd",r:1}];
+  const h=all.map(x=>`<option value="${x.c}" data-f="${x.f}" data-r="${x.r}">${x.n} (${x.c})</option>`).join('');
+  const fs=document.getElementById('fSel'), ts=document.ge
