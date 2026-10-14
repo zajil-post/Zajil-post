@@ -1,335 +1,304 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>زاجل | أخبار البنوك وأسعار الصرف في السودان</title>
-    
-    <!-- خط IBM Plex Sans Arabic -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['"IBM Plex Sans Arabic"', 'sans-serif'],
-                    },
-                    colors: {
-                        bgDark: '#090D16',
-                        cardDark: 'rgba(17, 24, 39, 0.75)',
-                        accentCyan: '#06B6D4',
-                        accentIndigo: '#6366F1',
-                    }
-                }
-            }
-        }
-    </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>منصة زاجل | أسعار الصرف والخدمات المصرفية</title>
+  
+  <!-- خط IBM Plex Sans Arabic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome للأيقونات -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <style>
-        body {
-            background-color: #090D16;
-            background-image: 
-                radial-gradient(at 10% 10%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
-                radial-gradient(at 90% 90%, rgba(6, 182, 212, 0.12) 0px, transparent 50%);
-            background-attachment: fixed;
-            color: #F3F4F6;
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"IBM Plex Sans Arabic"', 'sans-serif'],
+          },
+          colors: {
+            brandDark: '#120216',      // خلفية داكنة بدرجة البنفسجي العميق
+            brandCard: 'rgba(32, 6, 42, 0.72)', // كروت زجاجية بنكهة البنفسجي
+            brandPurple: '#6B0F5B',    // البنفسجي الأساسي لزاجل
+            brandPurpleLight: '#8B1E78',
+            brandMagenta: '#E02480',   // الوردي/الفوشي النيوني
+            brandPinkGlow: '#FF2A8D',
+          }
         }
-        .glass {
-            background: rgba(17, 24, 39, 0.7);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .glass-hover:hover {
-            border-color: rgba(6, 182, 212, 0.4);
-            box-shadow: 0 8px 30px rgba(6, 182, 212, 0.1);
-        }
-        .nav-active {
-            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(99, 102, 241, 0.2));
-            border: 1px solid rgba(6, 182, 212, 0.5);
-            color: #22D3EE;
-        }
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.25s ease-in-out;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #120216;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(107, 15, 91, 0.35) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(224, 36, 128, 0.22) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(32, 6, 42, 0.5) 0px, transparent 100%);
+      background-attachment: fixed;
+      font-family: 'IBM Plex Sans Arabic', sans-serif;
+      color: #F3F4F6;
+    }
+    .glass-card {
+      background: rgba(32, 7, 43, 0.65);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(224, 36, 128, 0.18);
+    }
+    .glass-card-hover {
+      transition: all 0.25s ease-in-out;
+    }
+    .glass-card-hover:hover {
+      border-color: rgba(224, 36, 128, 0.45);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(224, 36, 128, 0.2);
+    }
+    .neon-glow {
+      box-shadow: 0 0 20px rgba(224, 36, 128, 0.35);
+    }
+  </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans antialiased selection:bg-cyan-500 selection:text-white pb-20 md:pb-0">
+<body class="min-h-screen flex flex-col justify-between pb-10 selection:bg-brandMagenta selection:text-white">
 
-    <!-- الشريط العلوي (Header) -->
-    <header class="sticky top-0 z-40 glass border-b border-white/10">
-        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-            <!-- الشعار -->
-            <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-cyan-500/20 font-bold text-xl text-white">
-                    ز
-                </div>
-                <div>
-                    <h1 class="font-bold text-lg tracking-wide bg-gradient-to-r from-white to-cyan-300 bg-clip-text text-transparent">منصة زاجل</h1>
-                    <p class="text-[11px] text-gray-400">البنوك وأسعار الصرف في السودان</p>
-                </div>
-            </div>
-
-            <!-- القائمة الرئيسية (سطح المكتب) -->
-            <nav class="hidden md:flex items-center gap-2">
-                <button onclick="switchTab('home')" id="nav-home" class="nav-btn nav-active px-4 py-2 rounded-xl text-sm font-medium transition-all">الرئيسية</button>
-                <button onclick="switchTab('rates')" id="nav-rates" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium text-gray-300 hover:text-white transition-all">أسعار العملات</button>
-                <button onclick="switchTab('bban')" id="nav-bban" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium text-gray-300 hover:text-white transition-all">الـ BBAN</button>
-                <button onclick="switchTab('articles')" id="nav-articles" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium text-gray-300 hover:text-white transition-all">مقالات</button>
-                <button onclick="switchTab('about')" id="nav-about" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium text-gray-300 hover:text-white transition-all">حول</button>
-            </nav>
-
-            <!-- زر واتساب سريع -->
-            <a href="https://whatsapp.com" target="_blank" class="bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 px-3.5 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 transition-all">
-                <span>قناة زاجل</span>
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            </a>
+  <!-- الهيدر الرئيسي -->
+  <header class="sticky top-0 z-50 glass-card border-b border-brandMagenta/20 px-4 py-3">
+    <div class="max-w-2xl mx-auto flex items-center justify-between">
+      
+      <!-- اللوجو واسم المنصة -->
+      <div class="flex items-center gap-3">
+        <!-- شعار طائر زاجل -->
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brandPurple to-brandMagenta p-0.5 shadow-lg shadow-brandPurple/50 flex items-center justify-center">
+          <div class="w-full h-full bg-[#1e0424] rounded-[14px] flex items-center justify-center overflow-hidden">
+            <svg class="w-7 h-7 text-white fill-current" viewBox="0 0 24 24">
+              <!-- أيقونة حمامة زاجل الأنيقة -->
+              <path d="M21.7 5.3c-.3-.2-.7-.1-.9.1l-4.2 4.2c-1.3-.9-2.9-1.4-4.6-1.4-2.8 0-5.3 1.4-6.8 3.5l-2.4-.8c-.4-.1-.8.1-.9.5-.1.4.1.8.5.9l2.8 1c-.1.5-.1 1-.1 1.6 0 4.1 3.4 7.5 7.5 7.5 2.5 0 4.8-1.2 6.2-3.2l2.6.9c.4.1.8-.1.9-.5.1-.4-.1-.8-.5-.9l-2.1-.7c.8-1.4 1.3-3 1.3-4.7 0-1.1-.2-2.1-.6-3.1l3.5-3.5c.3-.3.3-.8.1-1.1zm-7.2 12.3c-1.1 1.6-3 2.6-5 2.6-3.3 0-6-2.7-6-6 0-.4 0-.8.1-1.2l4.8 1.6c.4.1.8-.1.9-.5.1-.4-.1-.8-.5-.9l-4.5-1.5c1.1-1.7 3-2.9 5.2-2.9 1.4 0 2.7.5 3.8 1.3l-2.9 2.9c-.3.3-.3.8 0 1.1.3.3.8.3 1.1 0l3.8-3.8c.4.8.6 1.7.6 2.7 0 1.6-.5 3-1.4 4.3z"/>
+            </svg>
+          </div>
         </div>
-    </header>
 
-    <!-- المحتوى الرئيسي -->
-    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-6">
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h1 class="text-xl font-bold bg-gradient-to-r from-white via-pink-100 to-brandMagenta bg-clip-text text-transparent">
+              منصة زاجل
+            </h1>
+            <span class="text-[10px] bg-brandMagenta/20 text-brandPinkGlow border border-brandMagenta/40 px-1.5 py-0.5 rounded-full font-medium">رسمي</span>
+          </div>
+          <p class="text-xs text-gray-400">البنوك وأسعار الصرف في السودان</p>
+        </div>
+      </div>
 
-        <!-- ================= 1. قسم الرئيسية ================= -->
-        <section id="tab-home" class="tab-content active space-y-8">
-            
-            <!-- شريط حالة التطبيقات البنكية -->
-            <div class="glass rounded-2xl p-4">
-                <div class="flex items-center justify-between mb-3">
-                    <h2 class="text-sm font-semibold text-gray-300 flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
-                        حالة التطبيقات المصرفية الآن
-                    </h2>
-                    <span class="text-[11px] text-gray-400" id="last-update-badge">تحديث لحظي</span>
-                </div>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="apps-status-container">
-                    <!-- يتم تعبئتها عبر الجافاسكريبت -->
-                </div>
-            </div>
+      <!-- رابط القناة والتواصل -->
+      <div class="flex items-center gap-2">
+        <a href="https://whatsapp.com" target="_blank" class="text-xs font-semibold bg-gradient-to-r from-brandPurple to-brandMagenta hover:brightness-110 text-white px-3.5 py-2 rounded-xl shadow-md shadow-brandMagenta/20 flex items-center gap-1.5 transition">
+          <i class="fa-brands fa-whatsapp text-sm"></i>
+          <span>قناة زاجل</span>
+        </a>
+      </div>
+    </div>
+  </header>
 
-            <!-- ملخص سريع لأسعار العملات + اختصار الـ BBAN -->
-            <div class="grid md:grid-cols-3 gap-6">
-                <!-- ملخص العملات -->
-                <div class="md:col-span-2 glass rounded-2xl p-5 flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-lg font-bold text-white">مؤشر أسعار الصرف اليوم</h2>
-                            <button onclick="switchTab('rates')" class="text-xs text-cyan-400 hover:underline">عرض الجدول والحاسبة &larr;</button>
-                        </div>
-                        <div class="grid grid-cols-3 gap-3" id="home-rates-summary">
-                            <!-- يتم تعبئتها عبر الجافاسكريبت -->
-                        </div>
-                    </div>
-                    <p class="text-[11px] text-gray-400 mt-4 pt-3 border-t border-white/5">
-                        * الأسعار استرشادية لمتوسط التداولات وتخضع للتحديث المستمر على مدار اليوم.
-                    </p>
-                </div>
+  <!-- المحتوى الرئيسي -->
+  <main class="max-w-2xl mx-auto px-4 w-full mt-4 space-y-4">
 
-                <!-- بطاقة سريعة لخدمة الـ BBAN -->
-                <div class="glass rounded-2xl p-5 bg-gradient-to-br from-indigo-900/40 to-cyan-900/20 border-indigo-500/30 flex flex-col justify-between">
-                    <div>
-                        <span class="text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2.5 py-1 rounded-lg">أداة تفاعلية</span>
-                        <h3 class="text-lg font-bold mt-3 text-white">استخراج وفحص الـ BBAN</h3>
-                        <p class="text-xs text-gray-300 mt-2 leading-relaxed">
-                            حول رقم الـ IBAN إلى BBAN بضغطة زر وتعرف على رمز البنك للتحويل السريع بين بنكك، أوكاش، وفوري.
-                        </p>
-                    </div>
-                    <button onclick="switchTab('bban')" class="mt-4 w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-semibold text-sm shadow-lg shadow-cyan-900/30 transition-all">
-                        افتح أداة الـ BBAN
-                    </button>
-                </div>
-            </div>
+    <!-- حالة التطبيقات المصرفية -->
+    <div class="glass-card rounded-2xl p-3 flex items-center justify-between border-brandPurple/30">
+      <div class="flex items-center gap-2.5">
+        <span class="relative flex h-3 w-3">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+        </span>
+        <span class="text-sm font-medium text-gray-200">حالة التطبيقات المصرفية الآن</span>
+      </div>
+      <div class="flex items-center gap-1.5 text-xs text-emerald-400 font-semibold bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>مستقرة وتعمل</span>
+      </div>
+    </div>
 
-            <!-- أحدث المقالات والشروحات المصورة -->
+    <!-- كرت مؤشر أسعار الصرف الرئيسي -->
+    <div class="glass-card rounded-3xl p-5 border-brandMagenta/30 relative overflow-hidden">
+      <!-- تأثير إضاءة خلفي -->
+      <div class="absolute -right-16 -top-16 w-36 h-36 bg-brandMagenta/20 rounded-full blur-2xl pointer-events-none"></div>
+
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-4 mb-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-brandPinkGlow bg-brandMagenta/15 px-2 py-0.5 rounded-md">تحديث الأسعار ⚠️</span>
+            <span class="text-xs text-gray-400">الأربعاء 14 أكتوبر 2026م</span>
+          </div>
+          <h2 class="text-lg font-bold text-white mt-1">مؤشر أسعار الصرف اليوم (السوق الموازي)</h2>
+          <p class="text-xs text-amber-300/90 mt-0.5 flex items-center gap-1">
+            <i class="fa-solid fa-chart-line text-[10px]"></i>
+            حالة السوق: تباين وتحرك متباين
+          </p>
+        </div>
+
+        <button onclick="toggleCalculator()" class="text-xs font-medium text-brandPinkGlow bg-brandMagenta/10 hover:bg-brandMagenta/20 border border-brandMagenta/30 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5">
+          <i class="fa-solid fa-calculator"></i>
+          <span>حاسبة العملات</span>
+        </button>
+      </div>
+
+      <!-- حاسبة العملات السريعة (تفتح بالضغط) -->
+      <div id="calculatorBox" class="hidden mb-4 p-3.5 rounded-2xl bg-black/40 border border-brandMagenta/20 space-y-3">
+        <div class="text-xs font-semibold text-brandPinkGlow flex items-center justify-between">
+          <span>حاسبة التحويل السريع للجنيه السوداني</span>
+          <button onclick="toggleCalculator()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-[11px] text-gray-400 block mb-1">المبلغ بالعملة الأجنبية</label>
+            <input type="number" id="calcAmount" value="100" oninput="calculateExchange()" class="w-full bg-[#1b0321] border border-brandMagenta/30 rounded-xl px-3 py-1.5 text-sm text-white focus:outline-none focus:border-brandMagenta">
+          </div>
+          <div>
+            <label class="text-[11px] text-gray-400 block mb-1">اختر العملة</label>
+            <select id="calcCurrency" onchange="calculateExchange()" class="w-full bg-[#1b0321] border border-brandMagenta/30 rounded-xl px-3 py-1.5 text-sm text-white focus:outline-none focus:border-brandMagenta">
+              <option value="8325" selected>دولار أمريكي 🇺🇸</option>
+              <option value="2220">ريال سعودي 🇸🇦</option>
+              <option value="2267">درهم إماراتي 🇦🇪</option>
+              <option value="159.3">جنيه مصري 🇪🇬</option>
+              <option value="2287">ريال قطري 🇶🇦</option>
+              <option value="9079">يورو أوروبي 🇪🇺</option>
+              <option value="27295">دينار كويتي 🇰🇼</option>
+              <option value="21623">ريال عماني 🇴🇲</option>
+              <option value="22082">دينار بحريني 🇧🇭</option>
+              <option value="51.33">بير إثيوبي 🇪🇹</option>
+            </select>
+          </div>
+        </div>
+        <div class="p-2.5 rounded-xl bg-brandPurple/30 text-center">
+          <span class="text-xs text-gray-300">القيمة التقديرية بسعر الشراء:</span>
+          <div id="calcResult" class="text-lg font-bold text-brandPinkGlow mt-0.5">832,500 جنيه سوداني</div>
+        </div>
+      </div>
+
+      <!-- جدول وقائمة أسعار العملات -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5" id="currencyGrid">
+        <!-- سيتم تعبئتها بواسطة الجافاسكربت -->
+      </div>
+
+      <!-- تنويه السوق -->
+      <div class="mt-4 pt-3 border-t border-white/10 text-[11px] text-gray-400 space-y-1 bg-black/20 p-3 rounded-xl border border-amber-500/20">
+        <p class="text-amber-300 font-semibold flex items-center gap-1.5">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          تنويه هام:
+        </p>
+        <p>• الأسعار الموضحة أعلاه هي أسعار تأشيرية للحركة العامة في السوق الموازي، وقد تختلف من تاجر لآخر وحسب كمية الصرف وطبيعة التعامل.</p>
+        <p>• التأكد قبل الإتمام: يُنصح بمقارنة الأسعار بين أكثر من مصدر قبل اعتماد التحويل أو الشراء.</p>
+      </div>
+    </div>
+
+    <!-- كرت أداة استخراج وفحص الـ BBAN -->
+    <div class="glass-card rounded-3xl p-5 border-brandMagenta/30 relative overflow-hidden glass-card-hover">
+      <div class="flex items-start justify-between">
+        <div class="space-y-1">
+          <span class="text-[11px] font-bold text-white bg-gradient-to-r from-brandPurple to-brandMagenta px-2.5 py-0.5 rounded-full inline-block">
+            أداة تفاعلية حصرية
+          </span>
+          <h3 class="text-base font-bold text-white mt-1">استخراج وفحص الـ BBAN</h3>
+          <p class="text-xs text-gray-300 leading-relaxed max-w-sm">
+            حوّل رقم الـ IBAN إلى BBAN بضغطة زر وتعرّف على رمز البنك للتحويل السريع بين بنكك، أوكاش، وفوري بكل سهولة.
+          </p>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-brandMagenta/10 border border-brandMagenta/30 flex items-center justify-center text-brandPinkGlow shrink-0 mr-2">
+          <i class="fa-solid fa-building-columns text-xl"></i>
+        </div>
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
+        <a href="https://aywa.sd/bban.php" target="_blank" class="w-full text-center text-xs font-bold text-white bg-gradient-to-r from-brandPurple to-brandMagenta hover:from-brandPurpleLight hover:to-brandPinkGlow py-2.5 rounded-xl shadow-lg shadow-brandPurple/40 transition">
+          افتح أداة الـ BBAN الآن <i class="fa-solid fa-arrow-left mr-1"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- قسم الشروحات والأخبار -->
+    <div class="space-y-3 pt-2">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-newspaper text-brandMagenta"></i>
+          أحدث الشروحات والأخبار المصورة
+        </h3>
+        <span class="text-xs text-brandPinkGlow cursor-pointer hover:underline">كل المقالات ←</span>
+      </div>
+
+      <!-- مقال كرت -->
+      <div class="glass-card rounded-2xl p-3.5 glass-card-hover flex gap-3 items-center border-brandPurple/30">
+        <div class="w-20 h-20 rounded-xl bg-gradient-to-tr from-brandPurple to-brandMagenta/40 flex items-center justify-center shrink-0 text-white text-2xl">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div class="flex-1">
+          <span class="text-[10px] text-brandPinkGlow font-semibold bg-brandMagenta/10 px-2 py-0.5 rounded-md">توعية مصرفية</span>
+          <h4 class="text-xs font-bold text-white mt-1 line-clamp-1">كيف تحمي حسابك البنكي وتتأكد من صحة التحويلات؟</h4>
+          <p class="text-[11px] text-gray-400 mt-1 line-clamp-2">إرشادات هامة للتحقق من الإشعارات المزيفة وطرق التأكد من وصول الأموال عبر التطبيقات البنكية.</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- فوتر الصفحة -->
+  <footer class="mt-8 text-center text-xs text-gray-400 border-t border-white/5 pt-4">
+    <p>© 2026 منصة زاجل للنشر - جميع الحقوق محفوظة</p>
+    <p class="text-[10px] text-gray-400 mt-1">تحديث دوري ومستمر لأسعار العملات والخدمات المصرفية في السودان</p>
+  </footer>
+
+  <!-- جافاسكربت لتوليد الأسعار والحاسبة -->
+  <script>
+    const currencyData = [
+      { name: "الدولار الأمريكي", flag: "🇺🇸", buy: "8,325", sell: "8,950", rawBuy: 8325 },
+      { name: "اليورو الأوروبي", flag: "🇪🇺", buy: "9,079", sell: "9,760", rawBuy: 9079 },
+      { name: "الريال السعودي", flag: "🇸🇦", buy: "2,220", sell: "2,387", rawBuy: 2220 },
+      { name: "الدرهم الإماراتي", flag: "🇦🇪", buy: "2,267", sell: "2,437", rawBuy: 2267 },
+      { name: "الجنيه المصري", flag: "🇪🇬", buy: "159.3", sell: "171.3", rawBuy: 159.3 },
+      { name: "الريال القطري", flag: "🇶🇦", buy: "2,287", sell: "2,459", rawBuy: 2287 },
+      { name: "الدينار الكويتي", flag: "🇰🇼", buy: "27,295", sell: "29,344", rawBuy: 27295 },
+      { name: "الريال العُماني", flag: "🇴🇲", buy: "21,623", sell: "23,247", rawBuy: 21623 },
+      { name: "الدينار البحريني", flag: "🇧🇭", buy: "22,082", sell: "23,740", rawBuy: 22082 },
+      { name: "البير الأثيوبي", flag: "🇪🇹", buy: "51.33", sell: "55.18", rawBuy: 51.33 }
+    ];
+
+    function renderCurrencies() {
+      const container = document.getElementById('currencyGrid');
+      container.innerHTML = currencyData.map(c => `
+        <div class="p-3 rounded-2xl bg-[#1b0322]/80 border border-brandPurple/30 flex items-center justify-between hover:border-brandMagenta/40 transition">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xl">${c.flag}</span>
             <div>
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-bold text-white">أحدث الشروحات والأخبار المصورة</h2>
-                    <button onclick="switchTab('articles')" class="text-xs text-cyan-400 hover:underline">كل المقالات &larr;</button>
-                </div>
-                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5" id="home-articles-grid">
-                    <!-- يتم تعبئتها عبر الجافاسكريبت -->
-                </div>
+              <div class="text-xs font-bold text-white">${c.name}</div>
+              <div class="text-[10px] text-gray-400">سوداني (SDG)</div>
             </div>
-        </section>
+          </div>
+          <div class="text-left">
+            <div class="text-xs font-bold text-brandPinkGlow">${c.buy} <span class="text-[9px] text-gray-400 font-normal">شراء</span></div>
+            <div class="text-xs font-semibold text-gray-300">${c.sell} <span class="text-[9px] text-gray-400 font-normal">بيع</span></div>
+          </div>
+        </div>
+      `).join('');
+    }
 
-        <!-- ================= 2. قسم أسعار العملات ================= -->
-        <section id="tab-rates" class="tab-content space-y-6">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 glass p-5 rounded-2xl">
-                <div>
-                    <h2 class="text-2xl font-bold text-white">أسعار العملات مقابل الجنيه السوداني</h2>
-                    <p class="text-xs text-gray-400 mt-1">تحديث يومي لأسعار الصرف في السوق الموازي والبنوك التجارية</p>
-                </div>
-                <button onclick="shareRatesOnWhatsApp()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/30 transition-all">
-                    <span>مشاركة النشرة على واتساب</span>
-                </button>
-            </div>
+    function toggleCalculator() {
+      const box = document.getElementById('calculatorBox');
+      box.classList.toggle('hidden');
+    }
 
-            <div class="grid lg:grid-cols-3 gap-6">
-                <!-- جدول الأسعار -->
-                <div class="lg:col-span-2 glass rounded-2xl overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-right text-sm">
-                            <thead class="bg-white/5 text-gray-300 text-xs border-b border-white/10">
-                                <tr>
-                                    <th class="py-3.5 px-4">العملة</th>
-                                    <th class="py-3.5 px-4">سعر الشراء</th>
-                                    <th class="py-3.5 px-4">سعر البيع</th>
-                                    <th class="py-3.5 px-4">متوسط البنوك</th>
-                                </tr>
-                            </thead>
-                            <tbody id="full-rates-table" class="divide-y divide-white/5">
-                                <!-- يتم تعبئتها عبر الجافاسكريبت -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+    function calculateExchange() {
+      const amount = parseFloat(document.getElementById('calcAmount').value) || 0;
+      const rate = parseFloat(document.getElementById('calcCurrency').value) || 0;
+      const total = amount * rate;
+      document.getElementById('calcResult').innerText = total.toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' جنيه سوداني';
+    }
 
-                <!-- حاسبة العملات الفورية -->
-                <div class="glass rounded-2xl p-5 space-y-4 h-fit">
-                    <h3 class="text-lg font-bold text-white border-b border-white/10 pb-3">حاسبة زاجل للعملات</h3>
-                    
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1.5">المبلغ</label>
-                        <input type="number" id="calc-amount" value="100" oninput="calculateCurrency()" class="w-full bg-gray-900/90 border border-white/15 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-cyan-400">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1.5">اختر العملة</label>
-                        <select id="calc-currency" onchange="calculateCurrency()" class="w-full bg-gray-900/90 border border-white/15 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-cyan-400">
-                            <!-- يتم تعبئتها عبر الجافاسكريبت -->
-                        </select>
-                    </div>
-
-                    <div class="p-4 rounded-xl bg-gradient-to-br from-indigo-950/60 to-cyan-950/40 border border-cyan-500/30 text-center">
-                        <span class="text-xs text-gray-400 block">القيمة التقريبية بالجنيه السوداني (شراء)</span>
-                        <span id="calc-result" class="text-2xl font-bold text-cyan-300 mt-1 block">0 ج.س</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ================= 3. قسم الـ BBAN ================= -->
-        <section id="tab-bban" class="tab-content space-y-6">
-            <div class="glass rounded-2xl p-6">
-                <h2 class="text-2xl font-bold text-white">دليل وأداة الـ BBAN للتحويل المصرفي</h2>
-                <p class="text-sm text-gray-300 mt-2 leading-relaxed">
-                    الرقم المصرفي الأساسي (BBAN) يتكون من <strong>14 رقماً</strong>، وهو الرقم المعتمد للتحويل المباشر بين التطبيقات البنكية في السودان (مثل التحويل من بنكك إلى أوكاش أو فوري).
-                </p>
-
-                <!-- أداة استخراج وفحص الـ BBAN -->
-                <div class="mt-6 p-5 rounded-2xl bg-gray-900/80 border border-white/10 space-y-4">
-                    <label class="block text-sm font-medium text-cyan-300">أدخل رقم الـ IBAN (يبدأ بـ SD) أو رقم الـ BBAN (14 رقماً):</label>
-                    <div class="flex flex-col sm:flex-row gap-3">
-                        <input type="text" id="bban-input" placeholder="مثال: SD150401234567890123" oninput="processBBAN()" class="flex-grow bg-black/50 border border-white/15 rounded-xl px-4 py-3 text-white font-mono tracking-wider focus:outline-none focus:border-cyan-400">
-                        <button onclick="copyBBAN()" class="bg-cyan-600 hover:bg-cyan-500 text-white px-6 py-3 rounded-xl font-medium text-sm transition-all">
-                            نسخ الـ BBAN
-                        </button>
-                    </div>
-
-                    <div id="bban-result-box" class="hidden p-4 rounded-xl bg-indigo-950/50 border border-indigo-500/30 grid sm:grid-cols-2 gap-4">
-                        <div>
-                            <span class="text-xs text-gray-400 block">رقم الـ BBAN الصافي (14 خانة):</span>
-                            <span id="bban-output" class="text-lg font-mono font-bold text-white mt-1 block tracking-widest">-</span>
-                        </div>
-                        <div>
-                            <span class="text-xs text-gray-400 block">البنك التابع له الحساب:</span>
-                            <span id="bban-bank-name" class="text-base font-bold text-cyan-300 mt-1 block">-</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- جدول رموز البنوك السودانية -->
-            <div class="glass rounded-2xl p-6">
-                <h3 class="text-lg font-bold text-white mb-4">رموز البنوك السودانية في نظام الـ BBAN (أول رقمين من اليسار)</h3>
-                <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-3" id="banks-codes-grid">
-                    <!-- يتم تعبئتها عبر الجافاسكريبت -->
-                </div>
-            </div>
-        </section>
-
-        <!-- ================= 4. قسم المقالات والشروحات ================= -->
-        <section id="tab-articles" class="tab-content space-y-6">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-2xl font-bold text-white">مكتبة الشروحات والأخبار المصرفية</h2>
-                    <p class="text-xs text-gray-400 mt-1">شروحات مصورة خطوة بخطوة لحل المشاكل التقنية وتسهيل المعاملات</p>
-                </div>
-                <!-- فلاتر التصنيفات -->
-                <div class="flex flex-wrap gap-2" id="article-filters">
-                    <button onclick="filterArticles('الكل')" class="filter-btn bg-cyan-500/20 border border-cyan-400 text-cyan-300 px-3 py-1.5 rounded-xl text-xs font-medium">الكل</button>
-                    <button onclick="filterArticles('بنكك')" class="filter-btn glass text-gray-300 px-3 py-1.5 rounded-xl text-xs font-medium">تطبيق بنكك</button>
-                    <button onclick="filterArticles('أوكاش')" class="filter-btn glass text-gray-300 px-3 py-1.5 rounded-xl text-xs font-medium">أوكاش</button>
-                    <button onclick="filterArticles('فوري')" class="filter-btn glass text-gray-300 px-3 py-1.5 rounded-xl text-xs font-medium">فوري</button>
-                    <button onclick="filterArticles('أمان مالي')" class="filter-btn glass text-gray-300 px-3 py-1.5 rounded-xl text-xs font-medium">أمان مالي</button>
-                </div>
-            </div>
-
-            <!-- شبكة المقالات -->
-            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5" id="all-articles-grid">
-                <!-- يتم تعبئتها عبر الجافاسكريبت -->
-            </div>
-        </section>
-
-        <!-- ================= 5. قسم حول زاجل ================= -->
-        <section id="tab-about" class="tab-content">
-            <div class="glass rounded-2xl p-6 sm:p-8 max-w-3xl mx-auto space-y-6">
-                <div class="flex items-center gap-4">
-                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center font-bold text-2xl text-white shadow-lg">
-                        ز
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-bold text-white">حول منصة زاجل</h2>
-                        <p class="text-sm text-cyan-400">بوابتك المصرفية والمالية الموثوقة في السودان</p>
-                    </div>
-                </div>
-
-                <p class="text-gray-300 leading-relaxed text-sm sm:text-base">
-                    تأسست منصة <strong>«زاجل»</strong> لتكون المصدر الأسرع والأكثر مصداقية لتغطية أخبار البنوك، تحديثات التطبيقات المصرفية، وأسعار العملات في السودان. في ظل التحول الرقمي المتسارع واعتماد الجميع على التطبيقات البنكية في معاملاتهم اليومية، نقدم شروحات مصورة خطوة بخطوة، وحلولاً عملية للمشاكل التقنية بلغة واضحة ومباشرة بعيداً عن التعقيد.
-                </p>
-
-                <div class="grid sm:grid-cols-3 gap-4 pt-2">
-                    <div class="p-4 rounded-xl bg-white/5 border border-white/10">
-                        <h4 class="font-bold text-cyan-300 text-sm">شروحات مصورة</h4>
-                        <p class="text-xs text-gray-400 mt-1">خطوات واضحة بالصور والنصوص لجميع التطبيقات البنكية.</p>
-                    </div>
-                    <div class="p-4 rounded-xl bg-white/5 border border-white/10">
-                        <h4 class="font-bold text-cyan-300 text-sm">تحديثات الصرف</h4>
-                        <p class="text-xs text-gray-400 mt-1">متابعة يومية دقيقة لأسعار العملات في البنوك والسوق.</p>
-                    </div>
-                    <div class="p-4 rounded-xl bg-white/5 border border-white/10">
-                        <h4 class="font-bold text-cyan-300 text-sm">أدوات ذكية</h4>
-                        <p class="text-xs text-gray-400 mt-1">حاسبة عملات فورية وأداة استخراج وفحص أرقام الـ BBAN.</p>
-                    </div>
-                </div>
-
-                <div class="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <span class="text-xs text-gray-400">للتواصل أو الانضمام لمجتمع زاجل الإخباري:</span>
-                    <div class="flex gap-3">
-                        <a href="https://whatsapp.com" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition-all">مجتمع واتساب</a>
-                        <a href="https://facebook.com" target="_blank" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition-all">صفحة فيسبوك</a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- نافذة قراءة المقال المصور (Modal) -->
-    <div id="article-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="glass max-w-2xl w-full max-h-[90vh] rounded-2xl overflow-y-auto border border-white/15 shadow-2xl">
-            <div class="sticky top-0 glass px-6 py-4 flex items-cen
+    // تشغيل العرض عند التحميل
+    renderCurrencies();
+  </script>
+</body>
+</html>
