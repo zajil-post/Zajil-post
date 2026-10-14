@@ -54,7 +54,6 @@ body{background:#F6F2F9;font-family:'IBM Plex Sans Arabic',sans-serif;color:#2A0
     </div>
   </div>
 </header>
-
 <main class="max-w-md mx-auto px-3.5 space-y-3.5 mt-1">
   <div class="bg-gradient-to-l from-[#380734] via-[#480B43] to-[#2B0528] rounded-full p-1.5 flex items-center justify-between shadow-md">
     <span class="bg-gradient-to-r from-[#C81971] to-[#E62988] text-white text-xs font-bold px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shrink-0">
@@ -127,7 +126,6 @@ body{background:#F6F2F9;font-family:'IBM Plex Sans Arabic',sans-serif;color:#2A0
     <button onclick="modal('rightM',1)" class="bg-white border border-purple-100 rounded-2xl py-3 px-2 shadow-sm flex items-center justify-center gap-2"><span class="w-7 h-7 rounded-full bg-[#3D0B3A] text-white flex items-center justify-center text-xs"><i class="fa-solid fa-shield-halved"></i></span><span class="text-xs font-bold">الحقوق</span></button>
   </div>
 </main>
-
 <nav class="fixed bottom-0 inset-x-0 z-40 bg-[#250423] text-white border-t border-purple-900/40">
   <div class="max-w-md mx-auto grid grid-cols-5 h-16 text-[11px]">
     <button onclick="scrollTo({top:0,behavior:'smooth'})" class="flex flex-col items-center justify-center gap-1 text-[#F42C90] font-bold"><i class="fa-solid fa-house text-base"></i><span>الرئيسية</span></button>
@@ -204,7 +202,6 @@ body{background:#F6F2F9;font-family:'IBM Plex Sans Arabic',sans-serif;color:#2A0
     <button onclick="dlFile()" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl"><i class="fa-solid fa-download ml-1"></i> تحميل ملف index.html جاهز</button>
   </div>
 </div>
-
 <script>
 const PASS="ZAJIL@201919"; let allC=false, taps=0, tmr;
 const CURR=[
@@ -254,4 +251,46 @@ function render(){
 function initCalc(){
   const all=[...CURR.map(x=>({c:x.c,n:x.n,f:x.f,r:st.b*x.rb})),{c:"SDG",n:"جنيه سوداني",f:"sd",r:1}];
   const h=all.map(x=>`<option value="${x.c}" data-f="${x.f}" data-r="${x.r}">${x.n} (${x.c})</option>`).join('');
-  const fs=document.getElementById('fSel'), ts=document.ge
+  const fs=document.getElementById('fSel'), ts=document.getElementById('tSel');
+  fs.innerHTML=h; ts.innerHTML=h; fs.value="USD"; ts.value="SDG"; calc();
+}
+function calc(){
+  const fs=document.getElementById('fSel'), ts=document.getElementById('tSel');
+  const fo=fs.options[fs.selectedIndex], to=ts.options[ts.selectedIndex];
+  if(!fo||!to)return;
+  document.getElementById('fFlg').src=`https://flagcdn.com/w40/${fo.dataset.f}.png`;
+  document.getElementById('tFlg').src=`https://flagcdn.com/w40/${to.dataset.f}.png`;
+  const v=(parseFloat(document.getElementById('cAmt').value)||0)*(+fo.dataset.r)/(+to.dataset.r);
+  document.getElementById('cRes').value=fmt(v);
+}
+function swapC(){const f=document.getElementById('fSel'),t=document.getElementById('tSel'),x=f.value;f.value=t.value;t.value=x;calc();}
+function modal(id,s){document.getElementById(id).classList.toggle('hidden',!s);}
+function go(id){document.getElementById(id).scrollIntoView({behavior:'smooth'});}
+function secretTap(){taps++;clearTimeout(tmr);tmr=setTimeout(()=>taps=0,2000);if(taps>=5){taps=0;modal('logM',1);}}
+function login(){
+  if(document.getElementById('passIn').value.trim()===PASS){
+    document.getElementById('passIn').value='';modal('logM',0);
+    document.getElementById('dBuy').value=st.b;document.getElementById('dSell').value=st.s;document.getElementById('dTick').value=st.tk;
+    modal('dashM',1);
+  }else alert('كلمة المرور غير صحيحة');
+}
+function saveR(){
+  st.b=parseFloat(document.getElementById('dBuy').value)||st.b;
+  st.s=parseFloat(document.getElementById('dSell').value)||st.s;
+  st.tk=document.getElementById('dTick').value.trim()||st.tk;
+  st.dt=document.getElementById('dateTxt').textContent;
+  localStorage.setItem('zj_st',JSON.stringify(st));render();initCalc();modal('dashM',0);
+}
+function addArt(){
+  const t=document.getElementById('pTit').value.trim(),b=document.getElementById('pBod').value.trim(),i=document.getElementById('pImg').value.trim();
+  if(!t||!b)return; st.arts.unshift({t,b,i}); localStorage.setItem('zj_st',JSON.stringify(st)); render(); modal('dashM',0);
+}
+function dlFile(){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['<!DOCTYPE html>\n'+document.documentElement.outerHTML],{type:'text/html'}));
+  a.download='index.html'; a.click();
+}
+render(); initCalc();
+</script>
+</body>
+</html>
