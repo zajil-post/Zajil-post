@@ -164,7 +164,7 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
         <div class="flex justify-center -my-2.5 relative z-10">
           <button onclick="swapC()" class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#6B0F5B] to-[#D81B7A] text-white shadow flex items-center justify-center border-2 border-white"><i class="fa-solid fa-arrow-right-arrow-left rotate-90 text-[10px]"></i></button>
         </div>
-        <div class="flex items-center bg-[#F6F2F9] border border-purple-200 rounded-xl px-2.5 py-2">
+        <div class="flex items-center bg-[#F6F2F9] border border-purple-200 rounded-xl px-2 py-2">
           <img id="tFlg" src="https://flagcdn.com/w40/eg.png" class="w-5 h-5 rounded-full object-cover ml-2">
           <select id="tSel" onchange="calc()" class="w-full bg-transparent text-xs font-bold focus:outline-none"></select>
         </div>
@@ -248,7 +248,7 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
 
 <div id="dashM" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 overflow-y-auto">
   <div class="bg-white w-full max-w-md rounded-3xl p-5 space-y-3.5 max-h-[92vh] overflow-y-auto text-xs text-[#2D062B]">
-    <div class="flex justify-between items-center border-b pb-2"><h3 class="font-bold text-sm">🕊️ لوحة تحكم زاجل</h3><button onclick="closeModal('dashM')"><i class="fa-solid fa-xmark text-base"></i></button></div>
+    <div class="flex justify-between items-center border-b pb-2"><h3 class="font-bold text-sm">🕊️ لوحة تحكم زاجل (سحابي مباشر)</h3><button onclick="closeModal('dashM')"><i class="fa-solid fa-xmark text-base"></i></button></div>
     
     <div class="p-3 rounded-2xl bg-[#F7F3FA] space-y-2">
       <div class="font-bold text-[#6B0F5B]">1. تحديث الدولار وحالة التطبيقات</div>
@@ -262,7 +262,7 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
         <div><label class="block text-[10px]">فوري</label><select id="stFawry" class="w-full bg-white border rounded-lg p-1"><option value="ok">يعمل 🟢</option><option value="warn">متذبذب 🟡</option><option value="err">لا يعمل 🔴</option></select></div>
         <div><label class="block text-[10px]">أوكاش</label><select id="stOkash" class="w-full bg-white border rounded-lg p-1"><option value="ok">يعمل 🟢</option><option value="warn">متذبذب 🟡</option><option value="err">لا يعمل 🔴</option></select></div>
       </div>
-      <button onclick="saveR()" class="w-full b-calc text-white font-bold py-2.5 rounded-xl">حفظ وتحديث الأسعار</button>
+      <button id="btnSaveR" onclick="saveR()" class="w-full b-calc text-white font-bold py-2.5 rounded-xl">حفظ وتحديث للجميع الآن</button>
     </div>
 
     <div class="p-3 rounded-2xl bg-[#F7F3FA] space-y-2">
@@ -274,7 +274,8 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
       </label>
       <input type="url" id="pImg" placeholder="أو الصق رابط صورة مباشر (اختياري)..." class="w-full bg-white border rounded-xl p-2" dir="ltr">
       <textarea id="pBod" rows="3" placeholder="اكتب الإجابة المفصلة والخطوات هنا..." class="w-full bg-white border rounded-xl p-2"></textarea>
-      <button onclick="addArt()" class="w-full bg-[#380734] text-white font-bold py-2.5 rounded-xl">نشر السؤال والإجابة فوراً</button>
+      <button id="btnAddArt" onclick="addArt()" class="w-full bg-[#380734] text-white font-bold py-2.5 rounded-xl">نشر السؤال والإجابة للجميع</button>
+      <div id="adminArtList" class="space-y-1.5 pt-2 max-h-32 overflow-y-auto"></div>
     </div>
 
     <div class="p-3 rounded-2xl bg-[#F7F3FA] space-y-2">
@@ -284,6 +285,7 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
   </div>
 </div>
 <script>
+const API_URL="https://api.npoint.io/4d1d2779aa887c3ed199";
 const PASS="ZAJIL@201919"; let taps=0,tmr,deferredPrompt=null,uploadedImgData="";
 const CURR=[
   {c:"USD",n:"دولار أمريكي",f:"us",rb:1,rs:1,ch:"+50"},
@@ -299,15 +301,34 @@ const CURR=[
   {c:"BHD",n:"دينار بحريني",f:"bh",rb:22082/8325,rs:23740/8950,ch:"+90"},
   {c:"ETB",n:"بير إثيوبي",f:"et",rb:51.33/8325,rs:55.18/8950,ch:"+1"}
 ];
-let st=JSON.parse(localStorage.getItem('zj_v6'))||{
-  b:8325,s:8950,upd:"تحديث اليوم 12:30 م",tk:"الذهب السوداني يتجاوز 2.2 مليار دولار • استقرار التحويلات عبر تطبيقات البنوك السودانية",
+let st=JSON.parse(localStorage.getItem('zj_cloud'))||{
+  b:8325,s:8950,upd:"تحديث اليوم",tk:"منصة زاجل للنشر | الرسالة الحقيقية",
   banks:{bankak:"ok",fawry:"ok",okash:"warn"},
-  arts:[
-    {t:"كيف أحول من تطبيق بنكك إلى فوري أو أوكاش؟",b:"1. استخرج رقم الـ BBAN الخاص بحساب المستفيد عبر أداة زاجل.\n2. افتح تطبيق بنكك واختر التحويل لبنك آخر.\n3. أدخل رقم الـ BBAN والمبلغ وأكمل العملية بسهولة.",i:""}
-  ],
+  arts:[{t:"كيف أحول من تطبيق بنكك إلى فوري أو أوكاش؟",b:"1. استخرج رقم الـ BBAN الخاص بحساب المستفيد عبر أداة زاجل.\n2. افتح تطبيق بنكك واختر التحويل لبنك آخر.\n3. أدخل رقم الـ BBAN والمبلغ وأكمل العملية بسهولة.",i:""}],
   questions:[]
 };
 const fmt=n=>n>=500?Math.round(n).toLocaleString('en-US'):Number(n.toFixed(2)).toLocaleString('en-US');
+
+async function loadCloud(){
+  try{
+    const r=await fetch(API_URL+"?t="+Date.now());
+    if(r.ok){
+      const d=await r.json();
+      if(d&&d.b){
+        st={...st,...d,banks:d.banks||st.banks,arts:Array.isArray(d.arts)?d.arts:st.arts,questions:Array.isArray(d.questions)?d.questions:[]};
+        localStorage.setItem('zj_cloud',JSON.stringify(st));
+        renderAll();
+      }
+    }
+  }catch(e){}
+}
+
+async function syncCloud(){
+  localStorage.setItem('zj_cloud',JSON.stringify(st));
+  try{
+    await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(st)});
+  }catch(e){alert("تنبيه: تأكد من اتصال الإنترنت لحفظ التعديل سحابياً");}
+}
 
 function clock(){
   try{
@@ -361,7 +382,7 @@ function renderAll(){
       <div class="col-span-2 text-center font-bold text-[#D81B7A]">${fmt(st.s*x.rs)}</div>
       <div class="col-span-2 text-left font-bold text-emerald-600" dir="ltr">↑ ${x.ch}</div>
     </div>`).join('');
-  document.getElementById('artList').innerHTML=st.arts.map(a=>`
+  document.getElementById('artList').innerHTML=(st.arts&&st.arts.length)?st.arts.map(a=>`
     <div class="s-card bg-white rounded-2xl p-4 shadow-sm border border-purple-100 space-y-2.5">
       ${a.i?`<img src="${a.i}" class="w-full max-h-56 object-cover rounded-xl">`:''}
       <div class="flex items-start gap-2">
@@ -369,7 +390,7 @@ function renderAll(){
         <h4 class="text-[16px] font-bold text-[#2D062B] s-txt leading-snug">${a.t}</h4>
       </div>
       <div class="s-sub bg-[#F9F6FC] p-3.5 rounded-xl border border-purple-100/80 text-[14.5px] leading-relaxed whitespace-pre-line">${a.b}</div>
-    </div>`).join('');
+    </div>`).join(''):'<p class="text-center text-xs opacity-60 py-4">لا توجد أسئلة منشورة حالياً</p>';
   initCalc();
 }
 
@@ -410,10 +431,10 @@ function encodeImg(input){
     const img=new Image();
     img.onload=()=>{
       const canvas=document.createElement('canvas');
-      const maxW=600, scale=maxW/img.width<1?maxW/img.width:1;
+      const maxW=550, scale=maxW/img.width<1?maxW/img.width:1;
       canvas.width=img.width*scale; canvas.height=img.height*scale;
       canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
-      uploadedImgData=canvas.toDataURL('image/jpeg',0.72);
+      uploadedImgData=canvas.toDataURL('image/jpeg',0.68);
       document.getElementById('imgLbl').textContent="✅ تم تجهيز الصورة بنجاح";
     };
     img.src=e.target.result;
@@ -421,13 +442,14 @@ function encodeImg(input){
   reader.readAsDataURL(file);
 }
 
-function submitQuestion(){
+async function submitQuestion(){
   const sender=document.getElementById('qSender').value.trim()||"متابع زاجل";
   const text=document.getElementById('qText').value.trim();
   if(!text)return alert("يرجى كتابة سؤالك أولاً");
+  await loadCloud();
   st.questions=st.questions||[];
   st.questions.unshift({id:Date.now(),sender,text});
-  localStorage.setItem('zj_v6',JSON.stringify(st));
+  await syncCloud();
   document.getElementById('qText').value='';
   alert("✅ تم إرسال سؤالك لإدارة منصة زاجل، سنجيب عليه قريباً!");
 }
@@ -443,22 +465,31 @@ function renderInbox(){
         <button onclick="delQ(${q.id})" class="bg-rose-50 text-rose-600 px-2 py-1 rounded-lg">✕</button>
       </div>
     </div>`).join(''):'<p class="text-gray-400 text-center py-2">لا توجد أسئلة جديدة</p>';
+  document.getElementById('adminArtList').innerHTML=(st.arts||[]).map((a,i)=>`
+    <div class="bg-white p-2 rounded-lg border flex justify-between items-center"><span class="truncate font-bold">${a.t}</span><button onclick="delArt(${i})" class="text-rose-600 font-bold px-2">حذف</button></div>`).join('');
 }
+
 function replyQ(txt){
   document.getElementById('pTit').value=txt;
   document.getElementById('pBod').focus();
 }
-function delQ(id){
+async function delQ(id){
   st.questions=st.questions.filter(q=>q.id!==id);
-  localStorage.setItem('zj_v6',JSON.stringify(st));
   renderInbox();
+  await syncCloud();
+}
+async function delArt(idx){
+  st.arts.splice(idx,1);
+  renderInbox(); renderAll();
+  await syncCloud();
 }
 
 function closeModal(id){document.getElementById(id).classList.add('hidden');}
 function secretTap(){taps++;clearTimeout(tmr);tmr=setTimeout(()=>taps=0,2000);if(taps>=5){taps=0;document.getElementById('logM').classList.remove('hidden');}}
-function login(){
+async function login(){
   if(document.getElementById('passIn').value.trim()===PASS){
     document.getElementById('passIn').value='';closeModal('logM');
+    await loadCloud();
     document.getElementById('dBuy').value=st.b;document.getElementById('dSell').value=st.s;document.getElementById('dTick').value=st.tk;
     document.getElementById('stBankak').value=st.banks?.bankak||"ok";
     document.getElementById('stFawry').value=st.banks?.fawry||"ok";
@@ -467,19 +498,25 @@ function login(){
     document.getElementById('dashM').classList.remove('hidden');
   }else alert('كلمة المرور غير صحيحة');
 }
-function saveR(){
+async function saveR(){
+  const btn=document.getElementById('btnSaveR'); btn.textContent="جاري الحفظ للجميع...";
   st.b=parseFloat(document.getElementById('dBuy').value)||st.b;
   st.s=parseFloat(document.getElementById('dSell').value)||st.s;
   st.tk=document.getElementById('dTick').value.trim()||st.tk;
   st.banks={bankak:document.getElementById('stBankak').value,fawry:document.getElementById('stFawry').value,okash:document.getElementById('stOkash').value};
   st.upd=document.getElementById('dateTxt').textContent+" • "+document.getElementById('timeTxt').textContent;
-  localStorage.setItem('zj_v6',JSON.stringify(st));renderAll();closeModal('dashM');
+  renderAll(); await syncCloud();
+  btn.textContent="حفظ وتحديث للجميع الآن"; closeModal('dashM');
 }
-function addArt(){
+async function addArt(){
   const t=document.getElementById('pTit').value.trim(),b=document.getElementById('pBod').value.trim(),i=uploadedImgData||document.getElementById('pImg').value.trim();
-  if(!t||!b)return; st.arts.unshift({t,b,i}); uploadedImgData=""; document.getElementById('imgLbl').textContent="اختر صورة توضيحية من جهازك (اختياري)";
+  if(!t||!b)return;
+  const btn=document.getElementById('btnAddArt'); btn.textContent="جاري النشر...";
+  st.arts=st.arts||[]; st.arts.unshift({t,b,i});
+  uploadedImgData=""; document.getElementById('imgLbl').textContent="اختر صورة توضيحية من جهازك (اختياري)";
   document.getElementById('pTit').value=''; document.getElementById('pBod').value=''; document.getElementById('pImg').value='';
-  localStorage.setItem('zj_v6',JSON.stringify(st)); renderAll(); closeModal('dashM');
+  renderAll(); renderInbox(); await syncCloud();
+  btn.textContent="نشر السؤال والإجابة للجميع"; closeModal('dashM');
 }
 
 const iconSvg='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="120" fill="#380734"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-size="280">🕊️</text></svg>');
@@ -488,7 +525,7 @@ document.getElementById('pwaManifest').setAttribute('href','data:application/man
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;});
 function triggerInstall(){if(deferredPrompt){deferredPrompt.prompt();}else{document.getElementById('pwaM').classList.remove('hidden');}}
 
-renderAll();
+renderAll(); loadCloud(); setInterval(loadCloud,30000);
 </script>
 </body>
 </html>
