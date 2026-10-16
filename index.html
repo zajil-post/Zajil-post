@@ -14,7 +14,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-body{background:#F6F2F9;font-family:'IBM Plex Sans Arabic',sans-serif;color:#2A0529;padding-bottom:88px;-webkit-tap-highlight-color:transparent;transition:background .25s,color .25s}
+body{background:#F6F2F9;font-family:'IBM Plex Sans Arabic',sans-serif;color:#2A0529;padding-bottom:88px;-webkit-tap-highlight-color:transparent;transition:background .2s,color .2s}
 .h-wave{background:radial-gradient(circle at 95% 10%,rgba(216,27,122,.14),transparent 45%),linear-gradient(180deg,#FFF,#F7F3FA)}
 .c-grad{background:linear-gradient(135deg,#380734,#640F55 50%,#2B0528)}
 .b-calc{background:linear-gradient(90deg,#5E1151,#D81B7A 60%,#E82A8A)}
@@ -31,12 +31,20 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
 </style>
 </head>
 <body class="select-none">
+<script>if(localStorage.getItem('zj_theme')==='dark')document.body.classList.add('dark-mode');</script>
 <div class="h-2 w-full bg-gradient-to-l from-[#D81B7A] via-[#6B0F5B] to-[#2A0529]"></div>
 
 <header class="h-wave pt-4 pb-3 px-4 sticky top-0 z-30 border-b border-purple-100/80 backdrop-blur-md">
   <div class="max-w-md mx-auto flex items-center justify-between">
     <div class="flex items-center gap-2.5">
-      <button onclick="secretTap()" class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#380734] to-[#D81B7A] flex items-center justify-center active:scale-90 transition text-2xl shadow-sm">🕊️</button>
+      <button onclick="secretTap()" class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#380734] to-[#D81B7A] flex items-center justify-center active:scale-90 transition shadow-sm p-2" aria-label="زاجل">
+        <svg viewBox="0 0 100 100" class="w-full h-full fill-white">
+          <path d="M18 14C28 31 46 31 58 41C64 46 64 53 57 59C61 50 56 41 43 37C30 34 22 28 18 14Z"/>
+          <path d="M23 34C34 42 49 39 57 47C51 45 40 48 31 46C26 44 24 39 23 34Z"/>
+          <path d="M28 77C30 61 38 51 59 47C59 56 53 62 43 65C34 67 30 71 28 77Z"/>
+          <path d="M58 30C63 22 72 22 78 27C81 27 83 28 85 30C79 29 74 31 71 38C69 43 69 48 68 53C68 44 65 35 58 30ZM65 29C68 28 71 29 75 28C72 26 68 26 65 29Z"/>
+        </svg>
+      </button>
       <div>
         <h1 class="text-[19px] font-bold text-[#2D062B] s-txt leading-tight">منصة زاجل للنشر</h1>
         <p class="text-xs font-bold text-[#D81B7A]">الرسالة الحقيقية</p>
@@ -57,7 +65,7 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
   <div id="tab-home" class="tab-content active space-y-4">
     <div class="s-sub bg-[#EFE9F4] border border-purple-200/60 rounded-2xl py-2.5 px-4 flex items-center justify-between shadow-sm">
       <div class="text-right flex-1">
-        <div id="dateTxt" class="text-[13px] font-bold text-[#3D0B3A] s-txt">الخميس 15 أكتوبر 2026</div>
+        <div id="dateTxt" class="text-[13px] font-bold text-[#3D0B3A] s-txt">الجمعة 16 أكتوبر 2026</div>
         <div class="text-[11px] opacity-75">بتوقيت الخرطوم المباشر</div>
       </div>
       <div class="flex items-center gap-2 px-2"><i class="fa-regular fa-calendar-days text-sm text-[#D81B7A]"></i><span class="h-4 w-[1px] bg-purple-300"></span></div>
@@ -133,7 +141,7 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
           <h2 class="text-[15px] font-bold text-[#2D062B] s-txt flex items-center gap-1.5"><i class="fa-solid fa-arrow-trend-up text-[#D81B7A]"></i> أسعار العملات (السوق الموازي)</h2>
           <p id="ratesUpdSub" class="text-[11px] opacity-60 mt-0.5"></p>
         </div>
-        <button onclick="renderAll()" class="s-sub w-8 h-8 rounded-full bg-[#F6F1F9] text-[#4A1246] active:rotate-180 transition"><i class="fa-solid fa-arrows-rotate text-xs"></i></button>
+        <button onclick="loadCloud(true)" class="s-sub w-8 h-8 rounded-full bg-[#F6F1F9] text-[#4A1246] active:rotate-180 transition"><i class="fa-solid fa-arrows-rotate text-xs"></i></button>
       </div>
       <div class="s-sub grid grid-cols-12 bg-[#F6F1F9] rounded-xl py-2 px-3 text-xs font-bold text-[#5A425E] mb-1">
         <div class="col-span-5">العملة</div><div class="col-span-3 text-center">شراء</div><div class="col-span-2 text-center">بيع</div><div class="col-span-2 text-left">التغير</div>
@@ -164,7 +172,7 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
         <div class="flex justify-center -my-2.5 relative z-10">
           <button onclick="swapC()" class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#6B0F5B] to-[#D81B7A] text-white shadow flex items-center justify-center border-2 border-white"><i class="fa-solid fa-arrow-right-arrow-left rotate-90 text-[10px]"></i></button>
         </div>
-        <div class="flex items-center bg-[#F6F2F9] border border-purple-200 rounded-xl px-2 py-2">
+        <div class="flex items-center bg-[#F6F2F9] border border-purple-200 rounded-xl px-2.5 py-2">
           <img id="tFlg" src="https://flagcdn.com/w40/eg.png" class="w-5 h-5 rounded-full object-cover ml-2">
           <select id="tSel" onchange="calc()" class="w-full bg-transparent text-xs font-bold focus:outline-none"></select>
         </div>
@@ -192,7 +200,7 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
 
   <div id="tab-more" class="tab-content space-y-3.5">
     <div class="s-card bg-white rounded-[24px] p-5 shadow-sm border border-purple-100 space-y-3 text-[13px] leading-relaxed">
-      <h3 class="font-bold text-base text-[#2D062B] s-txt pb-2 border-b border-purple-100/40">🕊️ حول منصة زاجل للنشر | Zajil</h3>
+      <h3 class="font-bold text-base text-[#2D062B] s-txt pb-2 border-b border-purple-100/40"> حول منصة زاجل للنشر | Zajil</h3>
       <p><b>زاجل للنشر</b> منصة إعلامية ومعلوماتية سودانية، انطلقت في <b>سبتمبر 2019</b> عبر حالة الواتساب، بهدف نقل أخبار السودان ومشاركة المعلومات والخدمات التي تهم المواطن السوداني.</p>
       <p>على مدار رحلتها، توسعت زاجل لتشمل الأخبار، والاقتصاد السوداني، وأسعار الصرف وتحديثات الجنيه السوداني مقابل العملات الاخرى، والتحديثات المصرفية، وخدمات السفر والجامعات، ومشاركة المعلومات التي تساعد الناس على الوصول إلى ما يحتاجونه بسهولة.</p>
       <div class="s-sub p-3 rounded-2xl bg-purple-50 text-[#3D0B3A] font-medium">«نؤمن في زاجل بأن المعلومة حق، وأن رسالتنا تقوم على خدمة المتابعين، ونقل الأخبار والمعلومات، ومتابعة المستجدات التي تمس حياتهم اليومية، بعيداً عن الأجندات والمصالح الخفية.»</div>
@@ -212,7 +220,7 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
     <div class="s-card bg-white rounded-[24px] p-5 shadow-sm border border-purple-100 space-y-2 text-xs">
       <h3 class="font-bold text-sm text-[#2D062B] s-txt pb-2 border-b border-purple-100/40">إبراء ذمة</h3>
       <p class="opacity-80 leading-relaxed">• الأسعار المنشورة في المنصة استرشادية فقط لحركة السوق الموازي ولا تمثل سعراً رسمياً ملزماً.</p>
-      <p class="text-center font-bold text-[#D81B7A] pt-2">🕊️ منصة زاجل للنشر | الرسالة الحقيقية.</p>
+      <p class="text-center font-bold text-[#D81B7A] pt-2">منصة زاجل للنشر | الرسالة الحقيقية.</p>
     </div>
   </div>
 </main>
@@ -227,7 +235,9 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
 
 <div id="pwaM" class="hidden fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
   <div class="bg-white w-full max-w-xs rounded-3xl p-5 text-center space-y-3 text-xs text-[#2D062B]">
-    <div class="text-3xl">🕊️</div>
+    <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-[#380734] to-[#D81B7A] flex items-center justify-center p-2.5">
+      <svg viewBox="0 0 100 100" class="w-full h-full fill-white"><path d="M18 14C28 31 46 31 58 41C64 46 64 53 57 59C61 50 56 41 43 37C30 34 22 28 18 14Z"/><path d="M23 34C34 42 49 39 57 47C51 45 40 48 31 46C26 44 24 39 23 34Z"/><path d="M28 77C30 61 38 51 59 47C59 56 53 62 43 65C34 67 30 71 28 77Z"/><path d="M58 30C63 22 72 22 78 27C81 27 83 28 85 30C79 29 74 31 71 38C69 43 69 48 68 53C68 44 65 35 58 30ZM65 29C68 28 71 29 75 28C72 26 68 26 65 29Z"/></svg>
+    </div>
     <h3 class="font-bold text-sm">تثبيت تطبيق زاجل بشاشة كاملة</h3>
     <p class="text-gray-600 leading-relaxed"><b>لأجهزة أندرويد (Chrome):</b> اضغط القائمة <b>(⋮)</b> أعلى المتصفح واختر <b>«تثبيت التطبيق» (Install App)</b> ليفتح بشاشة كاملة بدون شريط كروم.</p>
     <p class="text-gray-600 leading-relaxed"><b>لأجهزة آيفون (Safari):</b> اضغط زر المشاركة <i class="fa-solid fa-arrow-up-from-bracket text-[#D81B7A]"></i> ثم اختر <b>«إضافة إلى الشاشة الرئيسية»</b>.</p>
@@ -248,7 +258,7 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
 
 <div id="dashM" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 overflow-y-auto">
   <div class="bg-white w-full max-w-md rounded-3xl p-5 space-y-3.5 max-h-[92vh] overflow-y-auto text-xs text-[#2D062B]">
-    <div class="flex justify-between items-center border-b pb-2"><h3 class="font-bold text-sm">🕊️ لوحة تحكم زاجل (سحابي مباشر)</h3><button onclick="closeModal('dashM')"><i class="fa-solid fa-xmark text-base"></i></button></div>
+    <div class="flex justify-between items-center border-b pb-2"><h3 class="font-bold text-sm">لوحة تحكم زاجل (حفظ ذكي ومزامنة)</h3><button onclick="closeModal('dashM')"><i class="fa-solid fa-xmark text-base"></i></button></div>
     
     <div class="p-3 rounded-2xl bg-[#F7F3FA] space-y-2">
       <div class="font-bold text-[#6B0F5B]">1. تحديث الدولار وحالة التطبيقات</div>
@@ -262,7 +272,7 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
         <div><label class="block text-[10px]">فوري</label><select id="stFawry" class="w-full bg-white border rounded-lg p-1"><option value="ok">يعمل 🟢</option><option value="warn">متذبذب 🟡</option><option value="err">لا يعمل 🔴</option></select></div>
         <div><label class="block text-[10px]">أوكاش</label><select id="stOkash" class="w-full bg-white border rounded-lg p-1"><option value="ok">يعمل 🟢</option><option value="warn">متذبذب 🟡</option><option value="err">لا يعمل 🔴</option></select></div>
       </div>
-      <button id="btnSaveR" onclick="saveR()" class="w-full b-calc text-white font-bold py-2.5 rounded-xl">حفظ وتحديث للجميع الآن</button>
+      <button id="btnSaveR" onclick="saveR()" class="w-full b-calc text-white font-bold py-2.5 rounded-xl">حفظ وتثبيت للجميع الآن</button>
     </div>
 
     <div class="p-3 rounded-2xl bg-[#F7F3FA] space-y-2">
@@ -301,33 +311,50 @@ const CURR=[
   {c:"BHD",n:"دينار بحريني",f:"bh",rb:22082/8325,rs:23740/8950,ch:"+90"},
   {c:"ETB",n:"بير إثيوبي",f:"et",rb:51.33/8325,rs:55.18/8950,ch:"+1"}
 ];
-let st=JSON.parse(localStorage.getItem('zj_cloud'))||{
-  b:8325,s:8950,upd:"تحديث اليوم",tk:"منصة زاجل للنشر | الرسالة الحقيقية",
+const DEF_ART={t:"كيف أحول من تطبيق بنكك إلى فوري أو أوكاش؟",b:"1. استخرج رقم الـ BBAN الخاص بحساب المستفيد عبر أداة زاجل.\n2. افتح تطبيق بنكك واختر التحويل لبنك آخر.\n3. أدخل رقم الـ BBAN والمبلغ وأكمل العملية بسهولة.",i:""};
+let st=JSON.parse(localStorage.getItem('zj_state_v7'))||{
+  ts:1729000000000,b:8325,s:8950,upd:"تحديث اليوم",tk:"منصة زاجل للنشر | الرسالة الحقيقية",
   banks:{bankak:"ok",fawry:"ok",okash:"warn"},
-  arts:[{t:"كيف أحول من تطبيق بنكك إلى فوري أو أوكاش؟",b:"1. استخرج رقم الـ BBAN الخاص بحساب المستفيد عبر أداة زاجل.\n2. افتح تطبيق بنكك واختر التحويل لبنك آخر.\n3. أدخل رقم الـ BBAN والمبلغ وأكمل العملية بسهولة.",i:""}],
-  questions:[]
+  arts:[DEF_ART],questions:[]
 };
 const fmt=n=>n>=500?Math.round(n).toLocaleString('en-US'):Number(n.toFixed(2)).toLocaleString('en-US');
 
-async function loadCloud(){
+function saveLocal(){
+  localStorage.setItem('zj_state_v7',JSON.stringify(st));
+}
+
+async function loadCloud(force){
   try{
-    const r=await fetch(API_URL+"?t="+Date.now());
-    if(r.ok){
-      const d=await r.json();
-      if(d&&d.b){
-        st={...st,...d,banks:d.banks||st.banks,arts:Array.isArray(d.arts)?d.arts:st.arts,questions:Array.isArray(d.questions)?d.questions:[]};
-        localStorage.setItem('zj_cloud',JSON.stringify(st));
-        renderAll();
-      }
+    const r=await fetch(API_URL+"?nocache="+Date.now(),{cache:"no-store"});
+    if(!r.ok)return;
+    const d=await r.json();
+    if(!d||!d.b)return;
+    const cloudTs=Number(d.ts)||0, localTs=Number(st.ts)||0;
+    if(cloudTs>localTs || (force&&cloudTs>0)){
+      st={
+        ts:cloudTs,b:Number(d.b)||st.b,s:Number(d.s)||st.s,
+        upd:d.upd||st.upd,tk:d.tk||st.tk,
+        banks:d.banks||st.banks,
+        arts:(Array.isArray(d.arts)&&d.arts.length)?d.arts:st.arts,
+        questions:Array.isArray(d.questions)?d.questions:st.questions
+      };
+      saveLocal(); renderAll();
+    }else if(localTs>cloudTs){
+      await syncCloud();
     }
   }catch(e){}
 }
 
 async function syncCloud(){
-  localStorage.setItem('zj_cloud',JSON.stringify(st));
+  st.ts=Date.now();
+  saveLocal();
   try{
-    await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(st)});
-  }catch(e){alert("تنبيه: تأكد من اتصال الإنترنت لحفظ التعديل سحابياً");}
+    const res=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(st)});
+    if(!res.ok)throw new Error();
+  }catch(e){
+    const slim={...st,arts:(st.arts||[]).map(a=>({...a,i:a.i&&a.i.startsWith('data:')?'':a.i}))};
+    try{await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(slim)});}catch(e2){}
+  }
 }
 
 function clock(){
@@ -339,10 +366,16 @@ function clock(){
 }
 setInterval(clock,10000); clock();
 
-function toggleTheme(){
-  const d=document.body.classList.toggle('dark-mode');
-  document.getElementById('themeIcon').className=d?'fa-solid fa-sun text-amber-400 text-sm':'fa-solid fa-moon text-sm';
+function syncThemeIcon(){
+  const isDark=document.body.classList.contains('dark-mode');
+  document.getElementById('themeIcon').className=isDark?'fa-solid fa-sun text-amber-400 text-sm':'fa-solid fa-moon text-sm';
 }
+function toggleTheme(){
+  const isDark=document.body.classList.toggle('dark-mode');
+  localStorage.setItem('zj_theme',isDark?'dark':'light');
+  syncThemeIcon();
+}
+syncThemeIcon();
 
 function switchTab(id,el){
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
@@ -382,7 +415,8 @@ function renderAll(){
       <div class="col-span-2 text-center font-bold text-[#D81B7A]">${fmt(st.s*x.rs)}</div>
       <div class="col-span-2 text-left font-bold text-emerald-600" dir="ltr">↑ ${x.ch}</div>
     </div>`).join('');
-  document.getElementById('artList').innerHTML=(st.arts&&st.arts.length)?st.arts.map(a=>`
+  if(!st.arts||!st.arts.length)st.arts=[DEF_ART];
+  document.getElementById('artList').innerHTML=st.arts.map(a=>`
     <div class="s-card bg-white rounded-2xl p-4 shadow-sm border border-purple-100 space-y-2.5">
       ${a.i?`<img src="${a.i}" class="w-full max-h-56 object-cover rounded-xl">`:''}
       <div class="flex items-start gap-2">
@@ -390,10 +424,9 @@ function renderAll(){
         <h4 class="text-[16px] font-bold text-[#2D062B] s-txt leading-snug">${a.t}</h4>
       </div>
       <div class="s-sub bg-[#F9F6FC] p-3.5 rounded-xl border border-purple-100/80 text-[14.5px] leading-relaxed whitespace-pre-line">${a.b}</div>
-    </div>`).join(''):'<p class="text-center text-xs opacity-60 py-4">لا توجد أسئلة منشورة حالياً</p>';
+    </div>`).join('');
   initCalc();
 }
-
 function getAllCalcList(){
   return [{c:"SDG",n:"جنيه سوداني",f:"sd",b:1,s:1},...CURR.map(x=>({c:x.c,n:x.n,f:x.f,b:st.b*x.rb,s:st.s*x.rs}))];
 }
@@ -424,6 +457,7 @@ function calc(){
     </div>`).join('');
 }
 function swapC(){const f=document.getElementById('fSel'),t=document.getElementById('tSel'),x=f.value;f.value=t.value;t.value=x;calc();}
+
 function encodeImg(input){
   const file=input.files[0]; if(!file)return;
   const reader=new FileReader();
@@ -431,10 +465,10 @@ function encodeImg(input){
     const img=new Image();
     img.onload=()=>{
       const canvas=document.createElement('canvas');
-      const maxW=550, scale=maxW/img.width<1?maxW/img.width:1;
+      const maxW=380, scale=maxW/img.width<1?maxW/img.width:1;
       canvas.width=img.width*scale; canvas.height=img.height*scale;
       canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
-      uploadedImgData=canvas.toDataURL('image/jpeg',0.68);
+      uploadedImgData=canvas.toDataURL('image/jpeg',0.55);
       document.getElementById('imgLbl').textContent="✅ تم تجهيز الصورة بنجاح";
     };
     img.src=e.target.result;
@@ -469,20 +503,9 @@ function renderInbox(){
     <div class="bg-white p-2 rounded-lg border flex justify-between items-center"><span class="truncate font-bold">${a.t}</span><button onclick="delArt(${i})" class="text-rose-600 font-bold px-2">حذف</button></div>`).join('');
 }
 
-function replyQ(txt){
-  document.getElementById('pTit').value=txt;
-  document.getElementById('pBod').focus();
-}
-async function delQ(id){
-  st.questions=st.questions.filter(q=>q.id!==id);
-  renderInbox();
-  await syncCloud();
-}
-async function delArt(idx){
-  st.arts.splice(idx,1);
-  renderInbox(); renderAll();
-  await syncCloud();
-}
+function replyQ(txt){document.getElementById('pTit').value=txt;document.getElementById('pBod').focus();}
+async function delQ(id){st.questions=st.questions.filter(q=>q.id!==id);renderInbox();await syncCloud();}
+async function delArt(idx){st.arts.splice(idx,1);renderInbox();renderAll();await syncCloud();}
 
 function closeModal(id){document.getElementById(id).classList.add('hidden');}
 function secretTap(){taps++;clearTimeout(tmr);tmr=setTimeout(()=>taps=0,2000);if(taps>=5){taps=0;document.getElementById('logM').classList.remove('hidden');}}
@@ -499,14 +522,14 @@ async function login(){
   }else alert('كلمة المرور غير صحيحة');
 }
 async function saveR(){
-  const btn=document.getElementById('btnSaveR'); btn.textContent="جاري الحفظ للجميع...";
+  const btn=document.getElementById('btnSaveR'); btn.textContent="جاري الحفظ والتثبيت...";
   st.b=parseFloat(document.getElementById('dBuy').value)||st.b;
   st.s=parseFloat(document.getElementById('dSell').value)||st.s;
   st.tk=document.getElementById('dTick').value.trim()||st.tk;
   st.banks={bankak:document.getElementById('stBankak').value,fawry:document.getElementById('stFawry').value,okash:document.getElementById('stOkash').value};
   st.upd=document.getElementById('dateTxt').textContent+" • "+document.getElementById('timeTxt').textContent;
   renderAll(); await syncCloud();
-  btn.textContent="حفظ وتحديث للجميع الآن"; closeModal('dashM');
+  btn.textContent="حفظ وتثبيت للجميع الآن"; closeModal('dashM');
 }
 async function addArt(){
   const t=document.getElementById('pTit').value.trim(),b=document.getElementById('pBod').value.trim(),i=uploadedImgData||document.getElementById('pImg').value.trim();
@@ -519,13 +542,13 @@ async function addArt(){
   btn.textContent="نشر السؤال والإجابة للجميع"; closeModal('dashM');
 }
 
-const iconSvg='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="120" fill="#380734"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-size="280">🕊️</text></svg>');
+const iconSvg='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="24" fill="#380734"/><path fill="#FFF" d="M18 14C28 31 46 31 58 41C64 46 64 53 57 59C61 50 56 41 43 37C30 34 22 28 18 14Z"/><path fill="#FFF" d="M23 34C34 42 49 39 57 47C51 45 40 48 31 46C26 44 24 39 23 34Z"/><path fill="#FFF" d="M28 77C30 61 38 51 59 47C59 56 53 62 43 65C34 67 30 71 28 77Z"/><path fill="#FFF" d="M58 30C63 22 72 22 78 27C81 27 83 28 85 30C79 29 74 31 71 38C69 43 69 48 68 53C68 44 65 35 58 30ZM65 29C68 28 71 29 75 28C72 26 68 26 65 29Z"/></svg>');
 const manifest={name:"منصة زاجل للنشر",short_name:"زاجل",start_url:location.href,scope:".",display:"standalone",orientation:"portrait",background_color:"#F6F2F9",theme_color:"#380734",icons:[{src:iconSvg,sizes:"192x192",type:"image/svg+xml",purpose:"any maskable"},{src:iconSvg,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}]};
 document.getElementById('pwaManifest').setAttribute('href','data:application/manifest+json;charset=utf-8,'+encodeURIComponent(JSON.stringify(manifest)));
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;});
 function triggerInstall(){if(deferredPrompt){deferredPrompt.prompt();}else{document.getElementById('pwaM').classList.remove('hidden');}}
 
-renderAll(); loadCloud(); setInterval(loadCloud,30000);
+renderAll(); loadCloud(); setInterval(()=>loadCloud(false),25000);
 </script>
 </body>
 </html>
