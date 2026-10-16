@@ -172,7 +172,7 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
         <div class="flex justify-center -my-2.5 relative z-10">
           <button onclick="swapC()" class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#6B0F5B] to-[#D81B7A] text-white shadow flex items-center justify-center border-2 border-white"><i class="fa-solid fa-arrow-right-arrow-left rotate-90 text-[10px]"></i></button>
         </div>
-        <div class="flex items-center bg-[#F6F2F9] border border-purple-200 rounded-xl px-2.5 py-2">
+        <div class="flex items-center bg-[#F6F2F9] border border-purple-200 rounded-xl px-2 py-2">
           <img id="tFlg" src="https://flagcdn.com/w40/eg.png" class="w-5 h-5 rounded-full object-cover ml-2">
           <select id="tSel" onchange="calc()" class="w-full bg-transparent text-xs font-bold focus:outline-none"></select>
         </div>
@@ -271,7 +271,7 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
     <div class="flex justify-between items-center border-b pb-2">
       <div>
         <h3 class="font-bold text-sm">لوحة تحكم زاجل السحابية</h3>
-        <span id="cloudBadge" class="text-[10px] font-bold text-emerald-600">جاري فحص السحابة...</span>
+        <span id="cloudBadge" class="text-[10px] font-bold text-emerald-600">● متصل بسحابة Pantry ✅</span>
       </div>
       <button onclick="closeModal('dashM')"><i class="fa-solid fa-xmark text-base"></i></button>
     </div>
@@ -311,7 +311,8 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
   </div>
 </div>
 <script>
-const API_URL="https://api.npoint.io/4d1d2779aa887c3ed199";
+const PANTRY_ID="77d25e08-f670-4cbc-9e8d-e85150943ed0";
+const API_URL=`https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/zajil_data`;
 const PASS="ZAJIL@201919"; let taps=0,tmr,deferredPrompt=null,uploadedImgData="";
 const CURR=[
   {c:"USD",n:"دولار أمريكي",f:"us",rb:1,rs:1,ch:"+50"},
@@ -328,7 +329,7 @@ const CURR=[
   {c:"ETB",n:"بير إثيوبي",f:"et",rb:51.33/8325,rs:55.18/8950,ch:"+1"}
 ];
 const DEF_ART={t:"كيف أحول من تطبيق بنكك إلى فوري أو أوكاش؟",b:"1. استخرج رقم الـ BBAN الخاص بحساب المستفيد عبر أداة زاجل.\n2. افتح تطبيق بنكك واختر التحويل لبنك آخر.\n3. أدخل رقم الـ BBAN والمبلغ وأكمل العملية بسهولة.",i:""};
-let st=JSON.parse(localStorage.getItem('zj_state_v8'))||{
+let st=JSON.parse(localStorage.getItem('zj_state_v9'))||{
   b:8325,s:8950,upd:"تحديث اليوم",tk:"منصة زاجل للنشر | الرسالة الحقيقية",
   banks:{bankak:"ok",fawry:"ok",okash:"warn"},
   arts:[DEF_ART],questions:[]
@@ -337,42 +338,35 @@ const fmt=n=>n>=500?Math.round(n).toLocaleString('en-US'):Number(n.toFixed(2)).t
 
 async function loadCloud(){
   try{
-    const r=await fetch(API_URL,{method:"GET",cache:"no-store"});
-    if(!r.ok){
-      const b=document.getElementById('cloudBadge');
-      if(b)b.innerHTML='<span class="text-rose-600">⚠️ السحابة غير مفعلة (اضغط Save في npoint.io)</span>';
-      return;
-    }
-    const d=await r.json();
-    if(d && typeof d.b!=="undefined"){
-      st={
-        b:Number(d.b)||8325, s:Number(d.s)||8950,
-        upd:d.upd||"تحديث اليوم", tk:d.tk||"منصة زاجل للنشر | الرسالة الحقيقية",
-        banks:d.banks||{bankak:"ok",fawry:"ok",okash:"warn"},
-        arts:Array.isArray(d.arts)&&d.arts.length?d.arts:[DEF_ART],
-        questions:Array.isArray(d.questions)?d.questions:[]
-      };
-      localStorage.setItem('zj_state_v8',JSON.stringify(st));
-      renderAll();
-      const b=document.getElementById('cloudBadge');
-      if(b)b.innerHTML='<span class="text-emerald-600">● متصل بالسحابة ومحدث للجميع ✅</span>';
+    const r=await fetch(API_URL,{method:"GET",headers:{"Content-Type":"application/json"}});
+    if(r.ok){
+      const d=await r.json();
+      if(d && typeof d.b!=="undefined"){
+        st={
+          b:Number(d.b)||8325, s:Number(d.s)||8950,
+          upd:d.upd||"تحديث اليوم", tk:d.tk||"منصة زاجل للنشر | الرسالة الحقيقية",
+          banks:d.banks||{bankak:"ok",fawry:"ok",okash:"warn"},
+          arts:Array.isArray(d.arts)&&d.arts.length?d.arts:[DEF_ART],
+          questions:Array.isArray(d.questions)?d.questions:[]
+        };
+        localStorage.setItem('zj_state_v9',JSON.stringify(st));
+        renderAll();
+      }
     }
   }catch(e){}
 }
 
 async function syncCloud(){
-  localStorage.setItem('zj_state_v8',JSON.stringify(st));
+  localStorage.setItem('zj_state_v9',JSON.stringify(st));
   try{
-    const res=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(st)});
-    if(!res.ok)throw new Error();
+    const res=await fetch(API_URL,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(st)});
+    if(!res.ok){
+      const resPost=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(st)});
+      if(!resPost.ok)throw new Error();
+    }
     return true;
   }catch(e){
-    try{
-      const slim={...st,arts:(st.arts||[]).map(a=>({...a,i:a.i&&a.i.startsWith('data:')?'':a.i}))};
-      const res2=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(slim)});
-      if(res2.ok)return true;
-    }catch(e2){}
-    alert("⚠️ لم يتم الحفظ في السحابة! تأكد أنك ضغطت زر Save داخل موقع npoint.io عند إنشاء الرابط.");
+    alert("⚠️ تعذر الحفظ بالسحابة، تأكد من اتصال الإنترنت.");
     return false;
   }
 }
