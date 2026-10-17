@@ -65,7 +65,7 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
   <div id="tab-home" class="tab-content active space-y-4">
     <div class="s-sub bg-[#EFE9F4] border border-purple-200/60 rounded-2xl py-2.5 px-4 flex items-center justify-between shadow-sm">
       <div class="text-right flex-1">
-        <div id="dateTxt" class="text-[13px] font-bold text-[#3D0B3A] s-txt">الجمعة 16 أكتوبر 2026</div>
+        <div id="dateTxt" class="text-[13px] font-bold text-[#3D0B3A] s-txt">السبت 17 أكتوبر 2026</div>
         <div class="text-[11px] opacity-75">بتوقيت الخرطوم المباشر</div>
       </div>
       <div class="flex items-center gap-2 px-2"><i class="fa-regular fa-calendar-days text-sm text-[#D81B7A]"></i><span class="h-4 w-[1px] bg-purple-300"></span></div>
@@ -75,7 +75,7 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
     <div class="s-card bg-white rounded-2xl p-3.5 shadow-sm border border-purple-100">
       <div class="flex items-center justify-between mb-2.5">
         <span class="text-xs font-bold text-[#2D062B] s-txt flex items-center gap-1.5"><i class="fa-solid fa-server text-[#D81B7A]"></i> حالة التطبيقات المصرفية الآن</span>
-        <button onclick="loadCloud()" class="text-[10px] text-[#D81B7A] font-bold flex items-center gap-1"><i class="fa-solid fa-rotate"></i> تحديث</button>
+        <button onclick="loadCloud(true)" class="text-[11px] text-[#D81B7A] font-bold flex items-center gap-1 active:scale-95 transition"><i class="fa-solid fa-rotate"></i> تحديث الآن</button>
       </div>
       <div id="bankStatusGrid" class="grid grid-cols-3 gap-2 text-center"></div>
     </div>
@@ -129,7 +129,7 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
       </div>
       <input type="text" id="qSender" placeholder="اسمك (اختياري)..." class="s-sub w-full bg-[#F6F2F9] border border-purple-200/70 rounded-xl px-3 py-2 text-xs focus:outline-none">
       <textarea id="qText" rows="2" placeholder="اكتب سؤالك هنا بوضوح..." class="s-sub w-full bg-[#F6F2F9] border border-purple-200/70 rounded-xl px-3 py-2 text-sm focus:outline-none"></textarea>
-      <button onclick="submitQuestion()" class="b-calc w-full py-2.5 rounded-xl text-white font-bold text-xs shadow flex items-center justify-center gap-1.5">
+      <button id="btnSendQ" onclick="submitQuestion()" class="b-calc w-full py-2.5 rounded-xl text-white font-bold text-xs shadow flex items-center justify-center gap-1.5">
         <i class="fa-solid fa-paper-plane"></i><span>إرسال السؤال لإدارة زاجل</span>
       </button>
     </div>
@@ -141,7 +141,7 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
           <h2 class="text-[15px] font-bold text-[#2D062B] s-txt flex items-center gap-1.5"><i class="fa-solid fa-arrow-trend-up text-[#D81B7A]"></i> أسعار العملات (السوق الموازي)</h2>
           <p id="ratesUpdSub" class="text-[11px] opacity-60 mt-0.5"></p>
         </div>
-        <button onclick="loadCloud()" class="s-sub w-8 h-8 rounded-full bg-[#F6F1F9] text-[#4A1246] active:rotate-180 transition"><i class="fa-solid fa-arrows-rotate text-xs"></i></button>
+        <button onclick="loadCloud(true)" class="s-sub w-8 h-8 rounded-full bg-[#F6F1F9] text-[#4A1246] active:rotate-180 transition"><i class="fa-solid fa-arrows-rotate text-xs"></i></button>
       </div>
       <div class="s-sub grid grid-cols-12 bg-[#F6F1F9] rounded-xl py-2 px-3 text-xs font-bold text-[#5A425E] mb-1">
         <div class="col-span-5">العملة</div><div class="col-span-3 text-center">شراء</div><div class="col-span-2 text-center">بيع</div><div class="col-span-2 text-left">التغير</div>
@@ -172,7 +172,7 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
         <div class="flex justify-center -my-2.5 relative z-10">
           <button onclick="swapC()" class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#6B0F5B] to-[#D81B7A] text-white shadow flex items-center justify-center border-2 border-white"><i class="fa-solid fa-arrow-right-arrow-left rotate-90 text-[10px]"></i></button>
         </div>
-        <div class="flex items-center bg-[#F6F2F9] border border-purple-200 rounded-xl px-2 py-2">
+        <div class="flex items-center bg-[#F6F2F9] border border-purple-200 rounded-xl px-2.5 py-2">
           <img id="tFlg" src="https://flagcdn.com/w40/eg.png" class="w-5 h-5 rounded-full object-cover ml-2">
           <select id="tSel" onchange="calc()" class="w-full bg-transparent text-xs font-bold focus:outline-none"></select>
         </div>
@@ -271,7 +271,7 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
     <div class="flex justify-between items-center border-b pb-2">
       <div>
         <h3 class="font-bold text-sm">لوحة تحكم زاجل السحابية</h3>
-        <span id="cloudBadge" class="text-[10px] font-bold text-emerald-600">● متصل بسحابة Pantry ✅</span>
+        <span id="cloudBadge" class="text-[10px] font-bold text-emerald-600">● مزامنة سحابية مباشرة (POST Live) ✅</span>
       </div>
       <button onclick="closeModal('dashM')"><i class="fa-solid fa-xmark text-base"></i></button>
     </div>
@@ -308,11 +308,20 @@ body.dark-mode .s-txt{color:#F5EEF7!important}
       <div class="font-bold text-[#6B0F5B] flex justify-between"><span>3. أسئلة المتابعين الواردة 📩</span><span id="qCount" class="text-[#D81B7A]">0</span></div>
       <div id="inboxList" class="space-y-2 max-h-40 overflow-y-auto"></div>
     </div>
+
+    <details class="p-2.5 rounded-2xl bg-gray-50 border text-[11px]">
+      <summary class="font-bold text-[#6B0F5B] cursor-pointer">⚙️ ربط GitHub API المباشر (اختياري)</summary>
+      <div class="space-y-1.5 pt-2">
+        <input type="text" id="ghRepo" placeholder="اسم المستودع مثل: username/zajil" class="w-full bg-white border rounded-lg p-1.5" dir="ltr">
+        <input type="password" id="ghTok" placeholder="GitHub Token (ghp_...)" class="w-full bg-white border rounded-lg p-1.5" dir="ltr">
+        <button onclick="saveGhCfg()" class="w-full bg-gray-800 text-white py-1.5 rounded-lg font-bold">حفظ إعدادات GitHub</button>
+      </div>
+    </details>
   </div>
 </div>
 <script>
 const PANTRY_ID="77d25e08-f670-4cbc-9e8d-e85150943ed0";
-const API_URL=`https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/zajil_data`;
+const API_URL=`https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/zajil_live`;
 const PASS="ZAJIL@201919"; let taps=0,tmr,deferredPrompt=null,uploadedImgData="";
 const CURR=[
   {c:"USD",n:"دولار أمريكي",f:"us",rb:1,rs:1,ch:"+50"},
@@ -329,46 +338,69 @@ const CURR=[
   {c:"ETB",n:"بير إثيوبي",f:"et",rb:51.33/8325,rs:55.18/8950,ch:"+1"}
 ];
 const DEF_ART={t:"كيف أحول من تطبيق بنكك إلى فوري أو أوكاش؟",b:"1. استخرج رقم الـ BBAN الخاص بحساب المستفيد عبر أداة زاجل.\n2. افتح تطبيق بنكك واختر التحويل لبنك آخر.\n3. أدخل رقم الـ BBAN والمبلغ وأكمل العملية بسهولة.",i:""};
-let st=JSON.parse(localStorage.getItem('zj_state_v9'))||{
-  b:8325,s:8950,upd:"تحديث اليوم",tk:"منصة زاجل للنشر | الرسالة الحقيقية",
+let st=JSON.parse(localStorage.getItem('zj_state_v10'))||{
+  ts:0,b:8325,s:8950,upd:"تحديث اليوم",tk:"منصة زاجل للنشر | الرسالة الحقيقية",
   banks:{bankak:"ok",fawry:"ok",okash:"warn"},
   arts:[DEF_ART],questions:[]
 };
 const fmt=n=>n>=500?Math.round(n).toLocaleString('en-US'):Number(n.toFixed(2)).toLocaleString('en-US');
 
+function applyData(d){
+  if(!d||typeof d.b==="undefined")return;
+  st={
+    ts:Number(d.ts)||Date.now(),
+    b:Number(d.b)||8325, s:Number(d.s)||8950,
+    upd:d.upd||"تحديث اليوم", tk:d.tk||"منصة زاجل للنشر | الرسالة الحقيقية",
+    banks:d.banks||{bankak:"ok",fawry:"ok",okash:"warn"},
+    arts:Array.isArray(d.arts)&&d.arts.length?d.arts:[DEF_ART],
+    questions:Array.isArray(d.questions)?d.questions:[]
+  };
+  localStorage.setItem('zj_state_v10',JSON.stringify(st));
+  renderAll();
+}
+
 async function loadCloud(){
   try{
-    const r=await fetch(API_URL,{method:"GET",headers:{"Content-Type":"application/json"}});
+    const r=await fetch(API_URL+"?t="+Date.now(),{method:"GET",cache:"no-store"});
     if(r.ok){
       const d=await r.json();
-      if(d && typeof d.b!=="undefined"){
-        st={
-          b:Number(d.b)||8325, s:Number(d.s)||8950,
-          upd:d.upd||"تحديث اليوم", tk:d.tk||"منصة زاجل للنشر | الرسالة الحقيقية",
-          banks:d.banks||{bankak:"ok",fawry:"ok",okash:"warn"},
-          arts:Array.isArray(d.arts)&&d.arts.length?d.arts:[DEF_ART],
-          questions:Array.isArray(d.questions)?d.questions:[]
-        };
-        localStorage.setItem('zj_state_v9',JSON.stringify(st));
-        renderAll();
-      }
+      if(d&&typeof d.b!=="undefined"){applyData(d);return;}
     }
   }catch(e){}
+  try{
+    const r2=await fetch("./zajil-data.json?t="+Date.now(),{cache:"no-store"});
+    if(r2.ok){const d2=await r2.json();applyData(d2);}
+  }catch(e2){}
 }
 
 async function syncCloud(){
-  localStorage.setItem('zj_state_v9',JSON.stringify(st));
+  st.ts=Date.now();
+  localStorage.setItem('zj_state_v10',JSON.stringify(st));
+  let ok=false;
   try{
-    const res=await fetch(API_URL,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(st)});
-    if(!res.ok){
-      const resPost=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(st)});
-      if(!resPost.ok)throw new Error();
-    }
-    return true;
-  }catch(e){
-    alert("⚠️ تعذر الحفظ بالسحابة، تأكد من اتصال الإنترنت.");
-    return false;
+    const res=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(st)});
+    if(res.ok)ok=true;
+  }catch(e){}
+  const repo=localStorage.getItem('zj_gh_repo'),tok=localStorage.getItem('zj_gh_tok');
+  if(repo&&tok){
+    try{
+      const gu=`https://api.github.com/repos/${repo}/contents/zajil-data.json`;
+      let sha="";
+      const gr=await fetch(gu,{headers:{"Authorization":`Bearer ${tok}`}});
+      if(gr.ok){const gj=await gr.json();sha=gj.sha;}
+      const body={message:"Update Zajil Data",content:btoa(unescape(encodeURIComponent(JSON.stringify(st))))};
+      if(sha)body.sha=sha;
+      const pr=await fetch(gu,{method:"PUT",headers:{"Authorization":`Bearer ${tok}`,"Content-Type":"application/json"},body:JSON.stringify(body)});
+      if(pr.ok)ok=true;
+    }catch(e){}
   }
+  return ok;
+}
+
+function saveGhCfg(){
+  localStorage.setItem('zj_gh_repo',document.getElementById('ghRepo').value.trim());
+  localStorage.setItem('zj_gh_tok',document.getElementById('ghTok').value.trim());
+  alert("✅ تم حفظ إعدادات GitHub المباشرة!");
 }
 
 function clock(){
@@ -497,10 +529,10 @@ function encodeImg(input){
     const img=new Image();
     img.onload=()=>{
       const canvas=document.createElement('canvas');
-      const maxW=360, scale=maxW/img.width<1?maxW/img.width:1;
+      const maxW=320, scale=maxW/img.width<1?maxW/img.width:1;
       canvas.width=img.width*scale; canvas.height=img.height*scale;
       canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
-      uploadedImgData=canvas.toDataURL('image/jpeg',0.5);
+      uploadedImgData=canvas.toDataURL('image/jpeg',0.45);
       document.getElementById('imgLbl').textContent="✅ تم تجهيز الصورة بنجاح";
     };
     img.src=e.target.result;
@@ -512,10 +544,12 @@ async function submitQuestion(){
   const sender=document.getElementById('qSender').value.trim()||"متابع زاجل";
   const text=document.getElementById('qText').value.trim();
   if(!text)return alert("يرجى كتابة سؤالك أولاً");
+  const btn=document.getElementById('btnSendQ'); btn.textContent="جاري الإرسال...";
   await loadCloud();
   st.questions=st.questions||[];
   st.questions.unshift({id:Date.now(),sender,text});
   await syncCloud();
+  btn.innerHTML='<i class="fa-solid fa-paper-plane"></i><span>إرسال السؤال لإدارة زاجل</span>';
   document.getElementById('qText').value='';
   alert("✅ تم إرسال سؤالك لإدارة منصة زاجل، سنجيب عليه قريباً!");
 }
@@ -549,6 +583,8 @@ async function login(){
     document.getElementById('stBankak').value=st.banks?.bankak||"ok";
     document.getElementById('stFawry').value=st.banks?.fawry||"ok";
     document.getElementById('stOkash').value=st.banks?.okash||"ok";
+    document.getElementById('ghRepo').value=localStorage.getItem('zj_gh_repo')||'';
+    document.getElementById('ghTok').value=localStorage.getItem('zj_gh_tok')||'';
     renderInbox();
     document.getElementById('dashM').classList.remove('hidden');
   }else alert('كلمة المرور غير صحيحة');
@@ -564,6 +600,7 @@ async function saveR(){
   const ok=await syncCloud();
   btn.textContent="حفظ وتحديث لجميع المستخدمين";
   if(ok){alert("✅ تم تحديث الأسعار والحالات لجميع المستخدمين بنجاح!");closeModal('dashM');}
+  else{alert("⚠️ تعذر الاتصال بالسحابة حالياً، تم الحفظ محلياً.");}
 }
 async function addArt(){
   const t=document.getElementById('pTit').value.trim(),b=document.getElementById('pBod').value.trim(),i=uploadedImgData||document.getElementById('pImg').value.trim();
@@ -584,7 +621,7 @@ document.getElementById('pwaManifest').setAttribute('href','data:application/man
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;});
 function triggerInstall(){if(deferredPrompt){deferredPrompt.prompt();}else{document.getElementById('pwaM').classList.remove('hidden');}}
 
-renderAll(); loadCloud(); setInterval(loadCloud,15000);
+renderAll(); loadCloud(); setInterval(loadCloud,12000);
 </script>
 </body>
 </html>
