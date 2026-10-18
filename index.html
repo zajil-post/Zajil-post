@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://getpantry.cloud; object-src 'none'; base-uri 'self';">
 <meta name="theme-color" content="#380734">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,14 +18,15 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body class="select-none">
-<script>if(localStorage.getItem('zj_theme')==='dark')document.body.classList.add('dark-mode');</script>
 <div class="h-2 w-full bg-gradient-to-l from-[#D81B7A] via-[#6B0F5B] to-[#2A0529]"></div>
+
+<div id="toastBox" class="fixed top-4 inset-x-0 z-[70] max-w-xs mx-auto px-4 pointer-events-none space-y-2" aria-live="polite"></div>
 
 <header class="glass-header pt-4 pb-3 px-4 sticky top-0 z-30">
   <div class="max-w-md mx-auto flex items-center justify-between">
     <div class="flex items-center gap-2.5">
-      <button onclick="secretTap()" class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#380734] to-[#D81B7A] flex items-center justify-center active:scale-90 transition shadow-sm p-2" aria-label="زاجل">
-        <svg viewBox="0 0 100 100" class="w-full h-full fill-white">
+      <button onclick="secretTap()" class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#380734] to-[#D81B7A] flex items-center justify-center active:scale-90 transition shadow-sm p-2" aria-label="شعار منصة زاجل">
+        <svg viewBox="0 0 100 100" class="w-full h-full fill-white" role="img" aria-label="أيقونة زاجل">
           <path d="M18 14C28 31 46 31 58 41C64 46 64 53 57 59C61 50 56 41 43 37C30 34 22 28 18 14Z"/>
           <path d="M23 34C34 42 49 39 57 47C51 45 40 48 31 46C26 44 24 39 23 34Z"/>
           <path d="M28 77C30 61 38 51 59 47C59 56 53 62 43 65C34 67 30 71 28 77Z"/>
@@ -32,47 +34,50 @@
         </svg>
       </button>
       <div>
-        <h1 class="text-[18px] font-bold text-[#2D062B] s-txt leading-tight">منصة زاجل للنشر</h1>
+        <div class="flex items-center gap-1.5">
+          <h1 class="text-[18px] font-bold text-[#2D062B] s-txt leading-tight">منصة زاجل للنشر</h1>
+          <span id="connDot" class="w-2 h-2 rounded-full bg-emerald-500" title="متصل ومحدث"></span>
+        </div>
         <p class="text-xs font-bold text-[#D81B7A]">الرسالة الحقيقية</p>
       </div>
     </div>
     <div class="flex items-center gap-1.5">
-      <button onclick="enableNotif()" id="notifBtn" class="glass-sub w-9 h-9 rounded-xl text-[#4A1246] flex items-center justify-center" aria-label="الإشعارات">
-        <i id="notifIcon" class="fa-regular fa-bell text-sm text-[#D81B7A]"></i>
+      <button onclick="enableNotif()" id="notifBtn" class="glass-sub w-9 h-9 rounded-xl text-[#4A1246] flex items-center justify-center" aria-label="تفعيل الإشعارات">
+        <i id="notifIcon" class="fa-regular fa-bell text-sm text-[#D81B7A]" aria-hidden="true"></i>
       </button>
-      <button onclick="triggerInstall()" class="glass-sub text-[#4A1246] text-xs font-bold px-2.5 py-2 rounded-xl flex items-center gap-1">
-        <i class="fa-solid fa-mobile-screen-button text-[#D81B7A]"></i><span>تثبيت</span>
+      <button onclick="triggerInstall()" class="glass-sub text-[#4A1246] text-xs font-bold px-2.5 py-2 rounded-xl flex items-center gap-1" aria-label="تثبيت التطبيق">
+        <i class="fa-solid fa-mobile-screen-button text-[#D81B7A]" aria-hidden="true"></i><span>تثبيت</span>
       </button>
-      <button onclick="toggleTheme()" class="glass-sub w-9 h-9 rounded-xl text-[#4A1246] flex items-center justify-center" aria-label="المظهر">
-        <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
+      <button onclick="toggleTheme()" class="glass-sub w-9 h-9 rounded-xl text-[#4A1246] flex items-center justify-center" aria-label="تبديل المظهر الليلي والنهاري">
+        <i id="themeIcon" class="fa-solid fa-moon text-sm" aria-hidden="true"></i>
       </button>
     </div>
   </div>
 </header>
 <main class="max-w-md mx-auto px-3.5 space-y-4 mt-3">
 
-  <div id="tab-home" class="tab-content active space-y-4">
+  <div id="tab-home" class="tab-content active space-y-4" role="tabpanel">
     <div class="glass-sub rounded-2xl py-2.5 px-4 flex items-center justify-between shadow-sm">
       <div class="text-right flex-1">
-        <div id="dateTxt" class="text-[13px] font-bold text-[#3D0B3A] s-txt">السبت 17 أكتوبر 2026</div>
+        <div id="dateTxt" class="text-[13px] font-bold text-[#3D0B3A] s-txt">الأحد 18 أكتوبر 2026</div>
         <div class="text-[11px] opacity-75">بتوقيت الخرطوم المباشر</div>
       </div>
-      <div class="flex items-center gap-2 px-2"><i class="fa-regular fa-calendar-days text-sm text-[#D81B7A]"></i><span class="h-4 w-[1px] bg-purple-300"></span></div>
-      <div class="flex items-center gap-1.5 t-num"><span id="timeTxt" class="text-sm font-bold text-[#3D0B3A] s-txt">12:00 م</span><i class="fa-regular fa-clock text-xs text-[#D81B7A]"></i></div>
+      <div class="flex items-center gap-2 px-2"><i class="fa-regular fa-calendar-days text-sm text-[#D81B7A]" aria-hidden="true"></i><span class="h-4 w-[1px] bg-purple-300"></span></div>
+      <div class="flex items-center gap-1.5 t-num"><span id="timeTxt" class="text-sm font-bold text-[#3D0B3A] s-txt">12:00 م</span><i class="fa-regular fa-clock text-xs text-[#D81B7A]" aria-hidden="true"></i></div>
     </div>
 
     <div class="glass-card rounded-2xl p-3.5 shadow-sm">
       <div class="flex items-center justify-between mb-2.5">
-        <span class="text-xs font-bold text-[#2D062B] s-txt flex items-center gap-1.5"><i class="fa-solid fa-server text-[#D81B7A]"></i> حالة التطبيقات المصرفية الآن</span>
-        <button onclick="loadCloud(true)" class="text-[11px] text-[#D81B7A] font-bold flex items-center gap-1 active:scale-95 transition"><i class="fa-solid fa-rotate"></i> تحديث الآن</button>
+        <span class="text-xs font-bold text-[#2D062B] s-txt flex items-center gap-1.5"><i class="fa-solid fa-server text-[#D81B7A]" aria-hidden="true"></i> حالة التطبيقات المصرفية الآن</span>
+        <button onclick="loadCloud(true)" class="text-[11px] text-[#D81B7A] font-bold flex items-center gap-1 active:scale-95 transition" aria-label="تحديث البيانات الآن"><i class="fa-solid fa-rotate" aria-hidden="true"></i> تحديث الآن</button>
       </div>
-      <div id="bankStatusGrid" class="grid grid-cols-3 gap-2 text-center"></div>
+      <div id="bankStatusGrid" class="grid grid-cols-3 gap-2 text-center" aria-live="polite"></div>
     </div>
 
     <div class="c-grad rounded-[24px] p-5 shadow-md text-white relative overflow-hidden">
       <div class="flex justify-between items-center mb-3">
         <div class="flex items-center gap-2">
-          <img src="https://flagcdn.com/w40/us.png" class="w-6 h-6 rounded-full object-cover border border-white/40">
+          <img src="https://flagcdn.com/w40/us.png" alt="علم الولايات المتحدة" class="w-6 h-6 rounded-full object-cover border border-white/40">
           <span class="text-sm font-bold text-white">الدولار الأمريكي (USD)</span>
         </div>
         <span id="heroUpd" class="text-[11px] bg-white/15 px-2.5 py-0.5 rounded-full text-pink-200"></span>
@@ -93,7 +98,7 @@
 
     <div class="bg-gradient-to-l from-[#380734] via-[#480B43] to-[#2B0528] rounded-full p-1.5 flex items-center shadow-md overflow-hidden">
       <span class="bg-gradient-to-r from-[#C81971] to-[#E62988] text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 shrink-0 z-10">
-        <i class="fa-solid fa-bullhorn text-[10px]"></i><span>عاجل</span>
+        <i class="fa-solid fa-bullhorn text-[10px]" aria-hidden="true"></i><span>عاجل</span>
       </span>
       <div class="overflow-hidden flex-1 mx-2">
         <p id="tickerTxt" class="marquee text-white text-xs font-medium"></p>
@@ -102,68 +107,68 @@
 
     <div class="space-y-3">
       <div class="flex items-center justify-between px-1">
-        <h3 class="text-[15px] font-bold text-[#2D062B] s-txt flex items-center gap-1.5"><i class="fa-solid fa-circle-question text-[#D81B7A]"></i> الأسئلة الشائعة والشروحات</h3>
-        <a href="https://aywa.sd/bban.php" target="_blank" class="text-xs font-bold text-[#D81B7A]">أداة الـ BBAN ←</a>
+        <h3 class="text-[15px] font-bold text-[#2D062B] s-txt flex items-center gap-1.5"><i class="fa-solid fa-circle-question text-[#D81B7A]" aria-hidden="true"></i> الأسئلة الشائعة والشروحات</h3>
+        <a href="https://aywa.sd/bban.php" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-[#D81B7A]">أداة الـ BBAN ←</a>
       </div>
       <div id="artList" class="space-y-3"></div>
     </div>
 
     <div class="glass-card rounded-[24px] p-4 shadow-sm space-y-3">
       <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-xl bg-pink-50 text-[#D81B7A] flex items-center justify-center"><i class="fa-solid fa-paper-plane text-sm"></i></div>
+        <div class="w-8 h-8 rounded-xl bg-pink-50 text-[#D81B7A] flex items-center justify-center"><i class="fa-solid fa-paper-plane text-sm" aria-hidden="true"></i></div>
         <div>
           <h4 class="text-sm font-bold text-[#2D062B] s-txt">عندك سؤال أو استفسار مصرفي؟</h4>
           <p class="text-[11px] opacity-75">أرسل سؤالك وسنجيب عليه في قسم الأسئلة الشائعة</p>
         </div>
       </div>
-      <input type="text" id="qSender" placeholder="اسمك (اختياري)..." class="glass-sub w-full rounded-xl px-3 py-2 text-xs focus:outline-none">
-      <textarea id="qText" rows="2" placeholder="اكتب سؤالك هنا بوضوح..." class="glass-sub w-full rounded-xl px-3 py-2 text-sm focus:outline-none"></textarea>
+      <input type="text" id="qSender" maxlength="60" placeholder="اسمك (اختياري - بحد أقصى 60 حرفاً)..." aria-label="اسم المرسل" class="glass-sub w-full rounded-xl px-3 py-2 text-xs focus:outline-none">
+      <textarea id="qText" rows="2" maxlength="500" placeholder="اكتب سؤالك هنا بوضوح (بحد أقصى 500 حرف)..." aria-label="نص السؤال" class="glass-sub w-full rounded-xl px-3 py-2 text-sm focus:outline-none"></textarea>
       <button id="btnSendQ" onclick="submitQuestion()" class="b-calc w-full py-2.5 rounded-xl text-white font-bold text-xs shadow flex items-center justify-center gap-1.5">
-        <i class="fa-solid fa-paper-plane"></i><span>إرسال السؤال لإدارة زاجل</span>
+        <i class="fa-solid fa-paper-plane" aria-hidden="true"></i><span>إرسال السؤال لإدارة زاجل</span>
       </button>
     </div>
   </div>
-  <div id="tab-rates" class="tab-content space-y-3.5">
+  <div id="tab-rates" class="tab-content space-y-3.5" role="tabpanel">
     <div class="glass-card rounded-[24px] p-4 shadow-sm">
       <div class="flex items-center justify-between pb-3 border-b border-purple-100/40 mb-2">
         <div>
-          <h2 class="text-[15px] font-bold text-[#2D062B] s-txt flex items-center gap-1.5"><i class="fa-solid fa-arrow-trend-up text-[#D81B7A]"></i> أسعار العملات (السوق الموازي)</h2>
+          <h2 class="text-[15px] font-bold text-[#2D062B] s-txt flex items-center gap-1.5"><i class="fa-solid fa-arrow-trend-up text-[#D81B7A]" aria-hidden="true"></i> أسعار العملات (السوق الموازي)</h2>
           <p id="ratesUpdSub" class="text-[11px] opacity-60 mt-0.5"></p>
         </div>
-        <button onclick="loadCloud(true)" class="glass-sub w-8 h-8 rounded-full text-[#4A1246] active:rotate-180 transition flex items-center justify-center"><i class="fa-solid fa-arrows-rotate text-xs"></i></button>
+        <button onclick="loadCloud(true)" class="glass-sub w-8 h-8 rounded-full text-[#4A1246] active:rotate-180 transition flex items-center justify-center" aria-label="تحديث قائمة الأسعار"><i class="fa-solid fa-arrows-rotate text-xs" aria-hidden="true"></i></button>
       </div>
       <div class="glass-sub grid grid-cols-12 rounded-xl py-2 px-3 text-xs font-bold text-[#5A425E] mb-1">
         <div class="col-span-5">العملة</div><div class="col-span-3 text-center">شراء</div><div class="col-span-2 text-center">بيع</div><div class="col-span-2 text-left">التغير</div>
       </div>
       <div id="currList" class="divide-y divide-purple-100/30"></div>
       <div class="glass-sub mt-4 p-3.5 rounded-2xl text-xs space-y-1 leading-relaxed">
-        <p class="font-bold text-[#D81B7A]"><i class="fa-solid fa-triangle-exclamation text-amber-500 ml-1"></i>ملاحظات الاسترشاد:</p>
+        <p class="font-bold text-[#D81B7A]"><i class="fa-solid fa-triangle-exclamation text-amber-500 ml-1" aria-hidden="true"></i>ملاحظات الاسترشاد:</p>
         <p>• الأسعار الموضحة هي أسعار تأشيرية لحركة السوق الموازي، وقد تختلف من تاجر لآخر وحسب كمية الصرف.</p>
         <p>• يُنصح بمقارنة الأسعار بين أكثر من مصدر قبل اعتماد التحويل أو الشراء.</p>
       </div>
     </div>
   </div>
 
-  <div id="tab-calc" class="tab-content space-y-3.5">
+  <div id="tab-calc" class="tab-content space-y-3.5" role="tabpanel">
     <div class="c-grad rounded-[24px] p-4 shadow-md text-white">
       <div class="flex items-center gap-2.5 mb-3">
-        <div class="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center text-pink-200"><i class="fa-solid fa-calculator text-lg"></i></div>
+        <div class="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center text-pink-200"><i class="fa-solid fa-calculator text-lg" aria-hidden="true"></i></div>
         <div><h3 class="text-sm font-bold">حاسبة العملات الشاملة</h3><p class="text-[11px] text-purple-200">أدخل المبلغ لمعرفة قيمة الشراء والبيع بجميع العملات</p></div>
       </div>
       <div class="bg-white/90 backdrop-blur-md rounded-2xl p-3 text-[#2D062B] space-y-2.5">
         <div class="grid grid-cols-12 gap-2 items-center">
-          <input type="number" id="cAmt" value="100000" oninput="calc()" class="col-span-5 bg-purple-50 border border-purple-200 rounded-xl px-2.5 py-2 text-left font-bold text-sm t-num">
+          <input type="number" id="cAmt" value="100000" min="0" oninput="calc()" aria-label="المبلغ المراد تحويله" class="col-span-5 bg-purple-50 border border-purple-200 rounded-xl px-2.5 py-2 text-left font-bold text-sm t-num">
           <div class="col-span-7 flex items-center bg-purple-50 border border-purple-200 rounded-xl px-2 py-2">
-            <img id="fFlg" src="https://flagcdn.com/w40/sd.png" class="w-5 h-5 rounded-full object-cover ml-1.5">
-            <select id="fSel" onchange="calc()" class="w-full bg-transparent text-xs font-bold focus:outline-none"></select>
+            <img id="fFlg" src="https://flagcdn.com/w40/sd.png" alt="علم العملة الأولى" class="w-5 h-5 rounded-full object-cover ml-1.5">
+            <select id="fSel" onchange="calc()" aria-label="من عملة" class="w-full bg-transparent text-xs font-bold focus:outline-none"></select>
           </div>
         </div>
         <div class="flex justify-center -my-2.5 relative z-10">
-          <button onclick="swapC()" class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#6B0F5B] to-[#D81B7A] text-white shadow flex items-center justify-center border-2 border-white"><i class="fa-solid fa-arrow-right-arrow-left rotate-90 text-[10px]"></i></button>
+          <button onclick="swapC()" aria-label="عكس العملات" class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#6B0F5B] to-[#D81B7A] text-white shadow flex items-center justify-center border-2 border-white"><i class="fa-solid fa-arrow-right-arrow-left rotate-90 text-[10px]" aria-hidden="true"></i></button>
         </div>
-        <div class="flex items-center bg-purple-50 border border-purple-200 rounded-xl px-2 py-2">
-          <img id="tFlg" src="https://flagcdn.com/w40/eg.png" class="w-5 h-5 rounded-full object-cover ml-2">
-          <select id="tSel" onchange="calc()" class="w-full bg-transparent text-xs font-bold focus:outline-none"></select>
+        <div class="flex items-center bg-purple-50 border border-purple-200 rounded-xl px-2.5 py-2">
+          <img id="tFlg" src="https://flagcdn.com/w40/eg.png" alt="علم العملة الثانية" class="w-5 h-5 rounded-full object-cover ml-2">
+          <select id="tSel" onchange="calc()" aria-label="إلى عملة" class="w-full bg-transparent text-xs font-bold focus:outline-none"></select>
         </div>
         <div class="grid grid-cols-2 gap-2 pt-1 text-center">
           <div class="bg-purple-50/80 p-2.5 rounded-xl border border-purple-100">
@@ -179,7 +184,7 @@
     </div>
 
     <div class="glass-card rounded-[24px] p-4 shadow-sm">
-      <h4 class="text-xs font-bold text-[#2D062B] s-txt mb-2 flex items-center gap-1.5"><i class="fa-solid fa-coins text-[#D81B7A]"></i> قيمة المبلغ بباقي العملات (شراء / بيع)</h4>
+      <h4 class="text-xs font-bold text-[#2D062B] s-txt mb-2 flex items-center gap-1.5"><i class="fa-solid fa-coins text-[#D81B7A]" aria-hidden="true"></i> قيمة المبلغ بباقي العملات (شراء / بيع)</h4>
       <div class="glass-sub grid grid-cols-12 rounded-xl py-1.5 px-3 text-[11px] font-bold text-[#5A425E] mb-1">
         <div class="col-span-6">العملة</div><div class="col-span-3 text-center">شراء</div><div class="col-span-3 text-left">بيع</div>
       </div>
@@ -187,33 +192,31 @@
     </div>
   </div>
 
-  <div id="tab-more" class="tab-content space-y-3.5">
+  <div id="tab-more" class="tab-content space-y-3.5" role="tabpanel">
     <div class="c-grad rounded-[24px] p-4 shadow-md text-white flex items-center justify-between">
       <div>
         <h3 class="text-sm font-bold">شارك منصة زاجل مع أصدقائك</h3>
         <p class="text-[11px] text-purple-200 mt-0.5">لتصل الرسالة الحقيقية وأسعار الصرف للجميع</p>
       </div>
       <button onclick="shareSite()" class="b-calc px-4 py-2.5 rounded-xl text-xs font-bold shadow flex items-center gap-1.5 shrink-0">
-        <i class="fa-solid fa-share-nodes"></i><span>مشاركة الموقع</span>
+        <i class="fa-solid fa-share-nodes" aria-hidden="true"></i><span>مشاركة الموقع</span>
       </button>
     </div>
 
     <div class="glass-card rounded-[24px] p-5 shadow-sm space-y-3 text-[13px] leading-relaxed">
       <h3 class="font-bold text-base text-[#2D062B] s-txt pb-2 border-b border-purple-100/40">حول منصة زاجل للنشر | Zajil</h3>
       <p><b>زاجل للنشر</b> منصة إعلامية ومعلوماتية سودانية، انطلقت في <b>سبتمبر 2019</b> عبر حالة الواتساب، بهدف نقل أخبار السودان ومشاركة المعلومات والخدمات التي تهم المواطن السوداني.</p>
-      <p>على مدار رحلتها، توسعت زاجل لتشمل الأخبار، والاقتصاد السوداني، وأسعار الصرف وتحديثات الجنيه السوداني مقابل العملات الاخرى، والتحديثات المصرفية، وخدمات السفر والجامعات، ومشاركة المعلومات التي تساعد الناس على الوصول إلى ما يحتاجونه بسهولة.</p>
+      <p>على مدار رحلتها، توسعت زاجل لتشمل الأخبار، والاقتصاد السوداني، وأسعار الصرف وتحديثات الجنيه السوداني مقابل العملات الأخرى، والتحديثات المصرفية، وخدمات السفر والجامعات، ومشاركة المعلومات التي تساعد الناس على الوصول إلى ما يحتاجونه بسهولة.</p>
       <div class="glass-sub p-3 rounded-2xl text-[#3D0B3A] font-medium">«نؤمن في زاجل بأن المعلومة حق، وأن رسالتنا تقوم على خدمة المتابعين، ونقل الأخبار والمعلومات، ومتابعة المستجدات التي تمس حياتهم اليومية، بعيداً عن الأجندات والمصالح الخفية.»</div>
-      <p>بدأت رحلتنا من حالة واتساب، واستمرت بفضل ثقة المتابعين، واليوم نواصل العمل عبر منصاتنا المختلفة، حاملين الرسالة ذاتها: <b>المعلومة الأقرب إليك، والخدمة التي تحتاجها.</b></p>
-      <p>زاجل ليست مجرد منصة للنشر، بل رحلة بدأت بثقة الناس، وتستمر بهم ومن أجلهم.</p>
       <p class="font-bold text-[#D81B7A] text-center">رسالتنا مستمرة… وزاجل دائماً ما تحمل الرسالة الحقيقية.</p>
     </div>
 
     <div class="glass-card rounded-[24px] p-5 shadow-sm space-y-2.5 text-xs font-bold">
       <h3 class="text-sm text-[#2D062B] s-txt pb-2 border-b border-purple-100/40">تابعوا زاجل عبر منصاتنا الرسمية</h3>
-      <a href="https://www.facebook.com/zajil.post" target="_blank" class="flex justify-between p-3.5 rounded-xl bg-blue-50/80 text-blue-800 backdrop-blur-sm"><span><i class="fa-brands fa-facebook ml-2"></i>فيسبوك زاجل</span><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-      <a href="https://t.me/zajil_post" target="_blank" class="flex justify-between p-3.5 rounded-xl bg-sky-50/80 text-sky-800 backdrop-blur-sm"><span><i class="fa-brands fa-telegram ml-2"></i>تلجرام زاجل</span><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-      <a href="https://instagram.com/zajil.post" target="_blank" class="flex justify-between p-3.5 rounded-xl bg-pink-50/80 text-pink-800 backdrop-blur-sm"><span><i class="fa-brands fa-instagram ml-2"></i>إنستغرام (@zajil.post)</span><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-      <a href="https://whatsapp.com/channel/0029Vax0vtQ2ZjCuuF4u0k0x" target="_blank" class="flex justify-between p-3.5 rounded-xl bg-emerald-50/80 text-emerald-800 backdrop-blur-sm"><span><i class="fa-brands fa-whatsapp ml-2"></i>قناة واتساب زاجل</span><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+      <a href="https://www.facebook.com/zajil.post" target="_blank" rel="noopener noreferrer" class="flex justify-between p-3.5 rounded-xl bg-blue-50/80 text-blue-800 backdrop-blur-sm"><span><i class="fa-brands fa-facebook ml-2" aria-hidden="true"></i>فيسبوك زاجل</span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
+      <a href="https://t.me/zajil_post" target="_blank" rel="noopener noreferrer" class="flex justify-between p-3.5 rounded-xl bg-sky-50/80 text-sky-800 backdrop-blur-sm"><span><i class="fa-brands fa-telegram ml-2" aria-hidden="true"></i>تلجرام زاجل</span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
+      <a href="https://instagram.com/zajil.post" target="_blank" rel="noopener noreferrer" class="flex justify-between p-3.5 rounded-xl bg-pink-50/80 text-pink-800 backdrop-blur-sm"><span><i class="fa-brands fa-instagram ml-2" aria-hidden="true"></i>إنستغرام (@zajil.post)</span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
+      <a href="https://whatsapp.com/channel/0029Vax0vtQ2ZjCuuF4u0k0x" target="_blank" rel="noopener noreferrer" class="flex justify-between p-3.5 rounded-xl bg-emerald-50/80 text-emerald-800 backdrop-blur-sm"><span><i class="fa-brands fa-whatsapp ml-2" aria-hidden="true"></i>قناة واتساب زاجل</span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
     </div>
 
     <div class="glass-card rounded-[24px] p-5 shadow-sm space-y-2 text-xs">
@@ -223,19 +226,19 @@
     </div>
   </div>
 </main>
-<nav class="fixed bottom-0 inset-x-0 z-40 bg-[#250423]/90 backdrop-blur-xl text-white border-t border-purple-900/40 shadow-2xl">
+<nav class="fixed bottom-0 inset-x-0 z-40 bg-[#250423]/90 backdrop-blur-xl text-white border-t border-purple-900/40 shadow-2xl" role="tablist" aria-label="التنقل الرئيسي">
   <div class="max-w-md mx-auto grid grid-cols-4 h-16 text-[11px]">
-    <button onclick="switchTab('home',this)" class="nav-btn flex flex-col items-center justify-center gap-1 text-[#F42C90] font-bold"><i class="fa-solid fa-house text-base"></i><span>الرئيسية</span></button>
-    <button onclick="switchTab('rates',this)" class="nav-btn flex flex-col items-center justify-center gap-1 text-gray-300"><i class="fa-solid fa-chart-line text-base"></i><span>الأسعار</span></button>
-    <button onclick="switchTab('calc',this)" class="nav-btn flex flex-col items-center justify-center gap-1 text-gray-300"><i class="fa-solid fa-calculator text-base"></i><span>الحاسبة</span></button>
-    <button onclick="switchTab('more',this)" class="nav-btn flex flex-col items-center justify-center gap-1 text-gray-300"><i class="fa-solid fa-ellipsis text-base"></i><span>المزيد</span></button>
+    <button onclick="switchTab('home',this)" role="tab" aria-selected="true" class="nav-btn flex flex-col items-center justify-center gap-1 text-[#F42C90] font-bold"><i class="fa-solid fa-house text-base" aria-hidden="true"></i><span>الرئيسية</span></button>
+    <button onclick="switchTab('rates',this)" role="tab" aria-selected="false" class="nav-btn flex flex-col items-center justify-center gap-1 text-gray-300"><i class="fa-solid fa-chart-line text-base" aria-hidden="true"></i><span>الأسعار</span></button>
+    <button onclick="switchTab('calc',this)" role="tab" aria-selected="false" class="nav-btn flex flex-col items-center justify-center gap-1 text-gray-300"><i class="fa-solid fa-calculator text-base" aria-hidden="true"></i><span>الحاسبة</span></button>
+    <button onclick="switchTab('more',this)" role="tab" aria-selected="false" class="nav-btn flex flex-col items-center justify-center gap-1 text-gray-300"><i class="fa-solid fa-ellipsis text-base" aria-hidden="true"></i><span>المزيد</span></button>
   </div>
 </nav>
 
-<div id="pwaM" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+<div id="pwaM" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true">
   <div class="bg-white/95 backdrop-blur-xl w-full max-w-xs rounded-3xl p-5 text-center space-y-3 text-xs text-[#2D062B] shadow-2xl">
     <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-[#380734] to-[#D81B7A] flex items-center justify-center p-2.5">
-      <svg viewBox="0 0 100 100" class="w-full h-full fill-white"><path d="M18 14C28 31 46 31 58 41C64 46 64 53 57 59C61 50 56 41 43 37C30 34 22 28 18 14Z"/><path d="M23 34C34 42 49 39 57 47C51 45 40 48 31 46C26 44 24 39 23 34Z"/><path d="M28 77C30 61 38 51 59 47C59 56 53 62 43 65C34 67 30 71 28 77Z"/><path d="M58 30C63 22 72 22 78 27C81 27 83 28 85 30C79 29 74 31 71 38C69 43 69 48 68 53C68 44 65 35 58 30ZM65 29C68 28 71 29 75 28C72 26 68 26 65 29Z"/></svg>
+      <svg viewBox="0 0 100 100" class="w-full h-full fill-white" aria-hidden="true"><path d="M18 14C28 31 46 31 58 41C64 46 64 53 57 59C61 50 56 41 43 37C30 34 22 28 18 14Z"/><path d="M23 34C34 42 49 39 57 47C51 45 40 48 31 46C26 44 24 39 23 34Z"/><path d="M28 77C30 61 38 51 59 47C59 56 53 62 43 65C34 67 30 71 28 77Z"/><path d="M58 30C63 22 72 22 78 27C81 27 83 28 85 30C79 29 74 31 71 38C69 43 69 48 68 53C68 44 65 35 58 30ZM65 29C68 28 71 29 75 28C72 26 68 26 65 29Z"/></svg>
     </div>
     <h3 class="font-bold text-sm">تثبيت تطبيق زاجل بشاشة كاملة</h3>
     <p class="text-gray-600 leading-relaxed"><b>لإزالة شعار كروم الصغير نهائياً:</b> احذف الاختصار القديم من شاشتك، ثم اضغط القائمة <b>(⋮)</b> أعلى كروم واختر <b>«تثبيت التطبيق» (Install App)</b>.</p>
@@ -243,18 +246,18 @@
   </div>
 </div>
 
-<div id="logM" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+<div id="logM" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true">
   <div class="bg-white/95 backdrop-blur-xl w-full max-w-xs rounded-3xl p-5 text-center space-y-3 text-[#2D062B] shadow-2xl">
     <h3 class="font-bold text-sm">دخول إدارة زاجل</h3>
-    <input type="password" id="passIn" placeholder="كلمة المرور..." class="w-full bg-purple-50 border rounded-xl p-2 text-center text-sm">
+    <input type="password" id="passIn" autocomplete="current-password" placeholder="كلمة المرور..." aria-label="كلمة مرور الإدارة" class="w-full bg-purple-50 border rounded-xl p-2 text-center text-sm">
     <div class="flex gap-2">
-      <button onclick="login()" class="flex-1 b-calc text-white font-bold text-xs py-2.5 rounded-xl">دخول</button>
+      <button id="btnLogin" onclick="login()" class="flex-1 b-calc text-white font-bold text-xs py-2.5 rounded-xl">دخول</button>
       <button onclick="closeModal('logM')" class="px-4 py-2.5 rounded-xl bg-gray-100 text-xs font-bold">إلغاء</button>
     </div>
   </div>
 </div>
 
-<div id="dashM" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+<div id="dashM" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto" role="dialog" aria-modal="true">
   <div class="bg-white/95 backdrop-blur-2xl w-full max-w-md rounded-3xl p-5 space-y-3.5 max-h-[92vh] overflow-y-auto text-xs text-[#2D062B] shadow-2xl">
     <div class="flex justify-between items-center border-b pb-2">
       <div>
@@ -262,35 +265,35 @@
         <span id="cloudBadge" class="text-[10px] font-bold text-emerald-600">● متصل بالسحابة ومحدث للجميع ✅</span>
       </div>
       <div class="flex items-center gap-2">
-        <span class="bg-purple-100 text-[#6B0F5B] px-2.5 py-1 rounded-xl font-bold text-[11px]"><i class="fa-solid fa-eye ml-1 text-[#D81B7A]"></i>الزيارات: <b id="vCount">0</b></span>
-        <button onclick="closeModal('dashM')"><i class="fa-solid fa-xmark text-base"></i></button>
+        <span class="bg-purple-100 text-[#6B0F5B] px-2.5 py-1 rounded-xl font-bold text-[11px]"><i class="fa-solid fa-eye ml-1 text-[#D81B7A]" aria-hidden="true"></i>الزيارات: <b id="vCount">0</b></span>
+        <button onclick="closeModal('dashM')" aria-label="إغلاق لوحة التحكم"><i class="fa-solid fa-xmark text-base" aria-hidden="true"></i></button>
       </div>
     </div>
     
     <div class="p-3 rounded-2xl bg-purple-50/60 space-y-2">
       <div class="font-bold text-[#6B0F5B]">1. تحديث الدولار وحالة التطبيقات</div>
       <div class="grid grid-cols-2 gap-2">
-        <input type="number" id="dBuy" placeholder="دولار شراء" class="bg-white border rounded-xl p-2 font-bold">
-        <input type="number" id="dSell" placeholder="دولار بيع" class="bg-white border rounded-xl p-2 font-bold">
+        <input type="number" id="dBuy" min="1" max="1000000" placeholder="دولار شراء" aria-label="سعر شراء الدولار" class="bg-white border rounded-xl p-2 font-bold">
+        <input type="number" id="dSell" min="1" max="1000000" placeholder="دولار بيع" aria-label="سعر بيع الدولار" class="bg-white border rounded-xl p-2 font-bold">
       </div>
-      <input type="text" id="dTick" placeholder="شريط العناوين المتحركة" class="w-full bg-white border rounded-xl p-2">
+      <input type="text" id="dTick" maxlength="300" placeholder="شريط العناوين المتحركة" aria-label="نص الشريط المتحرك" class="w-full bg-white border rounded-xl p-2">
       <div class="grid grid-cols-3 gap-1.5 pt-1">
-        <div><label class="block text-[10px]">بنكك</label><select id="stBankak" class="w-full bg-white border rounded-lg p-1"><option value="ok">يعمل 🟢</option><option value="warn">متذبذب 🟡</option><option value="err">لا يعمل 🔴</option></select></div>
-        <div><label class="block text-[10px]">فوري</label><select id="stFawry" class="w-full bg-white border rounded-lg p-1"><option value="ok">يعمل 🟢</option><option value="warn">متذبذب 🟡</option><option value="err">لا يعمل 🔴</option></select></div>
-        <div><label class="block text-[10px]">أوكاش</label><select id="stOkash" class="w-full bg-white border rounded-lg p-1"><option value="ok">يعمل 🟢</option><option value="warn">متذبذب 🟡</option><option value="err">لا يعمل 🔴</option></select></div>
+        <div><label for="stBankak" class="block text-[10px]">بنكك</label><select id="stBankak" class="w-full bg-white border rounded-lg p-1"><option value="ok">يعمل 🟢</option><option value="warn">متذبذب 🟡</option><option value="err">لا يعمل 🔴</option></select></div>
+        <div><label for="stFawry" class="block text-[10px]">فوري</label><select id="stFawry" class="w-full bg-white border rounded-lg p-1"><option value="ok">يعمل 🟢</option><option value="warn">متذبذب 🟡</option><option value="err">لا يعمل 🔴</option></select></div>
+        <div><label for="stOkash" class="block text-[10px]">أوكاش</label><select id="stOkash" class="w-full bg-white border rounded-lg p-1"><option value="ok">يعمل 🟢</option><option value="warn">متذبذب 🟡</option><option value="err">لا يعمل 🔴</option></select></div>
       </div>
       <button id="btnSaveR" onclick="saveR()" class="w-full b-calc text-white font-bold py-2.5 rounded-xl">حفظ وتحديث وإرسال إشعار للجميع</button>
     </div>
 
     <div class="p-3 rounded-2xl bg-purple-50/60 space-y-2">
       <div class="font-bold text-[#6B0F5B]">2. إضافة سؤال شائع وإجابته</div>
-      <input type="text" id="pTit" placeholder="عنوان السؤال (مثال: كيف أحول من بنكك لفوري؟)..." class="w-full bg-white border rounded-xl p-2 font-bold">
+      <input type="text" id="pTit" maxlength="200" placeholder="عنوان السؤال (بحد أقصى 200 حرف)..." aria-label="عنوان السؤال" class="w-full bg-white border rounded-xl p-2 font-bold">
       <label class="block w-full bg-white border border-dashed border-[#D81B7A] rounded-xl p-2 text-center cursor-pointer text-[#6B0F5B] font-bold">
-        <i class="fa-solid fa-camera ml-1 text-[#D81B7A]"></i> <span id="imgLbl">اختر صورة توضيحية من جهازك (اختياري)</span>
-        <input type="file" id="pFile" accept="image/*" onchange="encodeImg(this)" class="hidden">
+        <i class="fa-solid fa-camera ml-1 text-[#D81B7A]" aria-hidden="true"></i> <span id="imgLbl">اختر صورة توضيحية من جهازك (اختياري)</span>
+        <input type="file" id="pFile" accept="image/jpeg,image/png,image/webp" onchange="encodeImg(this)" class="hidden">
       </label>
-      <input type="url" id="pImg" placeholder="أو الصق رابط صورة مباشر (اختياري)..." class="w-full bg-white border rounded-xl p-2" dir="ltr">
-      <textarea id="pBod" rows="3" placeholder="اكتب الإجابة المفصلة والخطوات هنا..." class="w-full bg-white border rounded-xl p-2"></textarea>
+      <input type="url" id="pImg" maxlength="500" placeholder="أو الصق رابط صورة مباشر يبدأ بـ https://..." aria-label="رابط صورة مباشر" class="w-full bg-white border rounded-xl p-2" dir="ltr">
+      <textarea id="pBod" rows="3" maxlength="2000" placeholder="اكتب الإجابة المفصلة والخطوات هنا (بحد أقصى 2000 حرف)..." aria-label="تفاصيل الإجابة" class="w-full bg-white border rounded-xl p-2"></textarea>
       <button id="btnAddArt" onclick="addArt()" class="w-full bg-[#380734] text-white font-bold py-2.5 rounded-xl">نشر السؤال والإجابة للجميع</button>
       <div id="adminArtList" class="space-y-1.5 pt-2 max-h-32 overflow-y-auto"></div>
     </div>
@@ -299,7 +302,7 @@
       <div class="font-bold text-[#6B0F5B] flex justify-between items-center">
         <span>3. أسئلة المتابعين الواردة 📩</span>
         <div class="flex items-center gap-2">
-          <button onclick="loadInbox()" class="text-[10px] bg-white px-2 py-0.5 rounded border text-[#D81B7A]">تحديث الصندوق ↻</button>
+          <button onclick="loadInbox(false)" class="text-[10px] bg-white px-2 py-0.5 rounded border text-[#D81B7A]">تحديث الصندوق ↻</button>
           <span id="qCount" class="bg-[#D81B7A] text-white px-2 py-0.5 rounded-full text-[10px]">0</span>
         </div>
       </div>
