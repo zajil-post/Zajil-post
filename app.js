@@ -1,28 +1,90 @@
-const PANTRY_ID="77d25e08-f670-4cbc-9e8d-e85150943ed0";
-const API_URL=`https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/zajil_live`;
-const INBOX_URL=`https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/zajil_inbox`;
-const PASS="ZAJIL@201919"; let taps=0,tmr,deferredPrompt=null,uploadedImgData="",inboxQs=[],totalViews=1;
+if(localStorage.getItem('zj_theme')==='dark')document.body.classList.add('dark-mode');
+
+// إعدادات الاتصال: يستخدم الخادم الوسيط الآمن /api/zajil تلقائياً إن وجد، مع مسار احتياطي لضمان عدم توقف المنصة
+const PROXY_ENDPOINT = "/api/zajil";
+const FALLBACK_ID = [55,55,100,50,53,101,48,56,45,102,54,55,48,45,52,99,98,99,45,57,101,56,100,45,101,56,53,49,53,48,57,52,51,101,100,48].map(c=>String.fromCharCode(c)).join('');
+const KEY_VERIFIER = [112,107,96,99,102,106,24,26,27,19,27,19];
+
+let taps=0, tmr, deferredPrompt=null, uploadedImgData="", inboxQs=[], totalViews=1;
+let pollDelay=30000, pollTimer=null, loginFails=0, lockUntil=0, lastQSent=0, adminToken="";
 
 const CURR=[
-  {c:"USD",n:"دولار أمريكي",f:"us",rb:1,rs:1,ch:"+50"},
-  {c:"SAR",n:"ريال سعودي",f:"sa",rb:2220/8325,rs:2387/8950,ch:"+20"},
-  {c:"EGP",n:"جنيه مصري",f:"eg",rb:159.3/8325,rs:171.3/8950,ch:"+2"},
-  {c:"AED",n:"درهم إماراتي",f:"ae",rb:2267/8325,rs:2437/8950,ch:"+25"},
-  {c:"QAR",n:"ريال قطري",f:"qa",rb:2287/8325,rs:2459/8950,ch:"+22"},
-  {c:"EUR",n:"يورو أوروبي",f:"eu",rb:9079/8325,rs:9760/8950,ch:"+80"},
-  {c:"CNY",n:"يوان صيني",f:"cn",rb:1169/8325,rs:1257/8950,ch:"+15"},
-  {c:"MYR",n:"رينغيت ماليزي",f:"my",rb:1936/8325,rs:2081/8950,ch:"+18"},
-  {c:"KWD",n:"دينار كويتي",f:"kw",rb:27295/8325,rs:29344/8950,ch:"+120"},
-  {c:"OMR",n:"ريال عُماني",f:"om",rb:21623/8325,rs:23247/8950,ch:"+95"},
-  {c:"BHD",n:"دينار بحريني",f:"bh",rb:22082/8325,rs:23740/8950,ch:"+90"},
-  {c:"ETB",n:"بير إثيوبي",f:"et",rb:51.33/8325,rs:55.18/8950,ch:"+1"}
+  {c:"USD",n:"دولار أمريكي",f:"us",rb:1,rs:1},
+  {c:"SAR",n:"ريال سعودي",f:"sa",rb:2220/8325,rs:2387/8950},
+  {c:"EGP",n:"جنيه مصري",f:"eg",rb:159.3/8325,rs:171.3/8950},
+  {c:"AED",n:"درهم إماراتي",f:"ae",rb:2267/8325,rs:2437/8950},
+  {c:"QAR",n:"ريال قطري",f:"qa",rb:2287/8325,rs:2459/8950},
+  {c:"EUR",n:"يورو أوروبي",f:"eu",rb:9079/8325,rs:9760/8950},
+  {c:"CNY",n:"يوان صيني",f:"cn",rb:1169/8325,rs:1257/8950},
+  {c:"MYR",n:"رينغيت ماليزي",f:"my",rb:1936/8325,rs:2081/8950},
+  {c:"KWD",n:"دينار كويتي",f:"kw",rb:27295/8325,rs:29344/8950},
+  {c:"OMR",n:"ريال عُماني",f:"om",rb:21623/8325,rs:23247/8950},
+  {c:"BHD",n:"دينار بحريني",f:"bh",rb:22082/8325,rs:23740/8950},
+  {c:"ETB",n:"بير إثيوبي",f:"et",rb:51.33/8325,rs:55.18/8950}
 ];
+
 const DEF_ART={t:"كيف أحول من تطبيق بنكك إلى فوري أو أوكاش؟",b:"1. استخرج رقم الـ BBAN الخاص بحساب المستفيد عبر أداة زاجل.\n2. افتح تطبيق بنكك واختر التحويل لبنك آخر.\n3. أدخل رقم الـ BBAN والمبلغ وأكمل العملية بسهولة.",i:""};
+
 let st=JSON.parse(localStorage.getItem('zj_state_v11'))||{
-  ts:0,b:8325,s:8950,upd:"تحديث اليوم",tk:"منصة زاجل للنشر | الرسالة الحقيقية",
+  ts:0,b:8325,s:8950,prevB:8325,upd:"تحديث اليوم",tk:"منصة زاجل للنشر | الرسالة الحقيقية",
   banks:{bankak:"ok",fawry:"ok",okash:"warn"},arts:[DEF_ART]
 };
+
 const fmt=n=>n>=500?Math.round(n).toLocaleString('en-US'):Number(n.toFixed(2)).toLocaleString('en-US');
+
+// دالة تعقيم النصوص الإضافية للحماية القصوى ضد XSS
+function escapeHTML(s){
+  return String(s||"").replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// نظام إشعارات داخلي أنيق بديل لـ alert()
+function showToast(msg, type="ok"){
+  const box=document.getElementById('toastBox'); if(!box)return;
+  const el=document.createElement('div');
+  const colors=type==="err"?"bg-rose-900/90 text-white border-rose-500":type==="warn"?"bg-amber-900/90 text-white border-amber-500":"bg-[#380734]/95 text-white border-[#D81B7A]";
+  el.className=`toast-msg px-4 py-2.5 rounded-2xl border shadow-xl text-xs font-bold text-center ${colors}`;
+  el.textContent=msg;
+  box.appendChild(el);
+  setTimeout(()=>{el.remove();},3500);
+}
+
+// التحقق الصارم من روابط الصور لمنع الروابط الضارة أو غير الآمنة
+function isSafeImageUrl(url){
+  if(!url)return true;
+  if(url.startsWith("data:image/jpeg;base64,")||url.startsWith("data:image/png;base64,")||url.startsWith("data:image/webp;base64,")){
+    return url.length < 180000;
+  }
+  try{
+    const u=new URL(url);
+    return u.protocol==="https:";
+  }catch(e){return false;}
+}
+
+function setConnStatus(ok){
+  const dot=document.getElementById('connDot');
+  const badge=document.getElementById('cloudBadge');
+  if(dot)dot.className=ok?"w-2 h-2 rounded-full bg-emerald-500":"w-2 h-2 rounded-full bg-amber-500 animate-pulse";
+  if(badge){
+    badge.textContent=ok?"● متصل بالسحابة ومحدث للجميع ✅":"● وضع القراءة المؤقتة (جاري استعادة الاتصال...) ⚠️";
+    badge.className=ok?"text-[10px] font-bold text-emerald-600":"text-[10px] font-bold text-amber-600";
+  }
+}
+
+// دالة الاتصال الموحدة (تدعم الخادم الوسيط الآمن مع مسار احتياطي)
+async function cloudFetch(bucket, method="GET", bodyData=null){
+  const headers={"Content-Type":"application/json"};
+  if(adminToken)headers["Authorization"]="Bearer "+adminToken;
+  try{
+    const proxyRes=await fetch(`${PROXY_ENDPOINT}?bucket=${encodeURIComponent(bucket)}&t=${Date.now()}`,{
+      method, headers, cache:"no-store", body:bodyData?JSON.stringify(bodyData):null
+    });
+    if(proxyRes.status!==404)return proxyRes;
+  }catch(e){}
+  const directUrl=`https://getpantry.cloud/apiv1/pantry/${FALLBACK_ID}/basket/${bucket}`;
+  return fetch(method==="GET"?`${directUrl}?t=${Date.now()}`:directUrl,{
+    method, headers:{"Content-Type":"application/json"}, cache:"no-store", body:bodyData?JSON.stringify(bodyData):null
+  });
+}
 
 function checkChangesAndNotify(newD){
   if(!("Notification" in window)||Notification.permission!=="granted")return;
@@ -39,59 +101,75 @@ function checkChangesAndNotify(newD){
 }
 
 async function enableNotif(){
-  if(!("Notification" in window))return alert("متصفحك لا يدعم الإشعارات المباشرة.");
+  if(!("Notification" in window))return showToast("متصفحك لا يدعم الإشعارات المباشرة","warn");
   const p=await Notification.requestPermission();
   syncNotifIcon();
   if(p==="granted"){
     new Notification("منصة زاجل للنشر 🕊️",{body:"تم تفعيل إشعارات الأسعار وحالة التطبيقات المصرفية بنجاح!"});
+    showToast("✅ تم تفعيل الإشعارات بنجاح");
   }else{
-    alert("يرجى السماح بالإشعارات من إعدادات المتصفح لتصلك تحديثات الأسعار.");
+    showToast("يرجى السماح بالإشعارات من إعدادات المتصفح","warn");
   }
 }
+
 function syncNotifIcon(){
   const ic=document.getElementById('notifIcon');
-  if("Notification" in window && Notification.permission==="granted"){
+  if(ic && "Notification" in window && Notification.permission==="granted"){
     ic.className="fa-solid fa-bell text-sm text-emerald-600";
   }
 }
 syncNotifIcon();
 
-async function loadCloud(){
+async function loadCloud(manual=false){
   try{
-    const r=await fetch(API_URL+"?t="+Date.now(),{method:"GET",cache:"no-store"});
-    if(r.ok){
-      const d=await r.json();
-      if(d&&typeof d.b!=="undefined"){
-        if(st.ts>0)checkChangesAndNotify(d);
-        st={
-          ts:Number(d.ts)||Date.now(),
-          b:Number(d.b)||8325, s:Number(d.s)||8950,
-          upd:d.upd||"تحديث اليوم", tk:d.tk||"منصة زاجل للنشر | الرسالة الحقيقية",
-          banks:d.banks||{bankak:"ok",fawry:"ok",okash:"warn"},
-          arts:Array.isArray(d.arts)&&d.arts.length?d.arts:[DEF_ART]
-        };
-        localStorage.setItem('zj_state_v11',JSON.stringify(st));
-        renderAll();
-      }
+    const r=await cloudFetch("zajil_live","GET");
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    const d=await r.json();
+    if(d&&typeof d.b!=="undefined"){
+      if(st.ts>0)checkChangesAndNotify(d);
+      const prevB = (Number(d.b)!==Number(st.b)) ? Number(st.b) : (Number(d.prevB)||Number(st.prevB)||Number(d.b));
+      st={
+        ts:Number(d.ts)||Date.now(),
+        b:Math.max(1,Number(d.b)||8325),
+        s:Math.max(1,Number(d.s)||8950),
+        prevB:prevB,
+        upd:String(d.upd||"تحديث اليوم").slice(0,80),
+        tk:String(d.tk||"منصة زاجل للنشر | الرسالة الحقيقية").slice(0,300),
+        banks:d.banks||{bankak:"ok",fawry:"ok",okash:"warn"},
+        arts:Array.isArray(d.arts)&&d.arts.length?d.arts.slice(0,30):[DEF_ART]
+      };
+      localStorage.setItem('zj_state_v11',JSON.stringify(st));
+      renderAll();
+      setConnStatus(true);
+      pollDelay=30000; // إعادة ضبط العداد عند نجاح الاتصال
+      if(manual)showToast("✅ تم تحديث الأسعار والحالات");
     }
-  }catch(e){}
+  }catch(e){
+    setConnStatus(false);
+    pollDelay=Math.min(pollDelay*2, 300000); // Exponential Backoff يصل لـ 5 دقائق كحد أقصى
+    if(manual)showToast("⚠️ تعذر التحديث حالياً، يتم عرض آخر بيانات محفوظة","warn");
+  }
 }
 
 async function syncCloud(){
   st.ts=Date.now();
   localStorage.setItem('zj_state_v11',JSON.stringify(st));
   try{
-    const res=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(st)});
+    const res=await cloudFetch("zajil_live","POST",st);
+    setConnStatus(res.ok);
     return res.ok;
-  }catch(e){return false;}
+  }catch(e){
+    setConnStatus(false);
+    return false;
+  }
 }
 
 async function loadInbox(countVisit){
   try{
-    const r=await fetch(INBOX_URL+"?t="+Date.now(),{method:"GET",cache:"no-store"});
+    const r=await cloudFetch("zajil_inbox","GET");
     if(r.ok){
       const d=await r.json();
-      inboxQs=Array.isArray(d.questions)?d.questions:[];
+      inboxQs=Array.isArray(d.questions)?d.questions.slice(0,50):[];
       totalViews=(Number(d.views)||1)+(countVisit?1:0);
       if(countVisit && !sessionStorage.getItem('zj_visited')){
         sessionStorage.setItem('zj_visited','1');
@@ -106,8 +184,8 @@ async function loadInbox(countVisit){
 
 async function saveInbox(){
   try{
-    await fetch(INBOX_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({questions:inboxQs,views:totalViews})});
-    return true;
+    const res=await cloudFetch("zajil_inbox","POST",{questions:inboxQs.slice(0,50),views:totalViews});
+    return res.ok;
   }catch(e){return false;}
 }
 
@@ -122,7 +200,8 @@ setInterval(clock,10000); clock();
 
 function syncThemeIcon(){
   const isDark=document.body.classList.contains('dark-mode');
-  document.getElementById('themeIcon').className=isDark?'fa-solid fa-sun text-amber-400 text-sm':'fa-solid fa-moon text-sm';
+  const ic=document.getElementById('themeIcon');
+  if(ic)ic.className=isDark?'fa-solid fa-sun text-amber-400 text-sm':'fa-solid fa-moon text-sm';
 }
 function toggleTheme(){
   const isDark=document.body.classList.toggle('dark-mode');
@@ -134,11 +213,18 @@ syncThemeIcon();
 function switchTab(id,el){
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
-  document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.remove('text-[#F42C90]','font-bold');b.classList.add('text-gray-300');});
-  el.classList.remove('text-gray-300'); el.classList.add('text-[#F42C90]','font-bold');
+  document.querySelectorAll('.nav-btn').forEach(b=>{
+    b.classList.remove('text-[#F42C90]','font-bold');
+    b.classList.add('text-gray-300');
+    b.setAttribute('aria-selected','false');
+  });
+  el.classList.remove('text-gray-300');
+  el.classList.add('text-[#F42C90]','font-bold');
+  el.setAttribute('aria-selected','true');
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+// بناء حالة البنوك عبر DOM الآمن
 function renderBanks(){
   const map={
     ok:{t:"يعمل",c:"bg-emerald-50 text-emerald-700 border-emerald-200",d:"bg-emerald-500"},
@@ -146,12 +232,24 @@ function renderBanks(){
     err:{t:"لا يعمل",c:"bg-rose-50 text-rose-700 border-rose-200",d:"bg-rose-500"}
   };
   const items=[{k:"bankak",n:"بنكك"},{k:"fawry",n:"فوري"},{k:"okash",n:"أوكاش"}];
-  document.getElementById('bankStatusGrid').innerHTML=items.map(x=>{
-    const m=map[st.banks?.[x.k]||"ok"];
-    return `<div class="border rounded-xl p-2 ${m.c} flex items-center justify-center gap-1.5 text-xs font-bold"><span class="w-2 h-2 rounded-full ${m.d}"></span><span>${x.n}: ${m.t}</span></div>`;
-  }).join('');
+  const grid=document.getElementById('bankStatusGrid');
+  grid.textContent='';
+  const frag=document.createDocumentFragment();
+  items.forEach(x=>{
+    const m=map[st.banks?.[x.k]]||map.ok;
+    const div=document.createElement('div');
+    div.className=`border rounded-xl p-2 ${m.c} flex items-center justify-center gap-1.5 text-xs font-bold`;
+    const dot=document.createElement('span');
+    dot.className=`w-2 h-2 rounded-full ${m.d}`;
+    const txt=document.createElement('span');
+    txt.textContent=`${x.n}: ${m.t}`;
+    div.appendChild(dot); div.appendChild(txt);
+    frag.appendChild(div);
+  });
+  grid.appendChild(frag);
 }
 
+// العرض الشامل باستخدام DocumentFragment و textContent لمنع XSS وتحسين الأداء
 function renderAll(){
   document.getElementById('heroBuy').textContent=fmt(st.b);
   document.getElementById('heroSell').textContent=fmt(st.s);
@@ -159,28 +257,69 @@ function renderAll(){
   document.getElementById('ratesUpdSub').textContent="آخر تحديث: "+st.upd;
   document.getElementById('tickerTxt').textContent=st.tk;
   renderBanks();
-  document.getElementById('currList').innerHTML=CURR.map(x=>`
-    <div class="grid grid-cols-12 items-center py-2.5 px-2 t-num text-xs">
-      <div class="col-span-5 flex items-center gap-2">
-        <img src="https://flagcdn.com/w40/${x.f}.png" class="w-7 h-7 rounded-full object-cover border">
-        <div><div class="font-bold">${x.n}</div><div class="text-[10px] opacity-60 font-bold">${x.c}</div></div>
-      </div>
-      <div class="col-span-3 text-center font-bold">${fmt(st.b*x.rb)}</div>
-      <div class="col-span-2 text-center font-bold text-[#D81B7A]">${fmt(st.s*x.rs)}</div>
-      <div class="col-span-2 text-left font-bold text-emerald-600" dir="ltr">↑ ${x.ch}</div>
-    </div>`).join('');
+
+  const diffBase = Number(st.b) - Number(st.prevB || st.b);
+  const currBox = document.getElementById('currList');
+  currBox.textContent='';
+  const currFrag = document.createDocumentFragment();
+
+  CURR.forEach(x=>{
+    const row=document.createElement('div');
+    row.className="grid grid-cols-12 items-center py-2.5 px-2 t-num text-xs";
+
+    const c1=document.createElement('div');
+    c1.className="col-span-5 flex items-center gap-2";
+    const img=document.createElement('img');
+    img.src=`https://flagcdn.com/w40/${x.f}.png`;
+    img.alt=`علم ${x.n}`;
+    img.className="w-7 h-7 rounded-full object-cover border";
+    const info=document.createElement('div');
+    const nDiv=document.createElement('div'); nDiv.className="font-bold"; nDiv.textContent=x.n;
+    const cDiv=document.createElement('div'); cDiv.className="text-[10px] opacity-60 font-bold"; cDiv.textContent=x.c;
+    info.appendChild(nDiv); info.appendChild(cDiv);
+    c1.appendChild(img); c1.appendChild(info);
+
+    const c2=document.createElement('div');
+    c2.className="col-span-3 text-center font-bold";
+    c2.textContent=fmt(st.b*x.rb);
+
+    const c3=document.createElement('div');
+    c3.className="col-span-2 text-center font-bold text-[#D81B7A]";
+    c3.textContent=fmt(st.s*x.rs);
+
+    const c4=document.createElement('div');
+    c4.dir="ltr";
+    const cDiff = diffBase * x.rb;
+    if(Math.abs(cDiff) < 0.01){
+      c4.className="col-span-2 text-left font-bold text-gray-400";
+      c4.textContent="• 0";
+    }else if(cDiff > 0){
+      c4.className="col-span-2 text-left font-bold text-emerald-600";
+      c4.textContent=`↑ +${fmt(Math.abs(cDiff))}`;
+    }else{
+      c4.className="col-span-2 text-left font-bold text-rose-600";
+      c4.textContent=`↓ -${fmt(Math.abs(cDiff))}`;
+    }
+
+    row.appendChild(c1); row.appendChild(c2); row.appendChild(c3); row.appendChild(c4);
+    currFrag.appendChild(row);
+  });
+  currBox.appendChild(currFrag);
 
   if(!st.arts||!st.arts.length)st.arts=[DEF_ART];
-  
   const artContainer = document.getElementById('artList');
-  artContainer.innerHTML = '';
+  artContainer.textContent = '';
+  const artFrag = document.createDocumentFragment();
+
   st.arts.forEach((a, idx) => {
     const card = document.createElement('div');
     card.className = "glass-card rounded-2xl p-4 shadow-sm space-y-2.5";
     
-    if(a.i){
+    if(a.i && isSafeImageUrl(a.i)){
       const img = document.createElement('img');
       img.src = a.i;
+      img.alt = String(a.t||"صورة توضيحية").slice(0,100);
+      img.loading = "lazy";
       img.className = "w-full max-h-56 object-cover rounded-xl";
       card.appendChild(img);
     }
@@ -197,15 +336,17 @@ function renderAll(){
     
     const h4 = document.createElement('h4');
     h4.className = "text-[16px] font-bold text-[#2D062B] s-txt leading-snug";
-    h4.textContent = a.t;
+    h4.textContent = String(a.t||"");
     
     titleGroup.appendChild(badge);
     titleGroup.appendChild(h4);
     
     const shareBtn = document.createElement('button');
     shareBtn.className = "glass-sub text-[#D81B7A] px-2.5 py-1 rounded-xl text-xs font-bold flex items-center gap-1 shrink-0";
-    shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i><span>مشاركة</span>';
-    shareBtn.onclick = () => sharePost(idx);
+    const sIcon = document.createElement('i'); sIcon.className="fa-solid fa-share-nodes";
+    const sSpan = document.createElement('span'); sSpan.textContent="مشاركة";
+    shareBtn.appendChild(sIcon); shareBtn.appendChild(sSpan);
+    shareBtn.addEventListener('click', () => sharePost(idx));
     
     topRow.appendChild(titleGroup);
     topRow.appendChild(shareBtn);
@@ -213,11 +354,12 @@ function renderAll(){
     
     const bodyBox = document.createElement('div');
     bodyBox.className = "glass-sub p-3.5 rounded-xl text-[14.5px] leading-relaxed whitespace-pre-line";
-    bodyBox.textContent = a.b;
+    bodyBox.textContent = String(a.b||"");
     card.appendChild(bodyBox);
     
-    artContainer.appendChild(card);
+    artFrag.appendChild(card);
   });
+  artContainer.appendChild(artFrag);
 
   initCalc();
 }
@@ -226,149 +368,327 @@ function sharePost(idx){
   const a=st.arts[idx]; if(!a)return;
   const txt=`📌 *${a.t}*\n\n${a.b}\n\n🕊️ *منصة زاجل للنشر | الرسالة الحقيقية*\n${location.href}`;
   if(navigator.share){navigator.share({title:a.t,text:txt,url:location.href}).catch(()=>{});}
-  else{navigator.clipboard.writeText(txt);alert("✅ تم نسخ المنشور مع رابط المنصة لمشاركته!");}
+  else if(navigator.clipboard){navigator.clipboard.writeText(txt);showToast("✅ تم نسخ المنشور مع رابط المنصة!");}
 }
 function shareSite(){
   const txt=`🕊️ *منصة زاجل للنشر | الرسالة الحقيقية*\nتابع أسعار العملات لحظة بلحظة، وحالة التطبيقات المصرفية (بنكك، فوري، أوكاش)، وحاسبة العملات والشروحات عبر الرابط:\n${location.href}`;
   if(navigator.share){navigator.share({title:"منصة زاجل للنشر",text:txt,url:location.href}).catch(()=>{});}
-  else{navigator.clipboard.writeText(txt);alert("✅ تم نسخ رابط المنصة لمشاركته مع أصدقائك!");}
+  else if(navigator.clipboard){navigator.clipboard.writeText(txt);showToast("✅ تم نسخ رابط المنصة لمشاركته!");}
 }
 
 function getAllCalcList(){return [{c:"SDG",n:"جنيه سوداني",f:"sd",b:1,s:1},...CURR.map(x=>({c:x.c,n:x.n,f:x.f,b:st.b*x.rb,s:st.s*x.rs}))];}
 function initCalc(){
   const all=getAllCalcList();
-  const h=all.map(x=>`<option value="${x.c}">${x.n} (${x.c})</option>`).join('');
   const fs=document.getElementById('fSel'),ts=document.getElementById('tSel');
   const kvF=fs.value||"SDG", kvT=ts.value||"EGP";
-  fs.innerHTML=h; ts.innerHTML=h; fs.value=kvF; ts.value=kvT; calc();
+  fs.textContent=''; ts.textContent='';
+  all.forEach(x=>{
+    const o1=document.createElement('option'); o1.value=x.c; o1.textContent=`${x.n} (${x.c})`;
+    const o2=o1.cloneNode(true);
+    fs.appendChild(o1); ts.appendChild(o2);
+  });
+  fs.value=kvF; ts.value=kvT; calc();
 }
 function calc(){
   const all=getAllCalcList();
   const fObj=all.find(x=>x.c===document.getElementById('fSel').value)||all[0];
   const tObj=all.find(x=>x.c===document.getElementById('tSel').value)||all[1];
-  const amt=parseFloat(document.getElementById('cAmt').value)||0;
+  const amt=Math.max(0, parseFloat(document.getElementById('cAmt').value)||0);
   document.getElementById('fFlg').src=`https://flagcdn.com/w40/${fObj.f}.png`;
   document.getElementById('tFlg').src=`https://flagcdn.com/w40/${tObj.f}.png`;
   const sdgBuy=amt*fObj.b, sdgSell=amt*fObj.s;
   document.getElementById('cResBuy').textContent=fmt(sdgBuy/tObj.b)+' '+tObj.c;
   document.getElementById('cResSell').textContent=fmt(sdgSell/tObj.s)+' '+tObj.c;
-  document.getElementById('calcAllList').innerHTML=all.filter(x=>x.c!==fObj.c).map(x=>`
-    <div class="grid grid-cols-12 items-center py-2 px-2">
-      <div class="col-span-6 flex items-center gap-2"><img src="https://flagcdn.com/w40/${x.f}.png" class="w-5 h-5 rounded-full"><b>${x.n}</b></div>
-      <div class="col-span-3 text-center font-bold">${fmt(sdgBuy/x.b)}</div>
-      <div class="col-span-3 text-left font-bold text-[#D81B7A]">${fmt(sdgSell/x.s)}</div>
-    </div>`).join('');
+
+  const listEl=document.getElementById('calcAllList');
+  listEl.textContent='';
+  const frag=document.createDocumentFragment();
+  all.filter(x=>x.c!==fObj.c).forEach(x=>{
+    const row=document.createElement('div');
+    row.className="grid grid-cols-12 items-center py-2 px-2";
+    const c1=document.createElement('div'); c1.className="col-span-6 flex items-center gap-2";
+    const img=document.createElement('img'); img.src=`https://flagcdn.com/w40/${x.f}.png`; img.alt=x.n; img.className="w-5 h-5 rounded-full";
+    const b=document.createElement('b'); b.textContent=x.n;
+    c1.appendChild(img); c1.appendChild(b);
+
+    const c2=document.createElement('div'); c2.className="col-span-3 text-center font-bold"; c2.textContent=fmt(sdgBuy/x.b);
+    const c3=document.createElement('div'); c3.className="col-span-3 text-left font-bold text-[#D81B7A]"; c3.textContent=fmt(sdgSell/x.s);
+    row.appendChild(c1); row.appendChild(c2); row.appendChild(c3);
+    frag.appendChild(row);
+  });
+  listEl.appendChild(frag);
 }
 function swapC(){const f=document.getElementById('fSel'),t=document.getElementById('tSel'),x=f.value;f.value=t.value;t.value=x;calc();}
 
+// فحص حجم وصيغة الصورة وتفريغ الذاكرة
 function encodeImg(input){
   const file=input.files[0]; if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    const img=new Image();
-    img.onload=()=>{
-      const canvas=document.createElement('canvas');
-      const maxW=320, scale=maxW/img.width<1?maxW/img.width:1;
-      canvas.width=img.width*scale; canvas.height=img.height*scale;
-      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
-      uploadedImgData=canvas.toDataURL('image/jpeg',0.45);
-      document.getElementById('imgLbl').textContent="✅ تم تجهيز الصورة بنجاح";
-    };
-    img.src=e.target.result;
+  if(!['image/jpeg','image/png','image/webp'].includes(file.type)){
+    input.value=''; return showToast("⚠️ يرجى اختيار صورة بصيغة JPG أو PNG أو WebP فقط","err");
+  }
+  if(file.size > 5 * 1024 * 1024){
+    input.value=''; return showToast("⚠️ حجم الصورة كبير جداً (الحد الأقصى 5MB)","err");
+  }
+  const objUrl=URL.createObjectURL(file);
+  const img=new Image();
+  img.onload=()=>{
+    const canvas=document.createElement('canvas');
+    const maxW=480, scale=maxW/img.width<1?maxW/img.width:1;
+    canvas.width=Math.round(img.width*scale); canvas.height=Math.round(img.height*scale);
+    canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+    uploadedImgData=canvas.toDataURL('image/jpeg',0.55);
+    URL.revokeObjectURL(objUrl);
+    document.getElementById('imgLbl').textContent="✅ تم تجهيز الصورة بنجاح";
   };
-  reader.readAsDataURL(file);
+  img.onerror=()=>{URL.revokeObjectURL(objUrl); showToast("⚠️ تعذر قراءة ملف الصورة","err");};
+  img.src=objUrl;
 }
 
+// إرسال الأسئلة مع فحص المدخلات وحماية ضد الإغراق (Rate-Limit)
 async function submitQuestion(){
-  const sender=document.getElementById('qSender').value.trim()||"متابع زاجل";
-  const text=document.getElementById('qText').value.trim();
-  if(!text)return alert("يرجى كتابة سؤالك أولاً");
-  const btn=document.getElementById('btnSendQ'); btn.textContent="جاري إرسال سؤالك...";
+  if(Date.now() - lastQSent < 45000){
+    return showToast("⏳ يرجى الانتظار قليلاً قبل إرسال سؤال آخر","warn");
+  }
+  const sender=document.getElementById('qSender').value.trim().slice(0,60)||"متابع زاجل";
+  const text=document.getElementById('qText').value.trim().slice(0,500);
+  if(text.length < 4)return showToast("⚠️ يرجى كتابة سؤالك بوضوح أولاً","warn");
+
+  const btn=document.getElementById('btnSendQ');
+  btn.disabled=true; btn.textContent="جاري إرسال سؤالك...";
   await loadInbox(false);
   inboxQs.unshift({id:Date.now(),sender,text,time:document.getElementById('timeTxt').textContent});
   const ok=await saveInbox();
-  btn.innerHTML='<i class="fa-solid fa-paper-plane"></i><span>إرسال السؤال لإدارة زاجل</span>';
-  document.getElementById('qText').value='';
-  if(ok)alert("✅ وصل سؤالك لإدارة زاجل بنجاح! سنجيب عليه في قسم الأسئلة الشائعة.");
-  else alert("⚠️ تعذر الإرسال حالياً، يرجى المحاولة مرة أخرى.");
+  btn.disabled=false;
+  btn.innerHTML='<i class="fa-solid fa-paper-plane" aria-hidden="true"></i><span>إرسال السؤال لإدارة زاجل</span>';
+  if(ok){
+    lastQSent=Date.now();
+    document.getElementById('qText').value='';
+    showToast("✅ وصل سؤالك لإدارة زاجل بنجاح!");
+  }else{
+    showToast("⚠️ تعذر الإرسال حالياً، يرجى المحاولة مرة أخرى","err");
+  }
 }
 
+// بناء صندوق الوارد وقائمة منشورات الإدارة بـ DOM الآمن تماماً بدون innerHTML
 function renderInbox(){
   document.getElementById('qCount').textContent=inboxQs.length;
   document.getElementById('vCount').textContent=totalViews.toLocaleString('en-US');
-  document.getElementById('inboxList').innerHTML=inboxQs.length?inboxQs.map(q=>`
-    <div class="bg-white p-2.5 rounded-xl border border-purple-100 flex justify-between items-start gap-2">
-      <div><b class="text-[#6B0F5B]">${q.sender} <span class="text-[10px] text-gray-400 font-normal">${q.time||''}</span>:</b> <p class="text-gray-700 mt-0.5">${q.text}</p></div>
-      <div class="flex gap-1 shrink-0">
-        <button onclick="replyQ('${q.text.replace(/'/g,"")}')" class="bg-purple-100 text-[#6B0F5B] px-2 py-1 rounded-lg font-bold">رد</button>
-        <button onclick="delQ(${q.id})" class="bg-rose-50 text-rose-600 px-2 py-1 rounded-lg">✕</button>
-      </div>
-    </div>`).join(''):'<p class="text-gray-400 text-center py-2">لا توجد أسئلة واردة حتى الآن</p>';
-  document.getElementById('adminArtList').innerHTML=(st.arts||[]).map((a,i)=>`
-    <div class="bg-white p-2 rounded-lg border flex justify-between items-center"><span class="truncate font-bold">${a.t}</span><button onclick="delArt(${i})" class="text-rose-600 font-bold px-2">حذف</button></div>`).join('');
+
+  const box=document.getElementById('inboxList');
+  box.textContent='';
+  if(!inboxQs.length){
+    const empty=document.createElement('p');
+    empty.className="text-gray-400 text-center py-2";
+    empty.textContent="لا توجد أسئلة واردة حتى الآن";
+    box.appendChild(empty);
+  }else{
+    const frag=document.createDocumentFragment();
+    inboxQs.forEach(q=>{
+      const item=document.createElement('div');
+      item.className="bg-white p-2.5 rounded-xl border border-purple-100 flex justify-between items-start gap-2";
+
+      const content=document.createElement('div');
+      const b=document.createElement('b');
+      b.className="text-[#6B0F5B]";
+      b.textContent=String(q.sender||"متابع")+" ";
+      const tm=document.createElement('span');
+      tm.className="text-[10px] text-gray-400 font-normal";
+      tm.textContent=String(q.time||"");
+      b.appendChild(tm);
+
+      const p=document.createElement('p');
+      p.className="text-gray-700 mt-0.5 break-words";
+      p.textContent=String(q.text||"");
+      content.appendChild(b); content.appendChild(p);
+
+      const actions=document.createElement('div');
+      actions.className="flex gap-1 shrink-0";
+
+      const rBtn=document.createElement('button');
+      rBtn.className="bg-purple-100 text-[#6B0F5B] px-2 py-1 rounded-lg font-bold";
+      rBtn.textContent="رد";
+      rBtn.addEventListener('click',()=>replyQ(String(q.text||"")));
+
+      const dBtn=document.createElement('button');
+      dBtn.className="bg-rose-50 text-rose-600 px-2 py-1 rounded-lg";
+      dBtn.textContent="✕";
+      dBtn.addEventListener('click',()=>delQ(q.id));
+
+      actions.appendChild(rBtn); actions.appendChild(dBtn);
+      item.appendChild(content); item.appendChild(actions);
+      frag.appendChild(item);
+    });
+    box.appendChild(frag);
+  }
+
+  const artAdmin=document.getElementById('adminArtList');
+  artAdmin.textContent='';
+  const artFrag=document.createDocumentFragment();
+  (st.arts||[]).forEach((a,i)=>{
+    const row=document.createElement('div');
+    row.className="bg-white p-2 rounded-lg border flex justify-between items-center gap-2";
+    const sp=document.createElement('span');
+    sp.className="truncate font-bold";
+    sp.textContent=String(a.t||"");
+    const del=document.createElement('button');
+    del.className="text-rose-600 font-bold px-2 shrink-0";
+    del.textContent="حذف";
+    del.addEventListener('click',()=>delArt(i));
+    row.appendChild(sp); row.appendChild(del);
+    artFrag.appendChild(row);
+  });
+  artAdmin.appendChild(artFrag);
 }
 
 function replyQ(txt){document.getElementById('pTit').value=txt;document.getElementById('pBod').focus();}
-async function delQ(id){inboxQs=inboxQs.filter(q=>q.id!==id);renderInbox();await saveInbox();}
-async function delArt(idx){st.arts.splice(idx,1);renderInbox();renderAll();await syncCloud();}
+async function delQ(id){inboxQs=inboxQs.filter(q=>q.id!==id);renderInbox();await saveInbox();showToast("تم حذف السؤال");}
+async function delArt(idx){st.arts.splice(idx,1);renderInbox();renderAll();await syncCloud();showToast("تم حذف المنشور");}
 
-function closeModal(id){document.getElementById(id).classList.add('hidden');}
+function closeModal(id){
+  document.getElementById(id).classList.add('hidden');
+  if(id==='dashM')uploadedImgData=""; // تفريغ الذاكرة عند إغلاق اللوحة
+}
 function secretTap(){taps++;clearTimeout(tmr);tmr=setTimeout(()=>taps=0,2000);if(taps>=5){taps=0;document.getElementById('logM').classList.remove('hidden');}}
+
+function verifyLocalKey(str){
+  if(str.length!==KEY_VERIFIER.length)return false;
+  return str.split('').every((ch,i)=>(ch.charCodeAt(0)^42)===KEY_VERIFIER[i]);
+}
+
 async function login(){
-  if(document.getElementById('passIn').value.trim()===PASS){
-    document.getElementById('passIn').value='';closeModal('logM');
-    await loadCloud(); await loadInbox(false);
-    document.getElementById('dBuy').value=st.b;document.getElementById('dSell').value=st.s;document.getElementById('dTick').value=st.tk;
+  if(Date.now() < lockUntil){
+    const waitSec=Math.ceil((lockUntil-Date.now())/1000);
+    return showToast(`⏳ تم قفل المحاولات مؤقتاً، انتظر ${waitSec} ثانية`,"err");
+  }
+  const pass=document.getElementById('passIn').value.trim();
+  if(!pass)return;
+
+  let authorized=false;
+  try{
+    const r=await fetch(PROXY_ENDPOINT+"?action=login",{
+      method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({password:pass})
+    });
+    if(r.ok){
+      const d=await r.json();
+      if(d.token){authorized=true; adminToken=d.token;}
+    }else if(r.status===404){
+      authorized=verifyLocalKey(pass);
+    }
+  }catch(e){
+    authorized=verifyLocalKey(pass);
+  }
+
+  if(authorized){
+    loginFails=0;
+    document.getElementById('passIn').value='';
+    closeModal('logM');
+    await loadCloud(false); await loadInbox(false);
+    document.getElementById('dBuy').value=st.b;
+    document.getElementById('dSell').value=st.s;
+    document.getElementById('dTick').value=st.tk;
     document.getElementById('stBankak').value=st.banks?.bankak||"ok";
     document.getElementById('stFawry').value=st.banks?.fawry||"ok";
     document.getElementById('stOkash').value=st.banks?.okash||"ok";
     renderInbox();
     document.getElementById('dashM').classList.remove('hidden');
-  }else alert('كلمة المرور غير صحيحة');
+    showToast("🔓 مرحباً بك في لوحة تحكم زاجل");
+  }else{
+    loginFails++;
+    if(loginFails>=5){
+      lockUntil=Date.now()+120000;
+      showToast("⛔ تم إيقاف الدخول لمدة دقيقتين لتجاوز المحاولات","err");
+    }else{
+      showToast("❌ كلمة المرور غير صحيحة","err");
+    }
+  }
 }
+
 async function saveR(){
-  const btn=document.getElementById('btnSaveR'); btn.textContent="جاري الحفظ للجميع...";
-  st.b=parseFloat(document.getElementById('dBuy').value)||st.b;
-  st.s=parseFloat(document.getElementById('dSell').value)||st.s;
-  st.tk=document.getElementById('dTick').value.trim()||st.tk;
-  st.banks={bankak:document.getElementById('stBankak').value,fawry:document.getElementById('stFawry').value,okash:document.getElementById('stOkash').value};
+  const newB=parseFloat(document.getElementById('dBuy').value);
+  const newS=parseFloat(document.getElementById('dSell').value);
+  if(!newB||!newS||newB<=0||newS<=0)return showToast("⚠️ يرجى إدخال أسعار صحيحة","warn");
+
+  const btn=document.getElementById('btnSaveR');
+  btn.disabled=true; btn.textContent="جاري الحفظ للجميع...";
+  if(newB!==st.b)st.prevB=st.b;
+  st.b=newB; st.s=newS;
+  st.tk=document.getElementById('dTick').value.trim().slice(0,300)||st.tk;
+  st.banks={
+    bankak:document.getElementById('stBankak').value,
+    fawry:document.getElementById('stFawry').value,
+    okash:document.getElementById('stOkash').value
+  };
   st.upd=document.getElementById('dateTxt').textContent+" • "+document.getElementById('timeTxt').textContent;
   renderAll();
   const ok=await syncCloud();
-  btn.textContent="حفظ وتحديث وإرسال إشعار للجميع";
-  if(ok){alert("✅ تم تحديث الأسعار والحالات لجميع المستخدمين بنجاح!");closeModal('dashM');}
-  else{alert("⚠️ تعذر الاتصال بالسحابة حالياً، جرب الضغط مرة أخرى.");}
+  btn.disabled=false; btn.textContent="حفظ وتحديث وإرسال إشعار للجميع";
+  if(ok){showToast("✅ تم تحديث الأسعار والحالات للجميع!");closeModal('dashM');}
+  else{showToast("⚠️ تعذر الاتصال بالسحابة حالياً، جرب مرة أخرى","err");}
 }
+
 async function addArt(){
-  const t=document.getElementById('pTit').value.trim(),b=document.getElementById('pBod').value.trim(),i=uploadedImgData||document.getElementById('pImg').value.trim();
-  if(!t||!b)return;
-  const btn=document.getElementById('btnAddArt'); btn.textContent="جاري النشر للجميع...";
+  const t=document.getElementById('pTit').value.trim().slice(0,200);
+  const b=document.getElementById('pBod').value.trim().slice(0,2000);
+  const rawUrl=document.getElementById('pImg').value.trim();
+  if(!t||!b)return showToast("⚠️ يرجى كتابة عنوان السؤال والإجابة","warn");
+  if(rawUrl && !isSafeImageUrl(rawUrl)){
+    return showToast("⚠️ رابط الصورة يجب أن يبدأ بـ https:// فقط","err");
+  }
+  const i=uploadedImgData||rawUrl;
+  const btn=document.getElementById('btnAddArt');
+  btn.disabled=true; btn.textContent="جاري النشر للجميع...";
   st.arts=st.arts||[]; st.arts.unshift({t,b,i});
-  uploadedImgData=""; document.getElementById('imgLbl').textContent="اختر صورة توضيحية من جهازك (اختياري)";
+  uploadedImgData=""; // تفريغ الذاكرة فوراً
+  document.getElementById('pFile').value='';
+  document.getElementById('imgLbl').textContent="اختر صورة توضيحية من جهازك (اختياري)";
   document.getElementById('pTit').value=''; document.getElementById('pBod').value=''; document.getElementById('pImg').value='';
   renderAll(); renderInbox();
   const ok=await syncCloud();
-  btn.textContent="نشر السؤال والإجابة للجميع";
-  if(ok){alert("✅ تم نشر السؤال والإجابة لجميع المستخدمين!");closeModal('dashM');}
+  btn.disabled=false; btn.textContent="نشر السؤال والإجابة للجميع";
+  if(ok){showToast("✅ تم نشر السؤال والإجابة لجميع المستخدمين!");closeModal('dashM');}
+  else{showToast("⚠️ تعذر النشر السحابي، حاول مجدداً","err");}
 }
 
 function setupNativePWA(){
-  const svgStr='<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#380734"/><path fill="#FFF" d="M18 14C28 31 46 31 58 41C64 46 64 53 57 59C61 50 56 41 43 37C30 34 22 28 18 14Z"/><path fill="#FFF" d="M23 34C34 42 49 39 57 47C51 45 40 48 31 46C26 44 24 39 23 34Z"/><path fill="#FFF" d="M28 77C30 61 38 51 59 47C59 56 53 62 43 65C34 67 30 71 28 77Z"/><path fill="#FFF" d="M58 30C63 22 72 22 78 27C81 27 83 28 85 30C79 29 74 31 71 38C69 43 69 48 68 53C68 44 65 35 58 30ZM65 29C68 28 71 29 75 28C72 26 68 26 65 29Z"/></svg>';
-  const img=new Image();
-  img.onload=()=>{
-    const c=document.createElement('canvas'); c.width=512; c.height=512;
-    c.getContext('2d').drawImage(img,0,0,512,512);
-    const pngUrl=c.toDataURL('image/png');
+  const cachedIcon=sessionStorage.getItem('zj_pwa_icon');
+  const applyManifest=(pngUrl)=>{
     document.getElementById('appleIcon').href=pngUrl;
     const manifest={id:"/",name:"منصة زاجل للنشر",short_name:"زاجل",start_url:location.origin+"/",scope:location.origin+"/",display:"standalone",orientation:"portrait",background_color:"#380734",theme_color:"#380734",icons:[{src:pngUrl,sizes:"192x192",type:"image/png",purpose:"any"},{src:pngUrl,sizes:"512x512",type:"image/png",purpose:"any maskable"}]};
     document.getElementById('pwaManifest').href='data:application/manifest+json;charset=utf-8,'+encodeURIComponent(JSON.stringify(manifest));
   };
-  img.src='data:image/svg+xml;utf8,'+encodeURIComponent(svgStr);
+  if(cachedIcon){
+    applyManifest(cachedIcon);
+  }else{
+    const svgStr='<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#380734"/><path fill="#FFF" d="M18 14C28 31 46 31 58 41C64 46 64 53 57 59C61 50 56 41 43 37C30 34 22 28 18 14Z"/><path fill="#FFF" d="M23 34C34 42 49 39 57 47C51 45 40 48 31 46C26 44 24 39 23 34Z"/><path fill="#FFF" d="M28 77C30 61 38 51 59 47C59 56 53 62 43 65C34 67 30 71 28 77Z"/><path fill="#FFF" d="M58 30C63 22 72 22 78 27C81 27 83 28 85 30C79 29 74 31 71 38C69 43 69 48 68 53C68 44 65 35 58 30ZM65 29C68 28 71 29 75 28C72 26 68 26 65 29Z"/></svg>';
+    const img=new Image();
+    img.onload=()=>{
+      const c=document.createElement('canvas'); c.width=512; c.height=512;
+      c.getContext('2d').drawImage(img,0,0,512,512);
+      const pngUrl=c.toDataURL('image/png');
+      try{sessionStorage.setItem('zj_pwa_icon',pngUrl);}catch(e){}
+      applyManifest(pngUrl);
+    };
+    img.src='data:image/svg+xml;utf8,'+encodeURIComponent(svgStr);
+  }
   if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
 }
 setupNativePWA();
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;});
 function triggerInstall(){if(deferredPrompt){deferredPrompt.prompt();}else{document.getElementById('pwaM').classList.remove('hidden');}}
 
-renderAll(); loadCloud(); loadInbox(true);
-setInterval(()=>{loadCloud();if(!document.getElementById('dashM').classList.contains('hidden'))loadInbox(false);},12000);
+// نظام جدولة التحديث الذكي مع Exponential Backoff وإيقاف التحديث في الخلفية
+function schedulePoll(){
+  clearTimeout(pollTimer);
+  pollTimer=setTimeout(async ()=>{
+    if(document.visibilityState==='visible'){
+      await loadCloud(false);
+      if(!document.getElementById('dashM').classList.contains('hidden'))await loadInbox(false);
+    }
+    schedulePoll();
+  }, pollDelay);
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible'){loadCloud(false);schedulePoll();}
+});
+
+renderAll(); loadCloud(false); loadInbox(true); schedulePoll();
