@@ -152,42 +152,65 @@
   </div>
 
   <div id="tab-calc" class="tab-content space-y-3.5" role="tabpanel">
-    <div class="c-grad rounded-[24px] p-4 shadow-md text-white">
-      <div class="flex items-center gap-2.5 mb-3">
-        <div class="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center text-pink-200"><i class="fa-solid fa-calculator text-lg" aria-hidden="true"></i></div>
-        <div><h3 class="text-sm font-bold">حاسبة العملات الشاملة</h3><p class="text-[11px] text-purple-200">أدخل المبلغ لمعرفة قيمة الشراء والبيع بجميع العملات</p></div>
+    <div class="glass-card rounded-[24px] p-4 shadow-sm space-y-4">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#380734] to-[#D81B7A] flex items-center justify-center text-white shadow-sm"><i class="fa-solid fa-arrow-right-arrow-left text-base" aria-hidden="true"></i></div>
+          <div><h3 class="text-sm font-bold text-[#2D062B] s-txt">حاسبة زاجل للعملات</h3><p class="text-[11px] opacity-70">احسب قيمة التحويل بسعر الشراء والبيع</p></div>
+        </div>
+        <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-pink-50 text-[#8B1D59] border border-pink-100">السوق الموازي</span>
       </div>
-      <div class="bg-white/90 backdrop-blur-md rounded-2xl p-3 text-[#2D062B] space-y-2.5">
-        <div class="grid grid-cols-12 gap-2 items-center">
-          <input type="number" id="cAmt" value="100000" min="0" oninput="calc()" aria-label="المبلغ المراد تحويله" class="col-span-5 bg-purple-50 border border-purple-200 rounded-xl px-2.5 py-2 text-left font-bold text-sm t-num">
-          <div class="col-span-7 flex items-center bg-purple-50 border border-purple-200 rounded-xl px-2 py-2">
-            <img id="fFlg" src="https://flagcdn.com/w40/sd.png" alt="علم العملة الأولى" class="w-5 h-5 rounded-full object-cover ml-1.5">
-            <select id="fSel" onchange="calc()" aria-label="من عملة" class="w-full bg-transparent text-xs font-bold focus:outline-none"></select>
+
+      <div class="rounded-[22px] p-3.5 space-y-3 border border-purple-100/80 bg-white/75">
+        <div class="flex items-center justify-between">
+          <label for="cAmt" class="text-xs font-bold text-[#5A425E]">المبلغ المراد تحويله</label>
+          <span class="text-[10px] text-gray-500">أدخل المبلغ واختر العملة</span>
+        </div>
+        <div class="grid grid-cols-[minmax(0,1fr)_auto] gap-2 items-center">
+          <input type="text" id="cAmt" value="" placeholder="أدخل المبلغ" inputmode="decimal" dir="ltr" autocomplete="off" spellcheck="false" oninput="formatCalcAmount(this);calc()" aria-label="المبلغ المراد تحويله" class="min-w-0 w-full bg-[#F7F0F8] border border-purple-100 rounded-2xl px-3 py-3 text-left font-bold text-lg t-num focus:outline-none focus:ring-2 focus:ring-pink-200">
+          <div class="flex items-center gap-1.5 bg-[#F7F0F8] border border-purple-100 rounded-2xl px-2.5 py-3">
+            <img id="fFlg" src="https://flagcdn.com/w40/sd.png" alt="علم العملة الأولى" class="w-5 h-5 rounded-full object-cover">
+            <select id="fSel" onchange="calc()" aria-label="من عملة" class="max-w-[100px] bg-transparent text-sm font-bold text-[#380734] focus:outline-none"></select>
           </div>
         </div>
-        <div class="flex justify-center -my-2.5 relative z-10">
-          <button onclick="swapC()" aria-label="عكس العملات" class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#6B0F5B] to-[#D81B7A] text-white shadow flex items-center justify-center border-2 border-white"><i class="fa-solid fa-arrow-right-arrow-left rotate-90 text-[10px]" aria-hidden="true"></i></button>
+
+        <div class="flex items-center gap-3 py-0.5">
+          <div class="h-px flex-1 bg-gradient-to-l from-transparent via-purple-200 to-transparent"></div>
+          <button type="button" onclick="swapC()" aria-label="عكس العملات" title="تبديل اتجاه التحويل" class="w-11 h-11 shrink-0 rounded-2xl bg-gradient-to-tr from-[#380734] to-[#D81B7A] text-white shadow-md border-2 border-white flex items-center justify-center active:scale-95 transition"><i class="fa-solid fa-arrow-right-arrow-left rotate-90" aria-hidden="true"></i></button>
+          <div class="h-px flex-1 bg-gradient-to-l from-transparent via-purple-200 to-transparent"></div>
         </div>
-        <div class="flex items-center bg-purple-50 border border-purple-200 rounded-xl px-2.5 py-2">
-          <img id="tFlg" src="https://flagcdn.com/w40/eg.png" alt="علم العملة الثانية" class="w-5 h-5 rounded-full object-cover ml-2">
-          <select id="tSel" onchange="calc()" aria-label="إلى عملة" class="w-full bg-transparent text-xs font-bold focus:outline-none"></select>
+
+        <div class="rounded-2xl bg-[#F7F0F8] border border-purple-100 px-3 py-3">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <label for="tSel" class="text-xs font-bold text-[#5A425E]">العملة المستلمة</label>
+            <span class="text-[10px] text-gray-500">الناتج المحسوب</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <img id="tFlg" src="https://flagcdn.com/w40/eg.png" alt="علم العملة الثانية" class="w-6 h-6 rounded-full object-cover">
+            <select id="tSel" onchange="calc()" aria-label="إلى عملة" class="min-w-0 flex-1 bg-transparent text-sm font-bold text-[#380734] focus:outline-none"></select>
+          </div>
         </div>
-        <div class="grid grid-cols-2 gap-2 pt-1 text-center">
-          <div class="bg-purple-50/80 p-2.5 rounded-xl border border-purple-100">
-            <span class="text-[11px] text-gray-500 block">بسعر الشراء</span>
-            <strong id="cResBuy" class="text-sm font-bold text-[#2D062B] t-num">0</strong>
+
+        <div class="rounded-2xl bg-gradient-to-l from-[#380734] via-[#4A0B43] to-[#2A0529] text-white p-3.5 shadow-sm">
+          <div class="flex items-center gap-2 mb-3"><i class="fa-solid fa-scale-balanced text-[#FF8FC5]" aria-hidden="true"></i><span class="text-xs font-bold">نتيجة التحويل حسب السعر</span></div>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="rounded-xl bg-white/10 border border-white/10 p-3">
+              <span class="text-[11px] text-purple-200 block mb-1">بسعر الشراء</span>
+              <strong id="cResBuy" class="text-base font-bold text-white t-num block break-words">0</strong>
+            </div>
+            <div class="rounded-xl bg-white/10 border border-pink-300/20 p-3">
+              <span class="text-[11px] text-pink-200 block mb-1">بسعر البيع</span>
+              <strong id="cResSell" class="text-base font-bold text-[#FF8FC5] t-num block break-words">0</strong>
+            </div>
           </div>
-          <div class="bg-pink-50/80 p-2.5 rounded-xl border border-pink-100">
-            <span class="text-[11px] text-gray-500 block">بسعر البيع</span>
-            <strong id="cResSell" class="text-sm font-bold text-[#D81B7A] t-num">0</strong>
-          </div>
+          <p class="text-[10px] text-purple-200 mt-3 leading-relaxed">الأسعار استرشادية وقد تختلف حسب مصدر السعر ووقت التحديث.</p>
         </div>
       </div>
     </div>
 
     <div class="glass-card rounded-[24px] p-4 shadow-sm">
-      <h4 class="text-xs font-bold text-[#2D062B] s-txt mb-2 flex items-center gap-1.5"><i class="fa-solid fa-coins text-[#D81B7A]" aria-hidden="true"></i> قيمة المبلغ بباقي العملات (شراء / بيع)</h4>
-      <div class="glass-sub grid grid-cols-12 rounded-xl py-1.5 px-3 text-[11px] font-bold text-[#5A425E] mb-1">
+      <h4 class="text-xs font-bold text-[#2D062B] s-txt mb-3 flex items-center gap-1.5"><i class="fa-solid fa-coins text-[#D81B7A]" aria-hidden="true"></i> قيمة المبلغ بباقي العملات</h4>
+      <div class="glass-sub grid grid-cols-12 rounded-xl py-2 px-3 text-[11px] font-bold text-[#5A425E] mb-1">
         <div class="col-span-6">العملة</div><div class="col-span-3 text-center">شراء</div><div class="col-span-3 text-left">بيع</div>
       </div>
       <div id="calcAllList" class="divide-y divide-purple-100/30 text-xs t-num"></div>
