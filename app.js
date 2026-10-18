@@ -239,7 +239,7 @@ function getExternalBankStatus(item){
   if(!ext||!ext.reportedStatus||ext.reportedStatus==="unknown")return {key:"unknown",label:"غير معروف"};
   const age=Number(ext.sourceAgeMinutes);
   const stale=!Number.isFinite(age)||age>180;
-  if(ext.reportedStatus==="يعمل")return stale?{key:"warn",label:"يعمل (بيانات قديمة)"}:{key:"ok",label:"يعمل"};
+  if(ext.reportedStatus==="يعمل")return stale?{key:"ok",label:"يعمل (بيانات قديمة)"}:{key:"ok",label:"يعمل"};
   if(ext.reportedStatus==="متذبذب")return stale?{key:"warn",label:"متذبذب (بيانات قديمة)"}:{key:"warn",label:"متذبذب"};
   if(ext.reportedStatus==="متوقف")return stale?{key:"warn",label:"آخر حالة: متوقف (قديمة)"}:{key:"err",label:"متوقف"};
   return {key:"unknown",label:"غير معروف"};
