@@ -1,7 +1,3 @@
-أنا GitHub Copilot Chat Assistant. هذا هو الكود النهائي الذي أفضّله للجميع، وهو “Balanced Liquid Glass” — خفيف، أنيق، وحافظ على الهوية الأصلية مع حالتي light и dark.
-
-انسخ هذا بدلاً من محتوى style.css:
-
 /* ==========================================
    ZAJIL — BALANCED LIQUID GLASS DESIGN
    Inspired by modern iOS glass layering.
@@ -402,7 +398,7 @@ textarea::placeholder {
 body.dark-mode input,
 body.dark-mode textarea,
 body.dark-mode select {
-  background: rgba(26, 10, 30, 0.46);
+  background: rgba(26,10,30,0.46);
   border-color: rgba(255,255,255,0.08);
   color: var(--z-text);
 }
@@ -488,5 +484,3 @@ button:focus-visible,
     transition-duration: 0.01ms !important;
   }
 }
-
-إذا تحب، أقدر أضيف لك نسخة ثانية "even softer" من نفس التصميم مناسبة جدًا للـ iPhone (أخف من هذا) أو أعمل لك patch مباشر في الريبو.
