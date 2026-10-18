@@ -59,12 +59,10 @@
     body.dark-mode .glass-card { background: rgba(30,5,36,0.85) !important; border-color: rgba(216,27,122,0.25) !important; color:#F5EEF7 !important; }
     body.dark-mode .glass-sub { background: rgba(42,8,50,0.8) !important; color:#E2D4E6 !important; border-color: rgba(216,27,122,0.2) !important; }
     body.dark-mode .s-txt { color: #F5EEF7 !important; }
-    /* small accessibility note: avoid `user-select: none` on content */
   </style>
 </head>
 <body>
 <script>
-  // restore theme from localStorage
   if (localStorage.getItem('zj_theme') === 'dark') document.body.classList.add('dark-mode');
 </script>
 
@@ -74,7 +72,6 @@
   <div class="max-w-md mx-auto flex items-center justify-between">
     <div class="flex items-center gap-2.5">
       <button onclick="secretTap()" class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#380734] to-[#D81B7A] flex items-center justify-center active:scale-90 transition shadow-sm p-2" aria-label="شعار زاجل">
-        <!-- inline svg logo -->
         <svg viewBox="0 0 100 100" class="w-full h-full fill-white" aria-hidden="true">
           <path d="M18 14C28 31 46 31 58 41C64 46 64 53 57 59C61 50 56 41 43 37C30 34 22 28 18 14Z"/>
           <path d="M23 34C34 42 49 39 57 47C51 45 40 48 31 46C26 44 24 39 23 34Z"/>
@@ -103,93 +100,77 @@
     </div>
   </div>
 </header>
-<!-- PART 2/6: Home tab, glass cards, bank status, dollar hero, ticker, and question form -->
-<main class="max-w-md mx-auto px-3.5 space-y-4 mt-3">
-  <div id="tab-home" class="tab-content active space-y-4">
-    <!-- date/time card -->
-    <div class="glass-sub rounded-2xl py-2.5 px-4 flex items-center justify-between shadow-sm">
-      <div class="text-right flex-1">
-        <div id="dateTxt" class="text-[13px] font-bold text-[#3D0B3A] s-txt">--</div>
-        <div class="text-[11px] opacity-75">بتوقيت الخرطوم المباشر</div>
-      </div>
-      <div class="flex items-center gap-2 px-2"><i class="fa-regular fa-calendar-days text-sm text-[#D81B7A]"></i></div>
-      <div class="flex items-center gap-1.5 t-num"><span id="timeTxt" class="text-sm font-bold text-[#3D0B3A] s-txt">--:--</span><i class="fa-regular fa-clock text-xs text-[#D81B7A]"></i></div>
+<div class="max-w-md mx-auto p-3.5 space-y-3.5">
+  <!-- bank status grid -->
+  <div class="glass-card rounded-2xl p-3.5 shadow-sm">
+    <div class="flex items-center justify-between mb-2.5">
+      <span class="text-xs font-bold text-[#2D062B] s-txt flex items-center gap-1.5"><i class="fa-solid fa-server text-[#D81B7A]"></i> حالة التطبيقات المصرفية الآن</span>
+      <button onclick="loadCloud(true)" class="text-[11px] text-[#D81B7A] font-bold flex items-center gap-1 active:scale-95 transition"><i class="fa-solid fa-rotate"></i> تحديث الآن</button>
     </div>
+    <div id="bankStatusGrid" class="grid grid-cols-3 gap-2 text-center" aria-live="polite"></div>
+  </div>
 
-    <!-- bank status grid -->
-    <div class="glass-card rounded-2xl p-3.5 shadow-sm">
-      <div class="flex items-center justify-between mb-2.5">
-        <span class="text-xs font-bold text-[#2D062B] s-txt flex items-center gap-1.5"><i class="fa-solid fa-server text-[#D81B7A]"></i> حالة التطبيقات المصرفية الآن</span>
-        <button onclick="loadCloud(true)" class="text-[11px] text-[#D81B7A] font-bold flex items-center gap-1 active:scale-95 transition"><i class="fa-solid fa-rotate"></i> تحديث الآن</button>
-      </div>
-      <div id="bankStatusGrid" class="grid grid-cols-3 gap-2 text-center" aria-live="polite"></div>
-    </div>
-
-    <!-- dollar hero -->
-    <div class="c-grad rounded-[24px] p-5 shadow-md text-white relative overflow-hidden">
-      <div class="flex justify-between items-center mb-3">
-        <div class="flex items-center gap-2">
-          <img src="https://flagcdn.com/w40/us.png" class="w-6 h-6 rounded-full object-cover border border-white/40" alt="flag US">
-          <span class="text-sm font-bold text-white">الدولار الأمريكي (USD)</span>
-        </div>
-        <span id="heroUpd" class="text-[11px] bg-white/15 px-2.5 py-0.5 rounded-full text-pink-200" aria-hidden="true"></span>
-      </div>
-      <div class="grid grid-cols-2 gap-3 text-center">
-        <div class="bg-white/10 p-3.5 rounded-2xl border border-white/15 backdrop-blur-md">
-          <span class="text-xs text-purple-200 block">سعر الشراء</span>
-          <strong id="heroBuy" class="text-2xl font-bold t-num mt-1 block">--</strong>
-          <small class="text-[11px] text-gray-300">جنيه سوداني</small>
-        </div>
-        <div class="bg-white/10 p-3.5 rounded-2xl border border-white/15 backdrop-blur-md">
-          <span class="text-xs text-purple-200 block">سعر البيع</span>
-          <strong id="heroSell" class="text-2xl font-bold t-num mt-1 block text-[#FF6FB1]">--</strong>
-          <small class="text-[11px] text-gray-300">جنيه سوداني</small>
-        </div>
-      </div>
-    </div>
-
-    <!-- ticker (marquee) -->
-    <div class="bg-gradient-to-l from-[#380734] via-[#480B43] to-[#2B0528] rounded-full p-1.5 flex items-center shadow-md overflow-hidden" role="status" aria-live="off" aria-hidden="false">
-      <span class="bg-gradient-to-r from-[#C81971] to-[#E62988] text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 shrink-0 z-10" aria-hidden="true">
-        <i class="fa-solid fa-bullhorn text-[10px]"></i><span>عاجل</span>
-      </span>
-      <div class="overflow-hidden flex-1 mx-2">
-        <p id="tickerTxt" class="marquee text-white text-xs font-medium" aria-label="العناوين المتحركة"></p>
-      </div>
-    </div>
-
-    <!-- articles / faq list (rendered safely via JS) -->
-    <div class="space-y-3">
-      <div class="flex items-center justify-between px-1">
-        <h3 class="text-[15px] font-bold text-[#2D062B] s-txt flex items-center gap-1.5"><i class="fa-solid fa-circle-question text-[#D81B7A]"></i> الأسئلة الشائعة والشروحات</h3>
-        <a href="https://aywa.sd/bban.php" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-[#D81B7A]">أداة الـ BBAN ←</a>
-      </div>
-      <div id="artList" class="space-y-3" aria-live="polite"></div>
-    </div>
-
-    <!-- question form -->
-    <div class="glass-card rounded-[24px] p-4 shadow-sm space-y-3">
+  <!-- dollar hero -->
+  <div class="c-grad rounded-[24px] p-5 shadow-md text-white relative overflow-hidden">
+    <div class="flex justify-between items-center mb-3">
       <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-xl bg-pink-50 text-[#D81B7A] flex items-center justify-center"><i class="fa-solid fa-paper-plane text-sm"></i></div>
-        <div>
-          <h4 class="text-sm font-bold text-[#2D062B] s-txt">عندك سؤال أو استفسار مصرفي؟</h4>
-          <p class="text-[11px] opacity-75">أرسل سؤالك وسنجيب عليه في قسم الأسئلة الشائعة</p>
-        </div>
+        <img src="https://flagcdn.com/w40/us.png" class="w-6 h-6 rounded-full object-cover border border-white/40" alt="flag US">
+        <span class="text-sm font-bold text-white">الدولار الأمريكي (USD)</span>
       </div>
-      <input type="text" id="qSender" placeholder="اسمك (اختياري)..." class="glass-sub w-full rounded-xl px-3 py-2 text-xs focus:outline-none" aria-label="الاسم (اختياري)">
-      <textarea id="qText" rows="2" placeholder="اكتب سؤالك هنا بوضوح..." class="glass-sub w-full rounded-xl px-3 py-2 text-sm focus:outline-none" aria-label="نص السؤال"></textarea>
-      <button id="btnSendQ" onclick="submitQuestion()" class="b-calc w-full py-2.5 rounded-xl text-white font-bold text-xs shadow flex items-center justify-center gap-1.5" aria-label="إرسال السؤال">
-        <i class="fa-solid fa-paper-plane"></i><span>إرسال السؤال لإدارة زاجل</span>
-      </button>
+      <span id="heroUpd" class="text-[11px] bg-white/15 px-2.5 py-0.5 rounded-full text-pink-200" aria-hidden="true"></span>
+    </div>
+    <div class="grid grid-cols-2 gap-3 text-center">
+      <div class="bg-white/10 p-3.5 rounded-2xl border border-white/15 backdrop-blur-md">
+        <span class="text-xs text-purple-200 block">سعر الشراء</span>
+        <strong id="heroBuy" class="text-2xl font-bold t-num mt-1 block">--</strong>
+        <small class="text-[11px] text-gray-300">جنيه سوداني</small>
+      </div>
+      <div class="bg-white/10 p-3.5 rounded-2xl border border-white/15 backdrop-blur-md">
+        <span class="text-xs text-purple-200 block">سعر البيع</span>
+        <strong id="heroSell" class="text-2xl font-bold t-num mt-1 block text-[#FF6FB1]">--</strong>
+        <small class="text-[11px] text-gray-300">جنيه سوداني</small>
+      </div>
     </div>
   </div>
-</main>
+
+  <!-- ticker (marquee) -->
+  <div class="bg-gradient-to-l from-[#380734] via-[#480B43] to-[#2B0528] rounded-full p-1.5 flex items-center shadow-md overflow-hidden" role="status">
+    <span class="bg-gradient-to-r from-[#C81971] to-[#E62988] text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 shrink-0 z-10" aria-hidden="true">
+      <i class="fa-solid fa-bullhorn text-[10px]"></i><span>عاجل</span>
+    </span>
+    <div class="overflow-hidden flex-1 mx-2">
+      <p id="tickerTxt" class="marquee text-white text-xs font-medium" aria-label="العناوين المتحركة"></p>
+    </div>
+  </div>
+
+  <!-- articles / faq list -->
+  <div class="space-y-3">
+    <div class="flex items-center justify-between px-1">
+      <h3 class="text-[15px] font-bold text-[#2D062B] s-txt flex items-center gap-1.5"><i class="fa-solid fa-circle-question text-[#D81B7A]"></i> الأسئلة الشائعة والشروحات</h3>
+      <a href="https://aywa.sd/bban.php" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-[#D81B7A]">أداة الـ BBAN ←</a>
+    </div>
+    <div id="artList" class="space-y-3" aria-live="polite"></div>
+  </div>
+
+  <!-- question form -->
+  <div class="glass-card rounded-[24px] p-4 shadow-sm space-y-3">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-xl bg-pink-50 text-[#D81B7A] flex items-center justify-center"><i class="fa-solid fa-paper-plane text-sm"></i></div>
+      <div>
+        <h4 class="text-sm font-bold text-[#2D062B] s-txt">عندك سؤال أو استفسار مصرفي؟</h4>
+        <p class="text-[11px] opacity-75">أرسل سؤالك وسنجيب عليه في قسم الأسئلة الشائعة</p>
+      </div>
+    </div>
+    <input type="text" id="qSender" placeholder="اسمك (اختياري)..." class="glass-sub w-full rounded-xl px-3 py-2 text-xs focus:outline-none" aria-label="الاسم">
+    <textarea id="qText" rows="2" placeholder="اكتب سؤالك هنا بوضوح..." class="glass-sub w-full rounded-xl px-3 py-2 text-sm focus:outline-none" aria-label="نص السؤال"></textarea>
+    <button id="btnSendQ" onclick="submitQuestion()" class="b-calc w-full py-2.5 rounded-xl text-white font-bold text-xs shadow flex items-center justify-center gap-1.5">
+      <i class="fa-solid fa-paper-plane"></i><span>إرسال السؤال لإدارة زاجل</span>
+    </button>
+  </div>
+</div>
 
 <script>
-/* PART 2 JS: rendering of banks + safe rendering of arts (partial functions, full logic in later parts) */
-
 function renderBanksContainer(banksState) {
-  // banksState: { bankak: 'ok'|'warn'|'err', fawry:..., okash:... }
   const map = {
     ok: { t: "يعمل", c: "bg-emerald-50 text-emerald-700 border-emerald-200", d: "bg-emerald-500" },
     warn: { t: "متذبذب", c: "bg-amber-50 text-amber-700 border-amber-200", d: "bg-amber-500" },
@@ -197,81 +178,540 @@ function renderBanksContainer(banksState) {
   };
   const items = [{ k: "bankak", n: "بنكك" }, { k: "fawry", n: "فوري" }, { k: "okash", n: "أوكاش" }];
   const container = document.getElementById('bankStatusGrid');
-  container.innerHTML = ''; // safe replace of container
+  if(!container) return;
+  container.innerHTML = '';
   items.forEach(x => {
     const m = map[(banksState && banksState[x.k]) || 'ok'];
     const el = document.createElement('div');
     el.className = `border rounded-xl p-2 ${m.c} flex items-center justify-center gap-1.5 text-xs font-bold`;
     const dot = document.createElement('span');
     dot.className = `w-2 h-2 rounded-full ${m.d}`;
-    dot.setAttribute('aria-hidden', 'true');
     const txt = document.createElement('span');
     txt.textContent = `${x.n}: ${m.t}`;
-    el.appendChild(dot);
-    el.appendChild(txt);
+    el.appendChild(dot); el.appendChild(txt);
     container.appendChild(el);
   });
 }
 
-/* renderArts will be used to create article cards safely (textContent only) */
 function renderArts(arts) {
   const artContainer = document.getElementById('artList');
+  if(!artContainer) return;
   artContainer.innerHTML = '';
   (arts || []).forEach((a) => {
     const card = document.createElement('div');
     card.className = "glass-card rounded-2xl p-4 shadow-sm space-y-2.5";
-
     if (a.i) {
       const img = document.createElement('img');
-      img.src = a.i;
-      img.alt = a.t || 'صورة توضيحية';
+      img.src = a.i; img.alt = a.t || '';
       img.className = "w-full max-h-56 object-cover rounded-xl";
       card.appendChild(img);
     }
-
     const topRow = document.createElement('div');
     topRow.className = "flex items-start justify-between gap-2";
-
     const titleGroup = document.createElement('div');
     titleGroup.className = "flex items-start gap-2";
-
     const badge = document.createElement('span');
     badge.className = "bg-pink-100 text-[#D81B7A] text-xs font-bold px-2 py-0.5 rounded-lg shrink-0 mt-0.5";
     badge.textContent = "سؤال";
-
     const h4 = document.createElement('h4');
     h4.className = "text-[16px] font-bold text-[#2D062B] s-txt leading-snug";
     h4.textContent = a.t || '';
-
-    titleGroup.appendChild(badge);
-    titleGroup.appendChild(h4);
+    titleGroup.appendChild(badge); titleGroup.appendChild(h4);
 
     const shareBtn = document.createElement('button');
     shareBtn.className = "glass-sub text-[#D81B7A] px-2.5 py-1 rounded-xl text-xs font-bold flex items-center gap-1 shrink-0";
-    shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes" aria-hidden="true"></i><span>مشاركة</span>';
+    shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i><span>مشاركة</span>';
     shareBtn.addEventListener('click', () => sharePostSafe(a));
 
-    topRow.appendChild(titleGroup);
-    topRow.appendChild(shareBtn);
+    topRow.appendChild(titleGroup); topRow.appendChild(shareBtn);
     card.appendChild(topRow);
 
     const bodyBox = document.createElement('div');
     bodyBox.className = "glass-sub p-3.5 rounded-xl text-[14.5px] leading-relaxed whitespace-pre-line";
     bodyBox.textContent = a.b || '';
     card.appendChild(bodyBox);
-
     artContainer.appendChild(card);
   });
 }
 
-/* small helper for sharing (uses navigator.share or clipboard) */
 function sharePostSafe(a) {
   const text = `📌 ${a.t || ''}\n\n${a.b || ''}\n\n🕊️ منصة زاجل للنشر | الرسالة الحقيقية\n${location.href}`;
   if (navigator.share) {
     navigator.share({ title: a.t, text, url: location.href }).catch(()=>{});
   } else {
-    navigator.clipboard.writeText(text).then(()=> alert("✅ تم نسخ المنشور مع رابط المنصة لمشاركته!"));
+    navigator.clipboard.writeText(text).then(()=> alert("✅ تم نسخ المنشور مع رابط المنصة!"));
   }
 }
 </script>
-<!-- end of PART 2/6 -->
+<div id="tab-rates" class="tab-content space-y-3.5 max-w-md mx-auto px-3.5">
+  <div class="glass-card rounded-[24px] p-4 shadow-sm">
+    <div class="flex items-center justify-between pb-3 border-b border-purple-100/40 mb-2">
+      <div>
+        <h2 class="text-[15px] font-bold text-[#2D062B] s-txt flex items-center gap-1.5"><i class="fa-solid fa-arrow-trend-up text-[#D81B7A]"></i> أسعار العملات (السوق الموازي)</h2>
+        <p id="ratesUpdSub" class="text-[11px] opacity-60 mt-0.5"></p>
+      </div>
+      <button onclick="loadCloud(true)" class="glass-sub w-8 h-8 rounded-full text-[#4A1246] active:rotate-180 transition flex items-center justify-center">
+        <i class="fa-solid fa-arrows-rotate text-sm"></i>
+      </button>
+    </div>
+    <div class="glass-sub grid grid-cols-12 rounded-xl py-2 px-3 text-xs font-bold text-[#5A425E] mb-1">
+      <div class="col-span-5">العملة</div><div class="col-span-3 text-center">شراء</div><div class="col-span-2 text-center">بيع</div><div class="col-span-2 text-left">التغير</div>
+    </div>
+    <div id="currList" class="divide-y divide-purple-100/30" aria-live="polite"></div>
+  </div>
+</div>
+
+<div id="tab-calc" class="tab-content space-y-3.5 max-w-md mx-auto px-3.5">
+  <div class="c-grad rounded-[24px] p-4 shadow-md text-white">
+    <div class="flex items-center gap-2.5 mb-3">
+      <div class="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center text-pink-200"><i class="fa-solid fa-calculator text-lg"></i></div>
+      <div><h3 class="text-sm font-bold">حاسبة العملات الشاملة</h3><p class="text-[11px] text-purple-200">أدخل المبلغ لمعرفة قيمة الشراء والبيع</p></div>
+    </div>
+    <div class="bg-white/90 backdrop-blur-md rounded-2xl p-3 text-[#2D062B] space-y-2.5">
+      <div class="grid grid-cols-12 gap-2 items-center">
+        <input type="number" id="cAmt" value="100000" oninput="calc()" class="col-span-5 bg-purple-50 border border-purple-200 rounded-xl px-2.5 py-2 text-left font-bold text-sm t-num">
+        <div class="col-span-7 flex items-center bg-purple-50 border border-purple-200 rounded-xl px-2 py-2">
+          <img id="fFlg" src="https://flagcdn.com/w40/sd.png" class="w-5 h-5 rounded-full object-cover ml-1.5" alt="">
+          <select id="fSel" onchange="calc()" class="w-full bg-transparent text-xs font-bold focus:outline-none"></select>
+        </div>
+      </div>
+      <div class="flex justify-center -my-2.5 relative z-10">
+        <button onclick="swapC()" class="w-8 h-8 rounded-full bg-gradient-to-tr from-[#6B0F5B] to-[#D81B7A] text-white shadow flex items-center justify-center border-2 border-white">
+          <i class="fa-solid fa-right-left text-xs"></i>
+        </button>
+      </div>
+      <div class="flex items-center bg-purple-50 border border-purple-200 rounded-xl px-2.5 py-2">
+        <img id="tFlg" src="https://flagcdn.com/w40/eg.png" class="w-5 h-5 rounded-full object-cover ml-2" alt="">
+        <select id="tSel" onchange="calc()" class="w-full bg-transparent text-xs font-bold focus:outline-none"></select>
+      </div>
+      <div class="grid grid-cols-2 gap-2 pt-1 text-center">
+        <div class="bg-purple-50/80 p-2.5 rounded-xl border border-purple-100">
+          <span class="text-[11px] text-gray-500 block">بسعر الشراء</span>
+          <strong id="cResBuy" class="text-sm font-bold text-[#2D062B] t-num">0</strong>
+        </div>
+        <div class="bg-pink-50/80 p-2.5 rounded-xl border border-pink-100">
+          <span class="text-[11px] text-gray-500 block">بسعر البيع</span>
+          <strong id="cResSell" class="text-sm font-bold text-[#D81B7A] t-num">0</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="glass-card rounded-[24px] p-4 shadow-sm">
+    <h4 class="text-xs font-bold text-[#2D062B] s-txt mb-2 flex items-center gap-1.5"><i class="fa-solid fa-coins text-[#D81B7A]"></i> قيمة المبلغ بباقي العملات</h4>
+    <div class="glass-sub grid grid-cols-12 rounded-xl py-1.5 px-3 text-[11px] font-bold text-[#5A425E] mb-1">
+      <div class="col-span-6">العملة</div><div class="col-span-3 text-center">شراء</div><div class="col-span-3 text-left">بيع</div>
+    </div>
+    <div id="calcAllList" class="divide-y divide-purple-100/30 text-xs t-num"></div>
+  </div>
+</div>
+
+<div id="tab-more" class="tab-content space-y-3.5 max-w-md mx-auto px-3.5">
+  <div class="c-grad rounded-[24px] p-4 shadow-md text-white flex items-center justify-between">
+    <div>
+      <h3 class="text-sm font-bold">شارك منصة زاجل مع أصدقائك</h3>
+      <p class="text-[11px] text-purple-200 mt-0.5">لتصل الرسالة الحقيقية وأسعار الصرف للجميع</p>
+    </div>
+    <button onclick="shareSite()" class="b-calc px-4 py-2.5 rounded-xl text-xs font-bold shadow flex items-center gap-1.5 shrink-0">
+      <i class="fa-solid fa-share-nodes"></i><span>مشاركة الموقع</span>
+    </button>
+  </div>
+  <div class="glass-card rounded-[24px] p-5 shadow-sm space-y-3 text-[13px] leading-relaxed">
+    <h3 class="font-bold text-base text-[#2D062B] s-txt pb-2 border-b border-purple-100/40">حول منصة زاجل للنشر | Zajil</h3>
+    <p><b>زاجل للنشر</b> منصة إعلامية ومعلوماتية سودانية، انطلقت في <b>سبتمبر 2019</b>.</p>
+    <div class="glass-sub p-3 rounded-2xl text-[#3D0B3A] font-medium">«نؤمن في زاجل بأن المعلومة حق، وأن رسالتنا تقوم على خدمة المتابعين ونقل الحقيقة بوضوح وصدق.»</div>
+  </div>
+  <div class="glass-card rounded-[24px] p-5 shadow-sm space-y-2.5 text-xs font-bold">
+    <h3 class="text-sm text-[#2D062B] s-txt pb-2 border-b border-purple-100/40">تابعوا زاجل عبر منصاتنا الرسمية</h3>
+    <a href="https://www.facebook.com/zajil.post" target="_blank" rel="noopener noreferrer" class="flex justify-between p-3.5 rounded-xl bg-blue-50/80 text-blue-800"><span><i class="fa-brands fa-facebook-f ml-2"></i>فيسبوك</span><i class="fa-solid fa-arrow-left"></i></a>
+    <a href="https://t.me/zajil_post" target="_blank" rel="noopener noreferrer" class="flex justify-between p-3.5 rounded-xl bg-sky-50/80 text-sky-800"><span><i class="fa-brands fa-telegram ml-2"></i>تليجرام</span><i class="fa-solid fa-arrow-left"></i></a>
+  </div>
+</div>
+
+<script>
+const CURR = [
+  { c: "USD", n: "دولار أمريكي", f: "us", rb: 1, rs: 1, ch: "+50" },
+  { c: "SAR", n: "ريال سعودي", f: "sa", rb: 2220/8325, rs: 2387/8950, ch: "+20" },
+  { c: "EGP", n: "جنيه مصري", f: "eg", rb: 159.3/8325, rs: 171.3/8950, ch: "+2" }
+];
+const fmt = n => n >= 500 ? Math.round(n).toLocaleString('en-US') : Number(n.toFixed(2)).toLocaleString('en-US');
+
+function renderCurrList(state) {
+  const list = document.getElementById('currList');
+  if(!list) return;
+  list.innerHTML = '';
+  CURR.forEach(x => {
+    const row = document.createElement('div');
+    row.className = 'grid grid-cols-12 items-center py-2.5 px-2 t-num text-xs';
+    const left = document.createElement('div');
+    left.className = 'col-span-5 flex items-center gap-2';
+    const img = document.createElement('img');
+    img.src = `https://flagcdn.com/w40/${x.f}.png`; img.className = 'w-7 h-7 rounded-full object-cover border';
+    const names = document.createElement('div');
+    const nameBold = document.createElement('div'); nameBold.className = 'font-bold'; nameBold.textContent = x.n;
+    const code = document.createElement('div'); code.className = 'text-[10px] opacity-60 font-bold'; code.textContent = x.c;
+    names.appendChild(nameBold); names.appendChild(code);
+    left.appendChild(img); left.appendChild(names);
+
+    const buy = document.createElement('div'); buy.className = 'col-span-3 text-center font-bold'; buy.textContent = fmt(state.b * x.rb);
+    const sell = document.createElement('div'); sell.className = 'col-span-2 text-center font-bold text-[#D81B7A]'; sell.textContent = fmt(state.s * x.rs);
+    const ch = document.createElement('div'); ch.className = 'col-span-2 text-left font-bold text-emerald-600'; ch.style.direction = 'ltr'; ch.textContent = `↑ ${x.ch}`;
+
+    row.appendChild(left); row.appendChild(buy); row.appendChild(sell); row.appendChild(ch);
+    list.appendChild(row);
+  });
+}
+
+function getAllCalcList(state) {
+  return [{ c: "SDG", n: "جنيه سوداني", f: "sd", b: 1, s: 1 }, ...CURR.map(x => ({ c: x.c, n: x.n, f: x.f, b: state.b * x.rb, s: state.s * x.rs }))];
+}
+
+function initCalc(state) {
+  const all = getAllCalcList(state);
+  const h = all.map(x => `<option value="${x.c}">${x.n} (${x.c})</option>`).join('');
+  const fs = document.getElementById('fSel'), ts = document.getElementById('tSel');
+  if(!fs || !ts) return;
+  const kvF = fs.value || 'SDG', kvT = ts.value || 'EGP';
+  fs.innerHTML = h; ts.innerHTML = h;
+  fs.value = kvF; ts.value = kvT;
+  calc();
+}
+
+function calc() {
+  try {
+    const all = getAllCalcList(currentState);
+    const fObj = all.find(x => x.c === document.getElementById('fSel').value) || all[0];
+    const tObj = all.find(x => x.c === document.getElementById('tSel').value) || all[1];
+    const amt = parseFloat(document.getElementById('cAmt').value) || 0;
+    document.getElementById('fFlg').src = `https://flagcdn.com/w40/${fObj.f}.png`;
+    document.getElementById('tFlg').src = `https://flagcdn.com/w40/${tObj.f}.png`;
+    const sdgBuy = amt * fObj.b, sdgSell = amt * fObj.s;
+    document.getElementById('cResBuy').textContent = fmt(sdgBuy / tObj.b) + ' ' + tObj.c;
+    document.getElementById('cResSell').textContent = fmt(sdgSell / tObj.s) + ' ' + tObj.c;
+    document.getElementById('calcAllList').innerHTML = all.filter(x => x.c !== fObj.c).map(x =>
+      `<div class="grid grid-cols-12 items-center py-2 px-2">
+         <div class="col-span-6 flex items-center gap-2"><img src="https://flagcdn.com/w40/${x.f}.png" class="w-5 h-5 rounded-full" alt=""><b>${x.n}</b></div>
+         <div class="col-span-3 text-center font-bold">${fmt(sdgBuy / x.b)}</div>
+         <div class="col-span-3 text-left font-bold text-[#D81B7A]">${fmt(sdgSell / x.s)}</div>
+       </div>`).join('');
+  } catch (e) {}
+}
+
+let currentState = { ts: 0, b: 8325, s: 8950, upd: 'تحديث اليوم', tk: 'منصة زاجل للنشر | الرسالة الحقيقية', banks: { bankak: 'ok', fawry: 'ok', okash: 'warn' }, arts: [] };
+
+function refreshUI() {
+  const hb = document.getElementById('heroBuy'), hs = document.getElementById('heroSell');
+  if(hb) hb.textContent = fmt(currentState.b);
+  if(hs) hs.textContent = fmt(currentState.s);
+  const hu = document.getElementById('heroUpd'); if(hu) hu.textContent = currentState.upd;
+  const rus = document.getElementById('ratesUpdSub'); if(rus) rus.textContent = "آخر تحديث: " + currentState.upd;
+  const tk = document.getElementById('tickerTxt'); if(tk) tk.textContent = currentState.tk;
+  renderBanksContainer(currentState.banks);
+  renderCurrList(currentState);
+  renderArts(currentState.arts);
+  initCalc(currentState);
+}
+refreshUI();
+</script>
+<nav class="fixed bottom-0 inset-x-0 z-40 bg-[#250423]/90 backdrop-blur-xl text-white border-t border-purple-900/40 shadow-2xl">
+  <div class="max-w-md mx-auto grid grid-cols-4 h-16 text-[11px]">
+    <button onclick="switchTab('home', this)" class="nav-btn flex flex-col items-center justify-center gap-1 text-[#F42C90] font-bold"><i class="fa-solid fa-house text-base"></i><span>الرئيسية</span></button>
+    <button onclick="switchTab('rates', this)" class="nav-btn flex flex-col items-center justify-center gap-1 text-gray-300"><i class="fa-solid fa-chart-line text-base"></i><span>الأسعار</span></button>
+    <button onclick="switchTab('calc', this)" class="nav-btn flex flex-col items-center justify-center gap-1 text-gray-300"><i class="fa-solid fa-calculator text-base"></i><span>الحاسبة</span></button>
+    <button onclick="switchTab('more', this)" class="nav-btn flex flex-col items-center justify-center gap-1 text-gray-300"><i class="fa-solid fa-ellipsis text-base"></i><span>المزيد</span></button>
+  </div>
+</nav>
+
+<!-- PWA install modal -->
+<div id="pwaM" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-white/95 backdrop-blur-xl w-full max-w-xs rounded-3xl p-5 text-center space-y-3 text-xs text-[#2D062B] shadow-2xl">
+    <h3 class="font-bold text-sm">تثبيت تطبيق زاجل بشاشة كاملة</h3>
+    <p class="text-gray-600 leading-relaxed">اختر «إضافة إلى الشاشة الرئيسية» من المتصفح لتثبيت التطبيق.</p>
+    <button onclick="closeModal('pwaM')" class="w-full b-calc text-white font-bold py-2.5 rounded-xl">تم</button>
+  </div>
+</div>
+
+<!-- admin login modal -->
+<div id="logM" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-white/95 backdrop-blur-xl w-full max-w-xs rounded-3xl p-5 text-center space-y-3 text-[#2D062B] shadow-2xl">
+    <h3 class="font-bold text-sm">دخول إدارة زاجل</h3>
+    <input type="password" id="passIn" placeholder="كلمة المرور..." class="w-full bg-purple-50 border rounded-xl p-2 text-center text-sm">
+    <div class="flex gap-2">
+      <button onclick="login()" class="flex-1 b-calc text-white font-bold text-xs py-2.5 rounded-xl">دخول</button>
+      <button onclick="closeModal('logM')" class="px-4 py-2.5 rounded-xl bg-gray-100 text-xs font-bold">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- dashboard modal -->
+<div id="dashM" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+  <div class="bg-white/95 backdrop-blur-2xl w-full max-w-md rounded-3xl p-5 space-y-3.5 max-h-[92vh] overflow-y-auto text-xs text-[#2D062B] shadow-2xl">
+    <div class="flex justify-between items-center border-b pb-2">
+      <div>
+        <h3 class="font-bold text-sm">لوحة تحكم زاجل السحابية</h3>
+        <span class="text-[10px] font-bold text-emerald-600">● متصل بالسحابة ومحدث ✅</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="bg-purple-100 text-[#6B0F5B] px-2.5 py-1 rounded-xl font-bold text-[11px]">الزيارات: <b id="vCount">0</b></span>
+        <button onclick="closeModal('dashM')"><i class="fa-solid fa-xmark text-base"></i></button>
+      </div>
+    </div>
+    <div class="p-3 rounded-2xl bg-purple-50/60 space-y-2">
+      <div class="font-bold text-[#6B0F5B]">1. تحديث الدولار والحالة</div>
+      <div class="grid grid-cols-2 gap-2">
+        <input type="number" id="dBuy" placeholder="دولار شراء" class="bg-white border rounded-xl p-2 font-bold">
+        <input type="number" id="dSell" placeholder="دولار بيع" class="bg-white border rounded-xl p-2 font-bold">
+      </div>
+      <input type="text" id="dTick" placeholder="شريط العناوين المتحركة" class="w-full bg-white border rounded-xl p-2">
+      <div class="grid grid-cols-3 gap-1.5 pt-1">
+        <div><label class="block text-[10px]">بنكك</label><select id="stBankak" class="w-full bg-white border rounded-lg p-1"><option value="ok">يعمل</option><option value="warn">متذبذب</option><option value="err">معطل</option></select></div>
+        <div><label class="block text-[10px]">فوري</label><select id="stFawry" class="w-full bg-white border rounded-lg p-1"><option value="ok">يعمل</option><option value="warn">متذبذب</option><option value="err">معطل</option></select></div>
+        <div><label class="block text-[10px]">أوكاش</label><select id="stOkash" class="w-full bg-white border rounded-lg p-1"><option value="ok">يعمل</option><option value="warn">متذبذب</option><option value="err">معطل</option></select></div>
+      </div>
+      <button id="btnSaveR" onclick="saveR()" class="w-full b-calc text-white font-bold py-2.5 rounded-xl">حفظ وتحديث وإرسال إشعار</button>
+    </div>
+    <!-- inbox -->
+    <div class="p-3 rounded-2xl bg-purple-50/60 space-y-2">
+      <div class="font-bold text-[#6B0F5B] flex justify-between items-center">
+        <span>3. أسئلة المتابعين الواردة 📩</span>
+        <span id="qCount" class="bg-[#D81B7A] text-white px-2 py-0.5 rounded-full text-[10px]">0</span>
+      </div>
+      <div id="inboxList" class="space-y-2 max-h-44 overflow-y-auto"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(id, el) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  const target = document.getElementById('tab-' + id) || document.getElementById(id);
+  if (target) target.classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('text-[#F42C90]', 'font-bold'); b.classList.add('text-gray-300'); });
+  if (el) { el.classList.remove('text-gray-300'); el.classList.add('text-[#F42C90]', 'font-bold'); }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function closeModal(id) { const el = document.getElementById(id); if (el) el.classList.add('hidden'); }
+let taps = 0, tmr;
+function secretTap() {
+  taps++; clearTimeout(tmr); tmr = setTimeout(() => taps = 0, 2000);
+  if (taps >= 5) { taps = 0; document.getElementById('logM').classList.remove('hidden'); }
+}
+async function login() {
+  const password = document.getElementById('passIn').value.trim();
+  if (!password) return alert('يرجى إدخال كلمة المرور');
+  try {
+    const res = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password })
+    });
+    if (res.ok) {
+      document.getElementById('passIn').value = '';
+      closeModal('logM');
+      await loadCloud(); await loadInbox(false);
+      document.getElementById('dBuy').value = currentState.b;
+      document.getElementById('dSell').value = currentState.s;
+      document.getElementById('dTick').value = currentState.tk;
+      document.getElementById('dashM').classList.remove('hidden');
+    } else { alert('كلمة المرور غير صحيحة'); }
+  } catch (e) { alert('خطأ في الاتصال'); }
+}
+</script>
+<script>
+const PANTRY_ID = '77d25e08-f670-4cbc-9e8d-e85150943ed0';
+const API_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/zajil_live`;
+const INBOX_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/zajil_inbox`;
+
+function syncNotifIcon() {
+  const ic = document.getElementById('notifIcon');
+  if(!ic) return;
+  if ("Notification" in window && Notification.permission === "granted") {
+    ic.className = "fa-solid fa-bell text-sm text-emerald-600";
+  } else {
+    ic.className = "fa-regular fa-bell text-sm text-[#D81B7A]";
+  }
+}
+
+async function enableNotif() {
+  if (!("Notification" in window)) return alert("متصفحك لا يدعم الإشعارات.");
+  const p = await Notification.requestPermission();
+  syncNotifIcon();
+  if (p === "granted") {
+    try { new Notification("منصة زاجل للنشر 🕊️", { body: "تم تفعيل إشعارات الأسعار بنجاح!" }); } catch(e){}
+  } else {
+    alert("يرجى السماح بالإشعارات من المتصفح.");
+  }
+}
+
+async function loadCloud(triggerNotify) {
+  try {
+    const r = await fetch(API_URL + '?t=' + Date.now(), { method: 'GET', cache: 'no-store' });
+    if (r.ok) {
+      const d = await r.json();
+      if (d && typeof d.b !== 'undefined') {
+        currentState = {
+          ts: Number(d.ts) || Date.now(),
+          b: Number(d.b) || currentState.b,
+          s: Number(d.s) || currentState.s,
+          upd: d.upd || currentState.upd,
+          tk: d.tk || currentState.tk,
+          banks: d.banks || currentState.banks,
+          arts: Array.isArray(d.arts) && d.arts.length ? d.arts : currentState.arts
+        };
+        localStorage.setItem('zj_state_v11', JSON.stringify(currentState));
+        refreshUI();
+      }
+    }
+  } catch (e) {}
+}
+
+async function syncCloud() {
+  try {
+    currentState.ts = Date.now();
+    localStorage.setItem('zj_state_v11', JSON.stringify(currentState));
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(currentState)
+    });
+    return res.ok;
+  } catch (e) { return false; }
+}
+
+let inboxQs = [], totalViews = 1;
+async function loadInbox(countVisit) {
+  try {
+    const r = await fetch(INBOX_URL + '?t=' + Date.now(), { method: 'GET', cache: 'no-store' });
+    if (r.ok) {
+      const d = await r.json();
+      inboxQs = Array.isArray(d.questions) ? d.questions : [];
+      totalViews = (Number(d.views) || 1) + (countVisit ? 1 : 0);
+      if (countVisit && !sessionStorage.getItem('zj_visited')) {
+        sessionStorage.setItem('zj_visited', '1');
+        await saveInbox();
+      }
+    } else if (countVisit) { await saveInbox(); }
+  } catch (e) {}
+  renderInbox();
+}
+
+async function saveInbox() {
+  try {
+    await fetch(INBOX_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ questions: inboxQs, views: totalViews })
+    });
+    return true;
+  } catch (e) { return false; }
+}
+syncNotifIcon();
+</script>
+<script>
+function renderInbox() {
+  const inboxContainer = document.getElementById('inboxList');
+  if(!inboxContainer) return;
+  inboxContainer.innerHTML = '';
+  const qCount = document.getElementById('qCount');
+  const vCount = document.getElementById('vCount');
+  if(qCount) qCount.textContent = String(inboxQs.length);
+  if(vCount) vCount.textContent = totalViews.toLocaleString('en-US');
+
+  if (!inboxQs.length) {
+    const empty = document.createElement('p');
+    empty.className = 'text-gray-400 text-center py-2';
+    empty.textContent = 'لا توجد أسئلة واردة حتى الآن';
+    inboxContainer.appendChild(empty);
+    return;
+  }
+
+  inboxQs.forEach(q => {
+    const wrap = document.createElement('div');
+    wrap.className = 'bg-white p-2.5 rounded-xl border border-purple-100 flex justify-between items-start gap-2';
+    const left = document.createElement('div');
+    const sender = document.createElement('b');
+    sender.className = 'text-[#6B0F5B]';
+    sender.textContent = q.sender || 'متابع زاجل';
+    const msg = document.createElement('p');
+    msg.className = 'text-gray-700 mt-0.5';
+    msg.textContent = q.text || '';
+    left.appendChild(sender); left.appendChild(msg);
+
+    const delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.className = 'bg-rose-50 text-rose-600 px-2 py-1 rounded-lg';
+    delBtn.textContent = '✕';
+    delBtn.addEventListener('click', () => delQ(q.id));
+
+    wrap.appendChild(left); wrap.appendChild(delBtn);
+    inboxContainer.appendChild(wrap);
+  });
+}
+
+async function delQ(id) {
+  inboxQs = inboxQs.filter(q => q.id !== id);
+  renderInbox();
+  await saveInbox();
+}
+
+async function submitQuestion() {
+  const sender = (document.getElementById('qSender').value || '').trim() || 'متابع زاجل';
+  const text = (document.getElementById('qText').value || '').trim();
+  if (!text) return alert('يرجى كتابة سؤالك أولاً');
+  const btn = document.getElementById('btnSendQ');
+  btn.textContent = 'جاري الإرسال...';
+  await loadInbox(false);
+  inboxQs.unshift({ id: Date.now(), sender, text });
+  const ok = await saveInbox();
+  btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i><span>إرسال السؤال لإدارة زاجل</span>';
+  document.getElementById('qText').value = '';
+  if (ok) alert('✅ تم إرسال سؤالك بنجاح!');
+  else alert('⚠️ تعذر الإرسال حالياً.');
+}
+
+async function saveR() {
+  const btn = document.getElementById('btnSaveR');
+  if(btn) btn.textContent = 'جاري الحفظ...';
+  currentState.b = parseFloat(document.getElementById('dBuy').value) || currentState.b;
+  currentState.s = parseFloat(document.getElementById('dSell').value) || currentState.s;
+  currentState.tk = document.getElementById('dTick').value.trim() || currentState.tk;
+  currentState.banks = {
+    bankak: document.getElementById('stBankak').value,
+    fawry: document.getElementById('stFawry').value,
+    okash: document.getElementById('stOkash').value
+  };
+  refreshUI();
+  const ok = await syncCloud();
+  if(btn) btn.textContent = 'حفظ وتحديث وإرسال إشعار';
+  if (ok) { alert('✅ تم التحديث بنجاح!'); closeModal('dashM'); }
+  else { alert('⚠️ تعذر الاتصال بالسحابة.'); }
+}
+
+function setupNativePWA() {
+  const svgStr = '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#380734"/><path fill="#FFF" d="M18 14C28 31 46 31 58 41C64 46 64 53 57 59C61 50 56 41 43 37C30 34 22 28 18 14Z"/></svg>';
+  const img = new Image();
+  img.onload = () => {
+    const c = document.createElement('canvas'); c.width = 512; c.height = 512;
+    c.getContext('2d').drawImage(img, 0, 0, 512, 512);
+    const pngUrl = c.toDataURL('image/png');
+    const appleIcon = document.getElementById('appleIcon');
+    if (appleIcon) appleIcon.href = pngUrl;
+    const manifest = {
+      name: "منصة زاجل للنشر", short_name: "زاجل",
+      start_url: location.origin + "/", scope: location.origin + "/",
+      display: "standalone", background_color: "#380734", theme_color: "#380734",
+      icons: [{ src: pngUrl, sizes: "512x512", type: "image/png" }]
+    };
+    const manifestUrl = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest));
+    const pwaManifest = document.getElementById('pwaManifest');
+    if(pwaManifest) pwaManifest.href = manifestUrl;
+  };
+  img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(svgStr);
+}
+
+setupNativePWA();
+loadCloud();
+loadInbox(true);
+setInterval(()=>{ loadCloud(); }, 12000);
+</script>
+</body>
+</html>
