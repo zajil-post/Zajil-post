@@ -715,6 +715,48 @@ async function addArt(){
   else{showToast("⚠️ تعذر النشر السحابي، حاول مجدداً","err");}
 }
 
+
+// Centralized UI event delegation: no inline JavaScript handlers in HTML.
+document.addEventListener('click', event => {
+  const control = event.target.closest('[data-action]');
+  if (!control) return;
+  switch (control.dataset.action) {
+    case 'secretTap': secretTap(); break;
+    case 'enableNotif': enableNotif(); break;
+    case 'triggerInstall': triggerInstall(); break;
+    case 'toggleTheme': toggleTheme(); break;
+    case 'refreshCloud': loadCloud(true); break;
+    case 'submitQuestion': submitQuestion(); break;
+    case 'swapC': swapC(); break;
+    case 'shareSite': shareSite(); break;
+    case 'switchTab': switchTab(control.dataset.tab, control); break;
+    case 'closeModal': closeModal(control.dataset.modal); break;
+    case 'login': login(); break;
+    case 'saveR': saveR(); break;
+    case 'addArt': addArt(); break;
+    case 'loadInbox': loadInbox(false); break;
+  }
+});
+document.addEventListener('input', event => {
+  const control = event.target.closest('[data-action="formatCalcAmount"]');
+  if (control) { formatCalcAmount(control); calc(); }
+});
+document.addEventListener('change', event => {
+  const control = event.target.closest('[data-action]');
+  if (!control) return;
+  if (control.dataset.action === 'calc') calc();
+  if (control.dataset.action === 'encodeImg') encodeImg(control);
+});
+
+
+let hadController = Boolean(navigator.serviceWorker && navigator.serviceWorker.controller);
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (hadController) showToast('يتوفر تحديث جديد لزاجل؛ أعد فتح الصفحة لتطبيقه.');
+    hadController = true;
+  });
+}
+
 // تسجيل عامل الخدمة لدعم التثبيت والعمل مع اتصال متقطع.
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}),{once:true});

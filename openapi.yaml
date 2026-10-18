@@ -1,0 +1,112 @@
+openapi: 3.1.0
+info:
+  title: Zajil API
+  version: 1.0.0
+  description: >
+    Same-origin Vercel function for Zajil public data, questions, visits, and
+    authenticated administration. Stored live-basket fields are application-defined.
+servers:
+  - url: https://zajil-post.vercel.app
+    description: Production site
+paths:
+  /api/zajil:
+    get:
+      summary: Read a data basket
+      parameters:
+        - in: query
+          name: bucket
+          schema:
+            type: string
+            enum: [zajil_live, zajil_inbox]
+            default: zajil_live
+          description: The inbox requires a valid bearer token.
+      security:
+        - AdminBearer: []
+        - {}
+      responses:
+        "200":
+          description: Basket data returned by Pantry
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "403":
+          description: Inbox access is not authorized
+        "502":
+          description: Storage unavailable
+    post:
+      summary: Login, submit a public question, record a visit, or write a basket
+      parameters:
+        - in: query
+          name: action
+          required: true
+          schema:
+            type: string
+            enum: [login, submit_question, visit]
+          description: >
+            For basket writes, omit action and provide bucket=zajil_live with a
+            bearer token. Public actions do not require a token.
+        - in: query
+          name: bucket
+          schema:
+            type: string
+            enum: [zajil_live, zajil_inbox]
+      security:
+        - AdminBearer: []
+        - {}
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  required: [password]
+                  properties:
+                    password:
+                      type: string
+                      maxLength: 256
+                - type: object
+                  required: [text]
+                  properties:
+                    sender:
+                      type: string
+                      maxLength: 60
+                    text:
+                      type: string
+                      minLength: 4
+                      maxLength: 500
+                    time:
+                      type: string
+                      maxLength: 40
+                - type: object
+                  additionalProperties: true
+      responses:
+        "200":
+          description: Action completed
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "400":
+          description: Invalid request data
+        "401":
+          description: Login failed
+        "403":
+          description: Authorization required for protected writes
+        "405":
+          description: HTTP method not allowed for the selected action
+        "429":
+          description: Public rate limit exceeded
+        "502":
+          description: Storage unavailable
+        "503":
+          description: Required environment variables are not configured
+components:
+  securitySchemes:
+    AdminBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: signed-token

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zajil-pwa-v3';
+const CACHE_NAME = 'zajil-pwa-v4';
 const CORE_ASSETS = [
   '/',
   '/index.html',
@@ -28,19 +28,22 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
 
-  // استراتيجية Network-Only لطلبات البيانات الحية
-  if (url.hostname.includes('getpantry.cloud') || url.pathname.startsWith('/api/')) {
-    return;
-  }
+  // Let third-party assets and live API requests use the browser's normal network path.
+  if (url.origin !== self.location.origin || url.pathname.startsWith('/api/')) return;
 
-  // استراتيجية Network-First مع الرجوع للكاش عند انقطاع الإنترنت
+  // Network-first for same-origin assets; use the app shell only for failed navigations.
   e.respondWith(
     fetch(e.request).then(res => {
-      if (res && res.status === 200 && url.origin === location.origin) {
+      if (res && res.status === 200) {
         const clone = res.clone();
-        caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+        caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
       }
       return res;
-    }).catch(() => caches.match(e.request).then(r => r || caches.match('/index.html')))
+    }).catch(async () => {
+      const cached = await caches.match(e.request);
+      if (cached) return cached;
+      if (e.request.mode === 'navigate') return caches.match('/index.html');
+      return Response.error();
+    })
   );
 });
