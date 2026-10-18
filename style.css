@@ -698,3 +698,13 @@ body.dark-mode nav[role="tablist"] {
   .glass-card::after { display: none !important; }
   button > i, a > i, .nav-btn > i, #themeIcon, #notifIcon { transform: none !important; }
 }
+
+
+/* Bank status indicators — restrained glowing dots, matching the existing glass theme */
+.bank-dot-wrap { border:1px solid var(--z-border-soft); background:var(--z-glass-soft); color:var(--z-text); min-height:76px; }
+.bank-dot { display:inline-block; width:9px; height:9px; border-radius:50%; }
+.bank-dot-green { background:#22c55e; box-shadow:0 0 7px rgba(34,197,94,.8),0 0 14px rgba(34,197,94,.35); }
+.bank-dot-yellow { background:#facc15; box-shadow:0 0 7px rgba(250,204,21,.8),0 0 14px rgba(250,204,21,.32); }
+.bank-dot-red { background:#ef4444; box-shadow:0 0 7px rgba(239,68,68,.8),0 0 14px rgba(239,68,68,.32); }
+.bank-dot-gray { background:#9ca3af; box-shadow:0 0 5px rgba(156,163,175,.4); }
+.bank-status-label { font-size:10px; opacity:.85; line-height:1.4; }
