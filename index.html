@@ -502,6 +502,7 @@ async function login() {
     const res = await fetch('/api/admin/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
       body: JSON.stringify({ password })
     });
     if (res.ok) {
@@ -517,9 +518,8 @@ async function login() {
 }
 </script>
 <script>
-const PANTRY_ID = '77d25e08-f670-4cbc-9e8d-e85150943ed0';
-const API_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/zajil_live`;
-const INBOX_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/zajil_inbox`;
+const API_URL = '/api/state';
+const INBOX_URL = '/api/inbox';
 
 function syncNotifIcon() {
   const ic = document.getElementById('notifIcon');
@@ -570,6 +570,7 @@ async function syncCloud() {
     localStorage.setItem('zj_state_v11', JSON.stringify(currentState));
     const res = await fetch(API_URL, {
       method: 'POST',
+      credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(currentState)
     });
@@ -580,30 +581,17 @@ async function syncCloud() {
 let inboxQs = [], totalViews = 1;
 async function loadInbox(countVisit) {
   try {
-    const r = await fetch(INBOX_URL + '?t=' + Date.now(), { method: 'GET', cache: 'no-store' });
+    const r = await fetch(INBOX_URL + '?t=' + Date.now(), { method: 'GET', cache: 'no-store', credentials: 'same-origin' });
     if (r.ok) {
       const d = await r.json();
       inboxQs = Array.isArray(d.questions) ? d.questions : [];
-      totalViews = (Number(d.views) || 1) + (countVisit ? 1 : 0);
-      if (countVisit && !sessionStorage.getItem('zj_visited')) {
-        sessionStorage.setItem('zj_visited', '1');
-        await saveInbox();
-      }
-    } else if (countVisit) { await saveInbox(); }
+      totalViews = Number(d.views) || 1;
+    }
   } catch (e) {}
   renderInbox();
 }
 
-async function saveInbox() {
-  try {
-    await fetch(INBOX_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ questions: inboxQs, views: totalViews })
-    });
-    return true;
-  } catch (e) { return false; }
-}
+
 syncNotifIcon();
 </script>
 <script>
@@ -648,9 +636,12 @@ function renderInbox() {
 }
 
 async function delQ(id) {
-  inboxQs = inboxQs.filter(q => q.id !== id);
-  renderInbox();
-  await saveInbox();
+  try {
+    const r = await fetch(INBOX_URL, { method: 'DELETE', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+    if (!r.ok) throw new Error('delete failed');
+    inboxQs = inboxQs.filter(q => String(q.id) !== String(id));
+    renderInbox();
+  } catch (_) { alert('تعذر حذف السؤال. تأكد من تسجيل الدخول ثم حاول مجدداً.'); }
 }
 
 async function submitQuestion() {
@@ -659,12 +650,13 @@ async function submitQuestion() {
   if (!text) return alert('يرجى كتابة سؤالك أولاً');
   const btn = document.getElementById('btnSendQ');
   btn.textContent = 'جاري الإرسال...';
-  await loadInbox(false);
-  inboxQs.unshift({ id: Date.now(), sender, text });
-  const ok = await saveInbox();
+  let ok = false;
+  try {
+    const r = await fetch(INBOX_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sender, text }) });
+    ok = r.ok;
+  } catch (_) {}
   btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i><span>إرسال السؤال لإدارة زاجل</span>';
-  document.getElementById('qText').value = '';
-  if (ok) alert('✅ تم إرسال سؤالك بنجاح!');
+  if (ok) { document.getElementById('qText').value = ''; alert('✅ تم إرسال سؤالك بنجاح!'); }
   else alert('⚠️ تعذر الإرسال حالياً.');
 }
 
