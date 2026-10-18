@@ -715,32 +715,27 @@ async function addArt(){
   else{showToast("⚠️ تعذر النشر السحابي، حاول مجدداً","err");}
 }
 
-function setupNativePWA(){
-  const cachedIcon=sessionStorage.getItem('zj_pwa_icon');
-  const applyManifest=(pngUrl)=>{
-    document.getElementById('appleIcon').href=pngUrl;
-    const manifest={id:"/",name:"منصة زاجل للنشر",short_name:"زاجل",start_url:location.origin+"/",scope:location.origin+"/",display:"standalone",orientation:"portrait",background_color:"#380734",theme_color:"#380734",icons:[{src:pngUrl,sizes:"192x192",type:"image/png",purpose:"any"},{src:pngUrl,sizes:"512x512",type:"image/png",purpose:"any maskable"}]};
-    document.getElementById('pwaManifest').href='data:application/manifest+json;charset=utf-8,'+encodeURIComponent(JSON.stringify(manifest));
-  };
-  if(cachedIcon){
-    applyManifest(cachedIcon);
-  }else{
-    const svgStr='<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#380734"/><path fill="#FFF" d="M18 14C28 31 46 31 58 41C64 46 64 53 57 59C61 50 56 41 43 37C30 34 22 28 18 14Z"/><path fill="#FFF" d="M23 34C34 42 49 39 57 47C51 45 40 48 31 46C26 44 24 39 23 34Z"/><path fill="#FFF" d="M28 77C30 61 38 51 59 47C59 56 53 62 43 65C34 67 30 71 28 77Z"/><path fill="#FFF" d="M58 30C63 22 72 22 78 27C81 27 83 28 85 30C79 29 74 31 71 38C69 43 69 48 68 53C68 44 65 35 58 30ZM65 29C68 28 71 29 75 28C72 26 68 26 65 29Z"/></svg>';
-    const img=new Image();
-    img.onload=()=>{
-      const c=document.createElement('canvas'); c.width=512; c.height=512;
-      c.getContext('2d').drawImage(img,0,0,512,512);
-      const pngUrl=c.toDataURL('image/png');
-      try{sessionStorage.setItem('zj_pwa_icon',pngUrl);}catch(e){}
-      applyManifest(pngUrl);
-    };
-    img.src='data:image/svg+xml;utf8,'+encodeURIComponent(svgStr);
-  }
-  if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
+// تسجيل عامل الخدمة لدعم التثبيت والعمل مع اتصال متقطع.
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}),{once:true});
 }
-setupNativePWA();
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;});
-function triggerInstall(){if(deferredPrompt){deferredPrompt.prompt();}else{document.getElementById('pwaM').classList.remove('hidden');}}
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  deferredPrompt=e;
+});
+window.addEventListener('appinstalled',()=>{deferredPrompt=null;});
+
+// زر التثبيت: يعرض نافذة التثبيت الأصلية حين يدعمها المتصفح.
+async function triggerInstall(){
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    const choice=await deferredPrompt.userChoice.catch(()=>null);
+    if(choice?.outcome==='accepted')showToast('تم بدء تثبيت زاجل');
+    deferredPrompt=null;
+  }else{
+    document.getElementById('pwaM').classList.remove('hidden');
+  }
+}
 
 // نظام جدولة التحديث الذكي مع Exponential Backoff وإيقاف التحديث في الخلفية
 function schedulePoll(){
