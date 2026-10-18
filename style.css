@@ -1,18 +1,345 @@
-body{background:#F3EBF7;font-family:'IBM Plex Sans Arabic',sans-serif;color:#2A0529;padding-bottom:88px;-webkit-tap-highlight-color:transparent;transition:background .2s,color .2s}
-.glass-header{background:rgba(255, 255, 255, 0.75);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(216, 27, 122, 0.12)}
-.glass-card{background:rgba(255, 255, 255, 0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(216, 27, 122, 0.15);box-shadow:0 8px 32px 0 rgba(56, 7, 52, 0.04)}
-.glass-sub{background:rgba(246, 241, 249, 0.8);backdrop-filter:blur(8px);border:1px solid rgba(216, 27, 122, 0.1)}
-.c-grad{background:linear-gradient(135deg,#380734,#640F55 50%,#2B0528);box-shadow:0 10px 25px -5px rgba(100, 15, 85, 0.3)}
-.b-calc{background:linear-gradient(90deg,#5E1151,#D81B7A 60%,#E82A8A)}
-.t-num{font-variant-numeric:tabular-nums}
-.tab-content{display:none}
-.tab-content.active{display:block}
-@keyframes ticker{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-.marquee{display:inline-block;white-space:nowrap;animation:ticker 35s linear infinite}
-.toast-msg{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);animation:toastIn .25s ease-out forwards}
-@keyframes toastIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
-body.dark-mode{background:#0F0213;color:#F5EEF7}
-body.dark-mode .glass-header{background:rgba(30, 5, 36, 0.8);border-bottom:1px solid rgba(216, 27, 122, 0.2)}
-body.dark-mode .glass-card{background:rgba(30, 5, 36, 0.85)!important;border-color:rgba(216, 27, 122, 0.25)!important;color:#F5EEF7!important}
-body.dark-mode .glass-sub{background:rgba(42, 8, 50, 0.8)!important;color:#E2D4E6!important;border-color:rgba(216, 27, 122, 0.2)!important}
-body.dark-mode .s-txt{color:#F5EEF7!important}
+/* ==========================================================================
+   Zajil Publishing Platform - Apple iOS 26 Liquid Glass UI
+   Preserves all original classes: .glass-header, .glass-card, .glass-sub, 
+   .c-grad, .b-calc, .t-num, .tab-content, .marquee, .toast-msg, body.dark-mode
+   ========================================================================== */
+
+:root {
+  /* Light Mode - Liquid Lavender & Brand Variables */
+  --z-bg-base: #F3EBF7;
+  --z-text-main: #2A0529;
+  --z-magenta: #D81B7A;
+  --z-magenta-bright: #E82A8A;
+  --z-purple-deep: #380734;
+  --z-purple-mid: #640F55;
+
+  /* iOS 26 Liquid Glass Surface Tokens (Light) */
+  --lg-header-bg: rgba(255, 255, 255, 0.58);
+  --lg-card-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.74) 0%, rgba(250, 242, 253, 0.52) 100%);
+  --lg-sub-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.55) 0%, rgba(244, 233, 249, 0.38) 100%);
+  
+  /* Specular Borders & Inner Reflections */
+  --lg-border-light: rgba(255, 255, 255, 0.85);
+  --lg-border-magenta: rgba(216, 27, 122, 0.16);
+  --lg-specular-card: 
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.92),
+    inset 0 -1px 1.5px 0 rgba(100, 15, 85, 0.06),
+    inset 1px 0 1px 0 rgba(255, 255, 255, 0.5);
+  --lg-shadow-card: 
+    0 12px 32px -6px rgba(56, 7, 52, 0.08),
+    0 4px 12px -2px rgba(216, 27, 122, 0.04);
+  --lg-shadow-sub: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.85),
+    0 4px 14px -3px rgba(56, 7, 52, 0.05);
+}
+
+/* ==========================================================================
+   1. Base Body & Ambient Background Lighting
+   ========================================================================== */
+body {
+  background: var(--z-bg-base);
+  font-family: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--z-text-main);
+  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.3s ease;
+  position: relative;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* Ambient Light Orbs (Essential so backdrop-filter has rich colors to refract) */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: 
+    radial-gradient(circle at 88% 8%, rgba(216, 27, 122, 0.16) 0%, transparent 45%),
+    radial-gradient(circle at 12% 38%, rgba(100, 15, 85, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 82% 78%, rgba(232, 42, 138, 0.12) 0%, transparent 48%),
+    radial-gradient(circle at 20% 90%, rgba(56, 7, 52, 0.08) 0%, transparent 40%);
+  transition: opacity 0.4s ease;
+}
+
+/* ==========================================================================
+   2. Global Header & Floating Bottom Nav (.glass-header)
+   ========================================================================== */
+.glass-header {
+  background: var(--lg-header-bg);
+  backdrop-filter: blur(26px) saturate(190%);
+  -webkit-backdrop-filter: blur(26px) saturate(190%);
+  border-bottom: 1px solid var(--lg-border-light);
+  box-shadow: 
+    0 8px 28px -6px rgba(56, 7, 52, 0.07),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.85),
+    inset 0 -1px 0 0 var(--lg-border-magenta);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* If bottom nav uses fixed positioning or .glass-header, give it floating Liquid Glass depth */
+nav.glass-header, 
+footer.glass-header, 
+.fixed.bottom-0.glass-header {
+  border-top: 1px solid var(--lg-border-light);
+  border-bottom: none;
+  box-shadow: 
+    0 -8px 30px -4px rgba(56, 7, 52, 0.1),
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* ==========================================================================
+   3. Primary Liquid Glass Containers (.glass-card)
+   ========================================================================== */
+.glass-card {
+  background: var(--lg-card-bg);
+  backdrop-filter: blur(22px) saturate(185%);
+  -webkit-backdrop-filter: blur(22px) saturate(185%);
+  border: 1px solid var(--lg-border-light);
+  outline: 1px solid var(--lg-border-magenta);
+  outline-offset: -1px;
+  box-shadow: var(--lg-shadow-card), var(--lg-specular-card);
+  position: relative;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), 
+              box-shadow 0.25s ease, 
+              background 0.3s ease;
+}
+
+/* ==========================================================================
+   4. Secondary / Nested Frosted Glass Surfaces (.glass-sub)
+   ========================================================================== */
+.glass-sub {
+  background: var(--lg-sub-bg);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow: var(--lg-shadow-sub);
+  transition: all 0.22s ease;
+}
+
+/* Interactive feedback for buttons/inputs using .glass-sub */
+button.glass-sub:active, 
+a.glass-sub:active {
+  transform: scale(0.96);
+}
+
+input.glass-sub:focus, 
+select.glass-sub:focus, 
+textarea.glass-sub:focus {
+  border-color: var(--z-magenta) !important;
+  box-shadow: 
+    0 0 0 3px rgba(216, 27, 122, 0.18),
+    inset 0 1px 2px rgba(56, 7, 52, 0.08) !important;
+  outline: none;
+}
+
+/* ==========================================================================
+   5. Hero USD Card & Deep Purple Liquid Gradient (.c-grad)
+   ========================================================================== */
+.c-grad {
+  background: 
+    radial-gradient(circle at 18% 15%, rgba(232, 42, 138, 0.38) 0%, transparent 55%),
+    linear-gradient(135deg, rgba(69, 8, 63, 0.92) 0%, rgba(112, 16, 82, 0.88) 52%, rgba(43, 5, 40, 0.95) 100%);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: 
+    0 18px 38px -8px rgba(56, 7, 52, 0.42),
+    0 6px 16px -3px rgba(216, 27, 122, 0.22),
+    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.42),
+    inset 0 -1px 2px 0 rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Top Specular Glass Reflection Sheen on .c-grad */
+.c-grad::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -10%;
+  right: -10%;
+  height: 48%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.13) 0%, rgba(255, 255, 255, 0) 100%);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Frosted Inner Buy/Sell Subcards inside .c-grad */
+.c-grad > div > div,
+.c-grad .bg-white\/10,
+.c-grad .bg-black\/20 {
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.28),
+    0 6px 16px -4px rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================================================================
+   6. Brand Magenta Liquid Action & Calculator Header (.b-calc)
+   ========================================================================== */
+.b-calc {
+  background: linear-gradient(100deg, rgba(94, 17, 81, 0.94) 0%, rgba(216, 27, 122, 0.92) 58%, rgba(232, 42, 138, 0.95) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  box-shadow: 
+    0 10px 26px -5px rgba(216, 27, 122, 0.38),
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.48),
+    inset 0 -1px 1px 0 rgba(56, 7, 52, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+button.b-calc:active, 
+a.b-calc:active {
+  transform: scale(0.97);
+  filter: brightness(1.06);
+}
+
+/* ==========================================================================
+   7. Preserved Utilities, Ticker & Toast Animations
+   ========================================================================== */
+.t-num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.015em;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+  animation: liquidTabFade 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes liquidTabFade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ticker {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: ticker 35s linear infinite;
+}
+
+.toast-msg {
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  box-shadow: 
+    0 14px 34px -6px rgba(42, 5, 41, 0.28),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.45);
+  animation: toastIn 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ==========================================================================
+   8. Dark Mode - Deep Plum iOS 26 Liquid Glass (body.dark-mode)
+   ========================================================================== */
+body.dark-mode {
+  background: #0F0213;
+  color: #F5EEF7;
+}
+
+/* Rich Dark Ambient Glow Behind Dark Glass */
+body.dark-mode::before {
+  background: 
+    radial-gradient(circle at 85% 10%, rgba(216, 27, 122, 0.22) 0%, transparent 46%),
+    radial-gradient(circle at 14% 42%, rgba(100, 15, 85, 0.28) 0%, transparent 52%),
+    radial-gradient(circle at 80% 82%, rgba(139, 29, 89, 0.2) 0%, transparent 48%),
+    radial-gradient(circle at 20% 92%, rgba(56, 7, 52, 0.35) 0%, transparent 45%);
+}
+
+body.dark-mode .glass-header {
+  background: rgba(28, 5, 34, 0.64);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 10px 30px -6px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 0 rgba(216, 27, 122, 0.24);
+}
+
+body.dark-mode nav.glass-header,
+body.dark-mode footer.glass-header,
+body.dark-mode .fixed.bottom-0.glass-header {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    0 -10px 34px -4px rgba(0, 0, 0, 0.65),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+body.dark-mode .glass-card {
+  background: linear-gradient(145deg, rgba(44, 9, 52, 0.66) 0%, rgba(24, 4, 30, 0.54) 100%) !important;
+  backdrop-filter: blur(24px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  outline: 1px solid rgba(216, 27, 122, 0.26) !important;
+  box-shadow: 
+    0 16px 38px -8px rgba(0, 0, 0, 0.62),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 1.5px 0 rgba(216, 27, 122, 0.12) !important;
+  color: #F5EEF7 !important;
+}
+
+body.dark-mode .glass-sub {
+  background: linear-gradient(145deg, rgba(58, 12, 68, 0.56) 0%, rgba(34, 6, 42, 0.44) 100%) !important;
+  backdrop-filter: blur(16px) saturate(170%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(170%) !important;
+  color: #E2D4E6 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.14),
+    0 4px 14px -2px rgba(0, 0, 0, 0.4) !important;
+}
+
+body.dark-mode .c-grad {
+  background: 
+    radial-gradient(circle at 20% 15%, rgba(232, 42, 138, 0.32) 0%, transparent 55%),
+    linear-gradient(135deg, rgba(64, 9, 58, 0.84) 0%, rgba(108, 16, 92, 0.78) 50%, rgba(32, 4, 30, 0.9) 100%);
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 
+    0 20px 44px -8px rgba(0, 0, 0, 0.72),
+    0 4px 20px -2px rgba(216, 27, 122, 0.25),
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.32);
+}
+
+body.dark-mode .s-txt {
+  color: #F5EEF7 !important;
+}
+
+/* ==========================================================================
+   9. Accessibility & Reduced Motion Support
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .tab-content.active,
+  .toast-msg {
+    animation: none !important;
+  }
+}
