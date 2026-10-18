@@ -1,44 +1,37 @@
-const CACHE_NAME = 'zajil-pwa-v2';
-const CORE_ASSETS = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/app.js',
-  '/sw.js'
-];
+export default async function handler(req, res) {
+  const PANTRY_ID = process.env.PANTRY_ID;
+  const ADMIN_PASS = process.env.ADMIN_PASS || "ZAJIL@201919";
+  const SECRET_TOKEN = Buffer.from(ADMIN_PASS + "_zajil_sec").toString("base64");
 
-self.addEventListener('install', e => {
-  self.skipWaiting();
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(CORE_ASSETS)).catch(() => {})
-  );
-});
-
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-    )).then(() => clients.claim())
-  );
-});
-
-self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET') return;
-  const url = new URL(e.request.url);
-
-  // استراتيجية Network-Only لطلبات البيانات الحية
-  if (url.hostname.includes('getpantry.cloud') || url.pathname.startsWith('/api/')) {
-    return;
+  if (req.query.action === "login" && req.method === "POST") {
+    const { password } = req.body || {};
+    if (password === ADMIN_PASS) {
+      return res.status(200).json({ token: SECRET_TOKEN });
+    }
+    return res.status(401).json({ error: "Unauthorized" });
   }
 
-  // استراتيجية Network-First مع الرجوع للكاش عند انقطاع الإنترنت
-  e.respondWith(
-    fetch(e.request).then(res => {
-      if (res && res.status === 200 && url.origin === location.origin) {
-        const clone = res.clone();
-        caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
-      }
-      return res;
-    }).catch(() => caches.match(e.request).then(r => r || caches.match('/index.html')))
-  );
-});
+  if (!PANTRY_ID) return res.status(404).json({ error: "No server config" });
+
+  const bucket = req.query.bucket === "zajil_inbox" ? "zajil_inbox" : "zajil_live";
+  const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${bucket}`;
+
+  if (req.method === "POST" && bucket === "zajil_live") {
+    const auth = req.headers.authorization || "";
+    if (auth !== `Bearer ${SECRET_TOKEN}`) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+  }
+
+  try {
+    const upstream = await fetch(url, {
+      method: req.method,
+      headers: { "Content-Type": "application/json" },
+      body: req.method === "POST" ? JSON.stringify(req.body) : undefined
+    });
+    const data = await upstream.json();
+    return res.status(upstream.status).json(data);
+  } catch (err) {
+    return res.status(500).json({ error: "Upstream error" });
+  }
+}
