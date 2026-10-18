@@ -231,29 +231,58 @@ function switchTab(id,el){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// بناء حالة البنوك عبر DOM الآمن
+// الحالة المصرفية من Status.sd، مع إظهار تقادم البيانات بوضوح
+let externalBankState=null;
+const BANK_MONITOR_URL="https://zajil-bank-monitor.a7mdtayb.workers.dev/status";
+function getExternalBankStatus(item){
+  const ext=item?.externalStatus;
+  if(!ext||!ext.reportedStatus||ext.reportedStatus==="unknown")return {key:"unknown",label:"غير معروف"};
+  const age=Number(ext.sourceAgeMinutes);
+  if(!Number.isFinite(age)||age>180)return {key:"warn",label:"بيانات قديمة"};
+  if(ext.reportedStatus==="يعمل")return {key:"ok",label:"يعمل حسب المصدر"};
+  if(ext.reportedStatus==="متذبذب")return {key:"warn",label:"متذبذب"};
+  if(ext.reportedStatus==="متوقف")return {key:"err",label:"متوقف حسب المصدر"};
+  return {key:"unknown",label:"غير معروف"};
+}
 function renderBanks(){
   const map={
-    ok:{t:"يعمل",c:"bg-emerald-50 text-emerald-700 border-emerald-200",d:"bg-emerald-500"},
-    warn:{t:"متذبذب",c:"bg-amber-50 text-amber-700 border-amber-200",d:"bg-amber-500"},
-    err:{t:"لا يعمل",c:"bg-rose-50 text-rose-700 border-rose-200",d:"bg-rose-500"}
+    ok:{c:"bank-dot-wrap bank-ok",d:"bank-dot bank-dot-green"},
+    warn:{c:"bank-dot-wrap bank-warn",d:"bank-dot bank-dot-yellow"},
+    err:{c:"bank-dot-wrap bank-err",d:"bank-dot bank-dot-red"},
+    unknown:{c:"bank-dot-wrap bank-unknown",d:"bank-dot bank-dot-gray"}
   };
   const items=[{k:"bankak",n:"بنكك"},{k:"fawry",n:"فوري"},{k:"okash",n:"أوكاش"}];
   const grid=document.getElementById('bankStatusGrid');
+  if(!grid)return;
   grid.textContent='';
   const frag=document.createDocumentFragment();
   items.forEach(x=>{
-    const m=map[st.banks?.[x.k]]||map.ok;
+    const sourceItem=externalBankState?.apps?.find(a=>a.id===x.k);
+    const state=getExternalBankStatus(sourceItem);
+    const m=map[state.key]||map.unknown;
     const div=document.createElement('div');
-    div.className=`border rounded-xl p-2 ${m.c} flex items-center justify-center gap-1.5 text-xs font-bold`;
-    const dot=document.createElement('span');
-    dot.className=`w-2 h-2 rounded-full ${m.d}`;
-    const txt=document.createElement('span');
-    txt.textContent=`${x.n}: ${m.t}`;
-    div.appendChild(dot); div.appendChild(txt);
-    frag.appendChild(div);
+    div.className=`${m.c} flex flex-col items-center justify-center gap-1.5 rounded-xl p-2 text-xs font-bold`;
+    div.title=sourceItem?.externalStatus?.sourceAgeText?("آخر تحديث للحالة في المصدر: "+sourceItem.externalStatus.sourceAgeText):"حالة من Status.sd";
+    const dot=document.createElement('span'); dot.className=m.d;
+    dot.setAttribute('aria-hidden','true');
+    const name=document.createElement('span'); name.textContent=x.n;
+    const txt=document.createElement('span'); txt.className="bank-status-label"; txt.textContent=state.label;
+    div.append(dot,name,txt); frag.appendChild(div);
   });
   grid.appendChild(frag);
+}
+async function loadExternalBankStatus(){
+  try{
+    const response=await fetch(BANK_MONITOR_URL,{method:"GET",cache:"no-store",mode:"cors",signal:AbortSignal.timeout(8000)});
+    if(!response.ok)throw new Error("status source unavailable");
+    const data=await response.json();
+    if(!Array.isArray(data.apps))throw new Error("invalid status response");
+    externalBankState=data;
+    renderBanks();
+  }catch(e){
+    externalBankState=null;
+    renderBanks();
+  }
 }
 
 // العرض الشامل باستخدام DocumentFragment و textContent لمنع XSS وتحسين الأداء
@@ -725,4 +754,4 @@ document.addEventListener('visibilitychange',()=>{
   if(document.visibilityState==='visible'){loadCloud(false);schedulePoll();}
 });
 
-renderAll(); loadCloud(false); loadInbox(true); schedulePoll();
+renderAll(); loadCloud(false); loadInbox(true); loadExternalBankStatus(); setInterval(loadExternalBankStatus,180000); schedulePoll();
