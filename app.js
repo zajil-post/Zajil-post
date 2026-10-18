@@ -231,17 +231,17 @@ function switchTab(id,el){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// الحالة المصرفية من Status.sd، مع إظهار تقادم البيانات بوضوح
+// حالة التطبيقات المصرفية من Status.sd فقط؛ لا نفحص المواقع الرسمية.
 let externalBankState=null;
 const BANK_MONITOR_URL="https://zajil-bank-monitor.a7mdtayb.workers.dev/status";
 function getExternalBankStatus(item){
   const ext=item?.externalStatus;
   if(!ext||!ext.reportedStatus||ext.reportedStatus==="unknown")return {key:"unknown",label:"غير معروف"};
   const age=Number(ext.sourceAgeMinutes);
-  if(!Number.isFinite(age)||age>180)return {key:"warn",label:"بيانات قديمة"};
-  if(ext.reportedStatus==="يعمل")return {key:"ok",label:"يعمل حسب المصدر"};
-  if(ext.reportedStatus==="متذبذب")return {key:"warn",label:"متذبذب"};
-  if(ext.reportedStatus==="متوقف")return {key:"err",label:"متوقف حسب المصدر"};
+  const stale=!Number.isFinite(age)||age>180;
+  if(ext.reportedStatus==="يعمل")return stale?{key:"warn",label:"يعمل (بيانات قديمة)"}:{key:"ok",label:"يعمل"};
+  if(ext.reportedStatus==="متذبذب")return stale?{key:"warn",label:"متذبذب (بيانات قديمة)"}:{key:"warn",label:"متذبذب"};
+  if(ext.reportedStatus==="متوقف")return stale?{key:"warn",label:"آخر حالة: متوقف (قديمة)"}:{key:"err",label:"متوقف"};
   return {key:"unknown",label:"غير معروف"};
 }
 function renderBanks(){
@@ -262,14 +262,14 @@ function renderBanks(){
     const m=map[state.key]||map.unknown;
     const div=document.createElement('div');
     div.className=`${m.c} flex flex-col items-center justify-center gap-1.5 rounded-xl p-2 text-xs font-bold`;
-    div.title=sourceItem?.externalStatus?.sourceAgeText?("آخر تحديث للحالة في المصدر: "+sourceItem.externalStatus.sourceAgeText):"حالة من Status.sd";
+    div.title=sourceItem?.externalStatus?.sourceAgeText?("آخر تحديث لحالة التطبيق في المصدر: "+sourceItem.externalStatus.sourceAgeText):"حالة التطبيق حسب Status.sd";
     const dot=document.createElement('span'); dot.className=m.d;
     dot.setAttribute('aria-hidden','true');
     const name=document.createElement('span'); name.textContent=x.n;
     const txt=document.createElement('span'); txt.className="bank-status-label"; txt.textContent=state.label;
     const age=document.createElement('span'); age.className="bank-status-age";
     const ageText=sourceItem?.externalStatus?.sourceAgeText;
-    age.textContent=ageText ? ("منذ "+ageText) : "وقت التحديث غير متاح";
+    age.textContent=ageText ? ("آخر حالة منذ "+ageText) : "وقت الحالة غير متاح";
     div.append(dot,name,txt,age); frag.appendChild(div);
   });
   grid.appendChild(frag);
