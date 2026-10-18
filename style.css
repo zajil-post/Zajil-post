@@ -708,3 +708,5 @@ body.dark-mode nav[role="tablist"] {
 .bank-dot-red { background:#ef4444; box-shadow:0 0 7px rgba(239,68,68,.8),0 0 14px rgba(239,68,68,.32); }
 .bank-dot-gray { background:#9ca3af; box-shadow:0 0 5px rgba(156,163,175,.4); }
 .bank-status-label { font-size:10px; opacity:.85; line-height:1.4; }
+
+.bank-status-age { font-size:9px; opacity:.68; line-height:1.3; font-weight:500; }
