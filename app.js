@@ -396,11 +396,29 @@ function initCalc(){
   });
   fs.value=kvF; ts.value=kvT; calc();
 }
+function formatCalcAmount(input){
+  const raw=String(input.value||"");
+  const caret=input.selectionStart??raw.length;
+  const before=raw.slice(0,caret);
+  const digitsBefore=(before.match(/[0-9]/g)||[]).length;
+  let cleaned=raw.replace(/,/g,"").replace(/[^0-9.]/g,"");
+  const dot=cleaned.indexOf(".");
+  if(dot!==-1)cleaned=cleaned.slice(0,dot+1)+cleaned.slice(dot+1).replace(/\./g,"");
+  const parts=cleaned.split(".");
+  parts[0]=(parts[0]||"").replace(/^0+(?=\d)/,"");
+  parts[0]=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,",");
+  const formatted=parts.length>1?parts[0]+"."+parts[1]:parts[0];
+  input.value=formatted;
+  let pos=0, seen=0;
+  while(pos<formatted.length&&seen<digitsBefore){if(/[0-9]/.test(formatted[pos]))seen++;pos++;}
+  if(before.includes(".")&&formatted.includes(".")&&pos<=formatted.indexOf("."))pos=formatted.indexOf(".")+1;
+  try{input.setSelectionRange(pos,pos);}catch(e){}
+}
 function calc(){
   const all=getAllCalcList();
   const fObj=all.find(x=>x.c===document.getElementById('fSel').value)||all[0];
   const tObj=all.find(x=>x.c===document.getElementById('tSel').value)||all[1];
-  const amt=Math.max(0, parseFloat(document.getElementById('cAmt').value)||0);
+  const amt=Math.max(0, parseFloat(document.getElementById('cAmt').value.replace(/,/g,''))||0);
   document.getElementById('fFlg').src=`https://flagcdn.com/w40/${fObj.f}.png`;
   document.getElementById('tFlg').src=`https://flagcdn.com/w40/${tObj.f}.png`;
   const sdgBuy=amt*fObj.b, sdgSell=amt*fObj.s;
