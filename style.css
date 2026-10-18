@@ -1,3 +1,4 @@
+
 /* ==========================================
    ZAJIL — BALANCED LIQUID GLASS DESIGN
    Inspired by modern iOS glass layering.
@@ -483,4 +484,67 @@ button:focus-visible,
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ===== Dark-mode text harmonization fixes =====
+   Make headings, important labels, timestamps and most content readable
+   without changing markup or logic. Keep brand accents intact.
+   ===== */
+body.dark-mode :is(h1,h2,h3,h4,h5,h6,strong,b,span,p,small,label,li,a,button,input,textarea,select,#dateTxt,#timeTxt,#heroBuy,#heroSell,.s-txt) {
+  color: var(--z-text-strong) !important;
+}
+
+/* Some inline or utility classes use bracketed hex classnames (Tailwind-like).
+   Provide conservative escaped selectors for the most common ones used in the markup. */
+body.dark-mode .text-\[\\#2D062B\\],
+body.dark-mode .text-\[\\#3D0B3A\\],
+body.dark-mode .text-\[\\#2D062B\\] {
+  color: var(--z-text-strong) !important;
+}
+
+/* Ensure numeric values remain high-contrast */
+body.dark-mode .t-num,
+body.dark-mode strong,
+body.dark-mode b,
+body.dark-mode #heroBuy,
+body.dark-mode #heroSell,
+body.dark-mode .t-num * {
+  color: var(--z-text-strong) !important;
+}
+
+/* If there are elements that rely on lighter text inside accent cards, force contrast */
+body.dark-mode .c-grad,
+body.dark-mode .c-grad * {
+  color: #fff !important;
+}
+
+/* Preserve brand accents where intentional (buttons, active nav, badges) */
+body.dark-mode .b-calc,
+body.dark-mode .toast-msg,
+body.dark-mode .nav-btn[aria-selected="true"],
+body.dark-mode .glass-header .text-\[\\#D81B7A\\],
+body.dark-mode .text-\[\\#D81B7A\\] {
+  color: var(--z-pink) !important;
+}
+
+/* Reduce bright white utility backgrounds inside cards to avoid glare */
+body.dark-mode .glass-card [class*="bg-white"],
+body.dark-mode .glass-sub [class*="bg-white"] {
+  background-color: rgba(255,255,255,0.03) !important;
+  color: var(--z-text-strong) !important;
+  border-color: var(--z-border) !important;
+}
+
+/* Inputs, selects and textarea ensured readable */
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select {
+  background: rgba(26,10,30,0.46) !important;
+  color: var(--z-text-strong) !important;
+  border-color: var(--z-border) !important;
+}
+
+/* Safety: if inline background styles exist, slightly desaturate/adjust to keep text legible */
+body.dark-mode [style*="background"] {
+  filter: saturate(0.95) brightness(0.95);
 }
