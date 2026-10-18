@@ -1,4 +1,3 @@
-
 /* ==========================================
    ZAJIL — BALANCED LIQUID GLASS DESIGN
    Inspired by modern iOS glass layering.
@@ -548,3 +547,66 @@ body.dark-mode select {
 body.dark-mode [style*="background"] {
   filter: saturate(0.95) brightness(0.95);
 }
+
+/* ===== fixes: dark-mode — banks, calculator card, social links ===== */
+body.dark-mode #bankStatusGrid > div {
+  background-color: rgba(255,255,255,0.03) !important;
+  border-color: rgba(255,255,255,0.06) !important;
+  color: var(--z-text-strong) !important;
+}
+
+/* Keep the small status dots vivid and visible on dark bg */
+body.dark-mode #bankStatusGrid .w-2.h-2.rounded-full {
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.03);
+  display:inline-block;
+}
+
+/* Normalize common dot colors (override tailwind utility if necessary) */
+body.dark-mode #bankStatusGrid .w-2.h-2.rounded-full.bg-emerald-500 { background-color: #16a34a !important; }
+body.dark-mode #bankStatusGrid .w-2.h-2.rounded-full.bg-amber-500   { background-color: #d97706 !important; }
+body.dark-mode #bankStatusGrid .w-2.h-2.rounded-full.bg-rose-500    { background-color: #ef4444 !important; }
+
+/* Calculator: make inner white panels readable in dark mode */
+body.dark-mode .c-grad .backdrop-blur-md,
+body.dark-mode .c-grad [class*="bg-white"],
+body.dark-mode .c-grad .bg-white\/90 {
+  background-color: rgba(255,255,255,0.06) !important;
+  color: var(--z-text-strong) !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+/* Ensure explicit dark text used inside calculator (inputs, results, labels) */
+body.dark-mode #cResBuy,
+body.dark-mode #cResSell,
+body.dark-mode #cAmt,
+body.dark-mode .c-grad b,
+body.dark-mode .c-grad strong {
+  color: var(--z-text-strong) !important;
+}
+
+/* Input/select small utility backgrounds (purple-50, purple-100, etc) — reduce glare */
+body.dark-mode .bg-purple-50,
+body.dark-mode .bg-pink-50,
+body.dark-mode .bg-sky-50,
+body.dark-mode [class*="bg-"]\:bg-purple-50 {
+  background-color: rgba(255,255,255,0.03) !important;
+  color: var(--z-text-strong) !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+/* Social links (follow buttons) inside cards: keep readable and subtly tinted */
+body.dark-mode .glass-card a[class*="bg-"] {
+  background-color: rgba(255,255,255,0.04) !important;
+  color: var(--z-text-strong) !important;
+  border: 1px solid rgba(255,255,255,0.05) !important;
+  box-shadow: none !important;
+}
+
+/* If any social items rely on text-blue-800 / text-sky-800 etc, force readable color */
+body.dark-mode .glass-card a .text-blue-800,
+body.dark-mode .glass-card a .text-sky-800,
+body.dark-mode .glass-card a .text-pink-800 {
+  color: var(--z-text-strong) !important;
+}
+
+/* End of file */
