@@ -9,6 +9,8 @@ body{background:#F3EBF7;font-family:'IBM Plex Sans Arabic',sans-serif;color:#2A0
 .tab-content.active{display:block}
 @keyframes ticker{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
 .marquee{display:inline-block;white-space:nowrap;animation:ticker 35s linear infinite}
+.toast-msg{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);animation:toastIn .25s ease-out forwards}
+@keyframes toastIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 body.dark-mode{background:#0F0213;color:#F5EEF7}
 body.dark-mode .glass-header{background:rgba(30, 5, 36, 0.8);border-bottom:1px solid rgba(216, 27, 122, 0.2)}
 body.dark-mode .glass-card{background:rgba(30, 5, 36, 0.85)!important;border-color:rgba(216, 27, 122, 0.25)!important;color:#F5EEF7!important}
