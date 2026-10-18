@@ -167,7 +167,7 @@
           <span class="text-[10px] text-gray-500">أدخل المبلغ واختر العملة</span>
         </div>
         <div class="grid grid-cols-[minmax(0,1fr)_auto] gap-2 items-center">
-          <input type="text" id="cAmt" value="100,000" inputmode="decimal" dir="ltr" autocomplete="off" spellcheck="false" oninput="formatCalcAmount(this);calc()" aria-label="المبلغ المراد تحويله" class="min-w-0 w-full bg-[#F7F0F8] border border-purple-100 rounded-2xl px-3 py-3 text-left font-bold text-lg t-num focus:outline-none focus:ring-2 focus:ring-pink-200">
+          <input type="text" id="cAmt" value="" placeholder="أدخل المبلغ" inputmode="decimal" dir="ltr" autocomplete="off" spellcheck="false" oninput="formatCalcAmount(this);calc()" aria-label="المبلغ المراد تحويله" class="min-w-0 w-full bg-[#F7F0F8] border border-purple-100 rounded-2xl px-3 py-3 text-left font-bold text-lg t-num focus:outline-none focus:ring-2 focus:ring-pink-200">
           <div class="flex items-center gap-1.5 bg-[#F7F0F8] border border-purple-100 rounded-2xl px-2.5 py-3">
             <img id="fFlg" src="https://flagcdn.com/w40/sd.png" alt="علم العملة الأولى" class="w-5 h-5 rounded-full object-cover">
             <select id="fSel" onchange="calc()" aria-label="من عملة" class="max-w-[100px] bg-transparent text-sm font-bold text-[#380734] focus:outline-none"></select>
