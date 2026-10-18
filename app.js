@@ -748,6 +748,15 @@ document.addEventListener('change', event => {
   if (control.dataset.action === 'encodeImg') encodeImg(control);
 });
 
+
+let hadController = Boolean(navigator.serviceWorker && navigator.serviceWorker.controller);
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (hadController) showToast('يتوفر تحديث جديد لزاجل؛ أعد فتح الصفحة لتطبيقه.');
+    hadController = true;
+  });
+}
+
 // تسجيل عامل الخدمة لدعم التثبيت والعمل مع اتصال متقطع.
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}),{once:true});
