@@ -1,14 +1,12 @@
 /* ==========================================
    ZAJIL — COMPLETE COLOR-HARMONIZED LIQUID GLASS
-   Full style.css replacement — unified tokens +
-   exhaustive light/dark overrides for all app parts
-   (header, banks, calculator, social links, nav, toasts, inputs...)
+   Full style.css replacement — Fixed & Validated
    ========================================== */
 
 /* --------------------
-   DESIGN TOKENS (single source of truth)
+   1. DESIGN TOKENS (single source of truth)
    -------------------- */
-:root{
+:root {
   color-scheme: light;
 
   /* backgrounds */
@@ -18,7 +16,7 @@
 
   /* text */
   --z-text: #2A0529;           /* primary text (light mode) */
-  --z-text-weak: #806b83;
+  --z-text-weak: #7a5c7d;
   --z-text-strong: #1d0620;    /* headings / emphasis (light mode) */
 
   /* brand */
@@ -29,31 +27,31 @@
   --z-lav: #A889D8;
 
   /* glass tokens */
-  --z-glass: rgba(255,255,255,0.56);
-  --z-glass-soft: rgba(250,244,252,0.43);
-  --z-glass-strong: rgba(255,255,255,0.76);
+  --z-glass: rgba(255, 255, 255, 0.62);
+  --z-glass-soft: rgba(250, 244, 252, 0.52);
+  --z-glass-strong: rgba(255, 255, 255, 0.82);
 
   /* borders & highlights */
-  --z-border: rgba(255,255,255,0.78);
-  --z-border-soft: rgba(122,79,128,0.10);
-  --z-specular: rgba(255,255,255,0.20);
+  --z-border: rgba(255, 255, 255, 0.82);
+  --z-border-soft: rgba(216, 27, 122, 0.14);
+  --z-specular: rgba(255, 255, 255, 0.25);
 
   /* shadows / depth */
-  --z-shadow-soft: 0 8px 24px rgba(56,7,52,0.06);
-  --z-shadow-mid: 0 12px 28px rgba(56,7,52,0.08);
-  --z-shadow-inner: inset 0 1px 0 rgba(255,255,255,0.86);
+  --z-shadow-soft: 0 8px 24px rgba(56, 7, 52, 0.06);
+  --z-shadow-mid: 0 12px 28px rgba(56, 7, 52, 0.12);
+  --z-shadow-inner: inset 0 1px 1px rgba(255, 255, 255, 0.9);
 
   /* motion / geometry */
-  --z-blur: 14px;
-  --z-saturation: 140%;
+  --z-blur: 18px;
+  --z-saturation: 160%;
   --z-radius: 24px;
   --z-radius-sm: 18px;
-  --z-transition: 220ms cubic-bezier(.2,.7,.2,1);
-  --z-focus: rgba(216,27,122,0.18);
+  --z-transition: 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  --z-focus: rgba(216, 27, 122, 0.22);
 }
 
-/* DARK MODE TOKENS: override only tokens above */
-body.dark-mode{
+/* DARK MODE TOKENS */
+body.dark-mode {
   color-scheme: dark;
 
   --z-bg: #100713;
@@ -63,379 +61,453 @@ body.dark-mode{
   --z-text-strong: #FFFFFF;  /* headings / values */
   --z-text-weak: #c4afca;
 
-  --z-glass: rgba(39,17,43,0.68);
-  --z-glass-soft: rgba(53,26,58,0.58);
-  --z-glass-strong: rgba(43,17,48,0.82);
+  --z-glass: rgba(39, 17, 43, 0.68);
+  --z-glass-soft: rgba(53, 26, 58, 0.58);
+  --z-glass-strong: rgba(43, 17, 48, 0.84);
 
-  --z-border: rgba(255,255,255,0.10);
-  --z-border-soft: rgba(255,255,255,0.06);
+  --z-border: rgba(255, 255, 255, 0.12);
+  --z-border-soft: rgba(216, 27, 122, 0.22);
 
-  --z-shadow-soft: 0 10px 28px rgba(0,0,0,0.22);
-  --z-shadow-mid: 0 14px 32px rgba(0,0,0,0.24);
-  --z-shadow-inner: inset 0 1px 0 rgba(255,255,255,0.06);
+  --z-shadow-soft: 0 10px 28px rgba(0, 0, 0, 0.35);
+  --z-shadow-mid: 0 14px 32px rgba(0, 0, 0, 0.45);
+  --z-shadow-inner: inset 0 1px 1px rgba(255, 255, 255, 0.12);
 }
 
 /* --------------------
-   GLOBAL / TYPOGRAPHY / LAYOUT
+   2. GLOBAL / TYPOGRAPHY / LAYOUT
    -------------------- */
-*{box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{
-  margin:0;
-  min-height:100vh;
-  font-family:'IBM Plex Sans Arabic',system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  font-family: 'IBM Plex Sans Arabic', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   background:
-    radial-gradient(circle at 8% 8%, rgba(216,27,122,0.07), transparent 30%),
-    radial-gradient(circle at 92% 35%, rgba(123,94,234,0.06), transparent 34%),
-    linear-gradient(180deg,var(--z-bg) 0%,var(--z-bg-2) 100%);
-  color:var(--z-text);
-  padding-bottom:88px;
-  transition:background var(--z-transition),color var(--z-transition);
-  -webkit-tap-highlight-color:transparent;
+    radial-gradient(circle at 8% 8%, rgba(216, 27, 122, 0.10), transparent 35%),
+    radial-gradient(circle at 92% 35%, rgba(123, 94, 234, 0.08), transparent 38%),
+    linear-gradient(180deg, var(--z-bg) 0%, var(--z-bg-2) 100%);
+  color: var(--z-text);
+  padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+  transition: background var(--z-transition), color var(--z-transition);
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* small utility tokens for readability */
-h1,h2,h3,h4,h5,h6{color:var(--z-text-strong);line-height:1.2}
-p,small,span,label,li,button,input,textarea{color:var(--z-text)}
-a{color:var(--z-pink)}
-.s-txt{color:var(--z-pink)} /* used across markup for subtle brand accents */
+.s-txt {
+  color: var(--z-pink);
+}
 
 /* --------------------
-   SHARED GLASS SURFACES
+   3. TABS & VISIBILITY (Restored!)
    -------------------- */
-.glass-header,.glass-card,.glass-sub,.c-grad,.b-calc,.toast-msg,nav[role="tablist"]{
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+  animation: fadeInTab 0.22s ease-out;
+}
+
+@keyframes fadeInTab {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --------------------
+   4. SHARED GLASS SURFACES
+   -------------------- */
+.glass-header,
+.glass-card,
+.glass-sub,
+.c-grad,
+.b-calc,
+.toast-msg,
+nav[role="tablist"] {
   -webkit-backdrop-filter: blur(var(--z-blur)) saturate(var(--z-saturation));
   backdrop-filter: blur(var(--z-blur)) saturate(var(--z-saturation));
-  transition:background var(--z-transition),border-color var(--z-transition),box-shadow var(--z-transition);
+  transition: background var(--z-transition), border-color var(--z-transition), box-shadow var(--z-transition);
 }
 
 /* --------------------
-   HEADER
+   5. HEADER
    -------------------- */
-.glass-header{
-  position:relative;
-  isolation:isolate;
-  background:var(--z-glass);
-  border-bottom:1px solid var(--z-border);
-  box-shadow:var(--z-shadow-soft);
-  padding-top:0.6rem;padding-bottom:0.6rem;
-}
-.glass-header::before{
-  content:"";
-  position:absolute;inset:0;z-index:-1;pointer-events:none;border-radius:inherit;
-  background:linear-gradient(115deg, rgba(255,255,255,0.22), transparent 42%, rgba(216,27,122,0.02));
+.glass-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  isolation: isolate;
+  background: var(--z-glass-strong);
+  border-bottom: 1px solid var(--z-border);
+  box-shadow: var(--z-shadow-soft), var(--z-shadow-inner);
 }
 
-/* Ensure header text is always readable in dark mode */
-body.dark-mode .glass-header, body.dark-mode .glass-header *{
-  color:var(--z-text) !important;
+.glass-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.22), transparent 42%, rgba(216, 27, 122, 0.03));
 }
 
 /* --------------------
-   GLASS CARD (primary)
+   6. GLASS CARD & SUB-SURFACE
    -------------------- */
-.glass-card{
-  position:relative;isolation:isolate;overflow:hidden;
-  background:var(--z-glass);
-  border:1px solid var(--z-border);
-  border-radius:var(--z-radius);
-  box-shadow:var(--z-shadow-inner),var(--z-shadow-soft);
-}
-.glass-card::before{
-  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;border-radius:inherit;
-  background:linear-gradient(135deg, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.08) 28%, transparent 58%);
+.glass-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--z-glass);
+  border: 1px solid var(--z-border);
+  outline: 1px solid var(--z-border-soft);
+  outline-offset: -1px;
+  border-radius: var(--z-radius);
+  box-shadow: var(--z-shadow-inner), var(--z-shadow-soft);
 }
 
-/* nested soft surface */
-.glass-sub{
-  background:var(--z-glass-soft);
-  border:1px solid rgba(255,255,255,0.72);
-  border-radius:20px;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.72), 0 3px 10px rgba(56,7,52,0.02);
+.glass-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.05) 30%, transparent 60%);
+}
+
+body.dark-mode .glass-card::before {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, transparent 45%);
+}
+
+/* Nested soft surface */
+.glass-sub {
+  background: var(--z-glass-soft);
+  border: 1px solid var(--z-border);
+  border-radius: 18px;
+  box-shadow: var(--z-shadow-inner), 0 3px 10px rgba(56, 7, 52, 0.03);
 }
 
 /* --------------------
-   HERO / C-GRAD (exchange hero)
+   7. HERO / C-GRAD (USD Card & Calculator Card)
    -------------------- */
-.c-grad{
-  position:relative;overflow:hidden;
+.c-grad {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   background:
-    radial-gradient(ellipse at 85% 8%, rgba(255,122,192,0.16), transparent 38%),
-    linear-gradient(135deg, rgba(56,7,52,0.96), rgba(100,15,85,0.94) 52%, rgba(43,5,40,0.98));
-  border:1px solid rgba(255,255,255,0.14);
-  border-radius:28px;
-  color:#fff;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.12), var(--z-shadow-mid);
-}
-.c-grad::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;border-radius:inherit;background:linear-gradient(125deg, rgba(255,255,255,0.06), transparent 34%);}
-
-/* ensure inner white panels inside c-grad remain readable in dark */
-body.dark-mode .c-grad, body.dark-mode .c-grad *{ color:#fff !important; }
-
-/* --------------------
-   BUTTONS / ACTIONS
-   -------------------- */
-.b-calc{
-  display:inline-flex;align-items:center;justify-content:center;
-  background:linear-gradient(115deg,#5e1151 0%,#a81770 48%,#e82a8a 100%);
-  color:#fff;border-radius:var(--z-radius-sm);border:1px solid rgba(255,255,255,0.20);
-  padding:0.65rem 1rem;font-weight:700;box-shadow:inset 0 1px 0 rgba(255,255,255,0.14),0 8px 18px rgba(100,15,85,0.18);
-}
-.b-calc:active{transform:scale(0.98);filter:brightness(1.04)}
-/* keep brand accent visible in dark */
-body.dark-mode .b-calc{background:linear-gradient(115deg,#651252,#a51c71 52%,#d92b89)}
-
-/* --------------------
-   TOASTS / MODALS / OVERLAYS
-   -------------------- */
-.toast-msg{
-  border-radius:18px;padding:.75rem 1rem;background:rgba(56,7,52,0.86);color:#fff;border:1px solid rgba(255,255,255,0.18);
-  box-shadow:0 8px 24px rgba(30,3,28,0.16);
-}
-body.dark-mode .toast-msg{background:rgba(28,9,33,0.92);}
-
-/* --------------------
-   NAVIGATION (bottom)
-   Interactive bubble + active states
-   -------------------- */
-nav[role="tablist"]{
-  position:fixed;left:0;right:0;bottom:0;z-index:40;
-  background:rgba(32,11,31,0.58);backdrop-filter:blur(10px);
-  border-top:1px solid rgba(255,255,255,0.08);box-shadow:0 -12px 30px rgba(18,8,22,0.16);
-}
-.nav-btn{
-  position:relative;display:flex;align-items:center;justify-content:center;gap:.25rem;padding:.5rem .25rem;
-  background:transparent;border:0;color:rgba(255,255,255,0.72);transition:transform var(--z-transition),color var(--z-transition);
-}
-.nav-btn:active{transform:scale(.92)}
-/* bubble behind icon */
-.nav-btn::before{
-  content:"";position:absolute;inset:13px 14px 11px 14px;border-radius:16px;background:rgba(255,255,255,0.06);
-  border:1px solid rgba(255,255,255,0.08);opacity:0;transform:scale(.86);transition:all 180ms ease;pointer-events:none;
-}
-.nav-btn:active::before,.nav-btn[aria-selected="true"]::before{opacity:1;transform:scale(1);background:rgba(255,255,255,0.10);border-color:rgba(255,255,255,0.12)}
-.nav-btn[aria-selected="true"]{color:var(--z-pink-bright);}
-/* ensure accessible focus */
-.nav-btn:focus-visible{outline:none;box-shadow:0 0 0 4px rgba(216,27,122,0.14)}
-
-/* --------------------
-   FORM ELEMENTS / INPUTS / SELECTS
-   -------------------- */
-input,textarea,select,button{font:inherit}
-input,textarea,select{
-  background:rgba(255,255,255,0.38);border:1px solid rgba(255,255,255,0.60);
-  padding:.5rem;border-radius:14px;color:var(--z-text);transition:box-shadow var(--z-transition),border-color var(--z-transition);
-}
-input::placeholder,textarea::placeholder{color:rgba(92,56,79,0.62)}
-input:focus-visible,textarea:focus-visible,select:focus-visible{outline:none;box-shadow:0 0 0 4px var(--z-focus)}
-
-/* dark mode input readability */
-body.dark-mode input,body.dark-mode textarea,body.dark-mode select{
-  background:rgba(26,10,30,0.46);border-color:var(--z-border);color:var(--z-text);
-}
-body.dark-mode input::placeholder,body.dark-mode textarea::placeholder{color:rgba(255,255,255,0.45)}
-
-/* --------------------
-   NUMERIC / TYPOS (tabular numbers)
-   -------------------- */
-.t-num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
-
-/* --------------------
-   TICKER / MARQUEE
-   -------------------- */
-@keyframes ticker{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
-.marquee{display:inline-block;white-space:nowrap;animation:ticker 35s linear infinite}
-
-/* --------------------
-   GLASS-SPECIFIC OVERRIDES (target common inline utilities used in HTML/JS)
-   These are conservative mappings: keep light appearance unchanged,
-   but force dark-mode readable equivalents with !important where necessary.
-   -------------------- */
-
-/* --- Light mode explicit utility mappings (optional, keeps existing design) --- */
-.text-\[\\#2D062B\\], .text-\[\\#3D0B3A\\], .text-\[\\#D81B7A\\]{
-  /* preserve existing inline color intent in light mode */
-  color:inherit;
+    radial-gradient(ellipse at 85% 8%, rgba(255, 122, 192, 0.22), transparent 42%),
+    linear-gradient(135deg, rgba(56, 7, 52, 0.96), rgba(100, 15, 85, 0.94) 52%, rgba(43, 5, 40, 0.98));
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 26px;
+  color: #ffffff;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), var(--z-shadow-mid);
 }
 
-/* --- Dark mode harmonization: force readable colors across app --- */
-body.dark-mode{
-  /* ensure base text is bright enough */
-  color:var(--z-text) !important;
+.c-grad::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(125deg, rgba(255, 255, 255, 0.10), transparent 38%);
 }
 
-/* Headings, platform name, date/time, hero values, badges, important labels */
-body.dark-mode :is(h1,h2,h3,h4,h5,h6,#dateTxt,#timeTxt,#heroBuy,#heroSell,.s-txt,.glass-card h4,.glass-card .text-xs,.glass-card .font-bold){
-  color:var(--z-text-strong) !important;
-}
-
-/* Generic content elements forced readable */
-body.dark-mode :is(p,span,small,label,li,div,button,input,textarea,select){
-  color:var(--z-text) !important;
-}
-
-/* Buttons / actionable text: keep brand pink where intended */
-body.dark-mode .b-calc, body.dark-mode .toast-msg, body.dark-mode .glass-card .text-\[\\#D81B7A\\], body.dark-mode .text-\[\\#D81B7A\\]{
-  color:var(--z-pink) !important;
-}
-
-/* Tailwind-like bracketed classes that appear in markup/JS — map to tokens */
-body.dark-mode .text-\[\\#2D062B\\], body.dark-mode .text-\[\\#3D0B3A\\]{
-  color:var(--z-text-strong) !important;
-}
-
-/* White/background utilities inside glass surfaces — reduce glare */
-body.dark-mode .glass-card [class*="bg-white"], body.dark-mode .glass-sub [class*="bg-white"], body.dark-mode .c-grad [class*="bg-white"]{
-  background-color: rgba(255,255,255,0.04) !important;
-  color:var(--z-text-strong) !important;
-  border-color:var(--z-border) !important;
-}
-
-/* Purple / pink utility backgrounds inside cards (e.g. bg-pink-50) — make them subtle */
-body.dark-mode .bg-pink-50, body.dark-mode .bg-purple-50, body.dark-mode .bg-sky-50{
-  background-color: rgba(255,255,255,0.03) !important;
-  color:var(--z-text-strong) !important;
-}
-
-/* Ensure numeric results and strong values in dark are clearly visible */
-body.dark-mode .t-num, body.dark-mode strong, body.dark-mode b, body.dark-mode #heroBuy, body.dark-mode #heroSell{
-  color:var(--z-text-strong) !important;
+/* Keep text inside .c-grad white in both Light and Dark mode, except white inputs/selects */
+.c-grad h1, .c-grad h2, .c-grad h3, .c-grad h4,
+.c-grad p, .c-grad span, .c-grad small, .c-grad label,
+#heroBuy, #heroSell, #cResBuy, #cResSell {
+  color: #ffffff;
 }
 
 /* --------------------
-   TARGETED FIXES: BANK STATUS / CALCULATOR / SOCIAL LINKS
-   (explicit selectors for the exact elements in markup / generated by JS)
+   8. BUTTONS / ACTIONS (.b-calc)
    -------------------- */
+.b-calc {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(115deg, #5e1151 0%, #a81770 48%, #e82a8a 100%);
+  color: #ffffff !important;
+  border-radius: var(--z-radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  font-weight: 700;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3), 0 8px 18px rgba(100, 15, 85, 0.24);
+  cursor: pointer;
+}
 
-/* Bank status grid cells: keep dot visible and text readable */
-#bankStatusGrid{ /* container style unaffected */ }
-#bankStatusGrid > div{
-  background: rgba(255,255,255,0.90); /* light default */
-  border-radius:12px;
-  padding:.5rem;
-  transition:background var(--z-transition),color var(--z-transition),border-color var(--z-transition);
+.b-calc * {
+  color: #ffffff !important;
 }
-body.dark-mode #bankStatusGrid > div{
-  background: rgba(255,255,255,0.03) !important;
-  border:1px solid rgba(255,255,255,0.06) !important;
-  color:var(--z-text-strong) !important;
-}
-/* make status dot stable and vivid in dark */
-#bankStatusGrid .w-2.h-2.rounded-full{display:inline-block}
-body.dark-mode #bankStatusGrid .w-2.h-2.rounded-full{box-shadow:0 0 0 4px rgba(255,255,255,0.03)}
-/* normalize dot colors */
-body.dark-mode #bankStatusGrid .bg-emerald-500{background-color:#16a34a !important}
-body.dark-mode #bankStatusGrid .bg-amber-500{background-color:#d97706 !important}
-body.dark-mode #bankStatusGrid .bg-rose-500{background-color:#ef4444 !important}
 
-/* Calculator card: inner white panels & inputs */
-.c-grad .backdrop-blur-md, .c-grad .bg-white\/90, .c-grad [class*="bg-white"]{
-  background: rgba(255,255,255,0.10);
-  color: #fff;
-  border-radius:12px;
+.b-calc:active {
+  transform: scale(0.97);
+  filter: brightness(1.05);
 }
-body.dark-mode .c-grad .backdrop-blur-md,
-body.dark-mode .c-grad .bg-white\/90,
-body.dark-mode .c-grad [class*="bg-white"]{
-  background: rgba(255,255,255,0.06) !important;
-  color:var(--z-text-strong) !important;
-  border-color:rgba(255,255,255,0.06) !important;
-}
-/* ensure calc results readable */
-#cResBuy,#cResSell,#cAmt{color:var(--z-text-strong) !important}
 
-/* Social links (cards with bg-*) */
-.glass-card a[class*="bg-"]{
-  display:flex;align-items:center;justify-content:space-between;padding:.75rem;border-radius:14px;text-decoration:none;
+body.dark-mode .b-calc {
+  background: linear-gradient(115deg, #651252, #a51c71 52%, #d92b89);
 }
-body.dark-mode .glass-card a[class*="bg-"]{
-  background-color: rgba(255,255,255,0.04) !important;
+
+/* --------------------
+   9. TOASTS / TICKER / NUMBERS
+   -------------------- */
+.t-num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+@keyframes ticker {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: ticker 35s linear infinite;
+}
+
+.toast-msg {
+  border-radius: 18px;
+  padding: 0.75rem 1rem;
+  background: rgba(56, 7, 52, 0.90);
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  box-shadow: 0 10px 26px rgba(30, 3, 28, 0.25);
+  animation: toastIn 0.25s ease-out forwards;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+body.dark-mode .toast-msg {
+  background: rgba(28, 9, 33, 0.94);
+}
+
+/* --------------------
+   10. BOTTOM NAVIGATION
+   -------------------- */
+nav[role="tablist"] {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  background: var(--z-glass-strong);
+  border-top: 1px solid var(--z-border);
+  box-shadow: 0 -10px 28px rgba(18, 8, 22, 0.10), var(--z-shadow-inner);
+}
+
+.nav-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.25rem;
+  background: transparent;
+  border: 0;
+  transition: transform var(--z-transition), color var(--z-transition);
+}
+
+.nav-btn:active {
+  transform: scale(0.92);
+}
+
+.nav-btn::before {
+  content: "";
+  position: absolute;
+  inset: 6px 10px;
+  border-radius: 16px;
+  background: rgba(216, 27, 122, 0.08);
+  border: 1px solid rgba(216, 27, 122, 0.15);
+  opacity: 0;
+  transform: scale(0.86);
+  transition: all 180ms ease;
+  pointer-events: none;
+}
+
+.nav-btn:active::before,
+.nav-btn[aria-selected="true"]::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.nav-btn[aria-selected="true"] {
+  color: var(--z-pink) !important;
+}
+
+body.dark-mode .nav-btn[aria-selected="true"] {
+  color: var(--z-pink-bright) !important;
+}
+
+/* --------------------
+   11. FORM ELEMENTS / INPUTS / SELECTS
+   -------------------- */
+input, textarea, select, button {
+  font: inherit;
+}
+
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(216, 27, 122, 0.2);
+  border-radius: 14px;
+  color: var(--z-text-strong);
+  transition: box-shadow var(--z-transition), border-color var(--z-transition);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--z-text-weak);
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  border-color: var(--z-pink);
+  box-shadow: 0 0 0 3px var(--z-focus);
+}
+
+body.dark-mode input:not([type="checkbox"]):not([type="radio"]),
+body.dark-mode textarea,
+body.dark-mode select {
+  background: rgba(26, 10, 30, 0.65) !important;
+  border-color: var(--z-border) !important;
   color: var(--z-text-strong) !important;
-  border:1px solid rgba(255,255,255,0.05) !important;
-  box-shadow:none !important;
 }
-/* force icons/text inside those to be readable */
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+
+/* --------------------
+   12. TARGETED FIXES & TAILWIND ESCAPES (Fixed Syntax!)
+   -------------------- */
+
+/* Properly escaped Tailwind arbitrary color classes */
+.text-\[\#D81B7A\] { color: var(--z-pink); }
+.text-\[\#2D062B\] { color: var(--z-text-strong); }
+.text-\[\#3D0B3A\] { color: var(--z-text-strong); }
+
+/* Dark Mode Targeted Text Harmonization (Safe & Non-Destructive) */
+body.dark-mode {
+  color: var(--z-text);
+}
+
+body.dark-mode .glass-card,
+body.dark-mode .glass-sub,
+body.dark-mode .glass-header {
+  color: var(--z-text) !important;
+}
+
+body.dark-mode :is(h1, h2, h3, h4, h5, h6, #dateTxt, #timeTxt, .s-txt) {
+  color: var(--z-text-strong) !important;
+}
+
+body.dark-mode .text-\[\#2D062B\],
+body.dark-mode .text-\[\#3D0B3A\],
+body.dark-mode .text-gray-800,
+body.dark-mode .text-gray-700,
+body.dark-mode .text-gray-900 {
+  color: var(--z-text-strong) !important;
+}
+
+body.dark-mode .text-gray-500,
+body.dark-mode .text-gray-600,
+body.dark-mode .text-gray-400 {
+  color: var(--z-text-weak) !important;
+}
+
+body.dark-mode .text-\[\#D81B7A\] {
+  color: var(--z-pink-bright) !important;
+}
+
+/* White utility overrides in Dark Mode */
+body.dark-mode .glass-card .bg-white,
+body.dark-mode .glass-card .bg-white\/80,
+body.dark-mode .glass-card .bg-white\/90,
+body.dark-mode .glass-sub.bg-white {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: var(--z-text-strong) !important;
+  border-color: var(--z-border) !important;
+}
+
+body.dark-mode .bg-pink-50,
+body.dark-mode .bg-purple-50,
+body.dark-mode .bg-sky-50 {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  color: var(--z-text-strong) !important;
+}
+
+/* Bank status grid cells */
+body.dark-mode #bankStatusGrid > div {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: var(--z-text-strong) !important;
+}
+
+/* Calculator inner panels in Dark Mode */
+body.dark-mode .c-grad .bg-white,
+body.dark-mode .c-grad .bg-white\/90 {
+  background: rgba(26, 10, 30, 0.72) !important;
+  color: var(--z-text-strong) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+/* Social links in More tab */
+body.dark-mode .glass-card a[class*="bg-"] {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: var(--z-text-strong) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
 body.dark-mode .glass-card a .text-blue-800,
 body.dark-mode .glass-card a .text-sky-800,
-body.dark-mode .glass-card a .text-pink-800{ color:var(--z-text-strong) !important }
-
-/* Art list / badges / share buttons created by JS (class names used there) */
-.glass-card h4{color:var(--z-text-strong)}
-.glass-card .bg-pink-100{background:#ffeaf3;color:var(--z-pink)}
-body.dark-mode .glass-card .bg-pink-100{background:rgba(216,27,122,0.08) !important;color:var(--z-pink) !important}
-.glass-card .text-\[\\#2D062B\\]{color:var(--z-text)}
-
-/* share button inside generated cards */
-.glass-card button.glass-sub{border-radius:12px;padding:.45rem .6rem}
-body.dark-mode .glass-card button.glass-sub{background:rgba(255,255,255,0.03) !important;color:var(--z-pink) !important;border:1px solid rgba(255,255,255,0.06) !important}
-
-/* --------------------
-   UTILITY CLASS HARMONIZATION (cover common Tailwind-like utilities used inline)
-   We cannot change HTML, so we map those utilities to tokens for both modes.
-   -------------------- */
-
-/* color utilities used in markup (light mode preserve behavior) */
-.text-gray-300{color:#d1c4d6}
-.text-gray-400{color:#bdb0c3}
-.text-[#D81B7A]{color:var(--z-pink)}
-.text-[#2D062B]{color:var(--z-text-strong)}
-.text-[#3D0B3A]{color:var(--z-text-strong)}
-
-/* dark-mode: force overrides */
-body.dark-mode .text-gray-300, body.dark-mode .text-gray-400{color:var(--z-text-weak) !important}
-body.dark-mode .text-[#2D062B], body.dark-mode .text-[#3D0B3A]{color:var(--z-text-strong) !important}
-body.dark-mode .text-[#D81B7A]{color:var(--z-pink) !important}
-
-/* background utilities used inline inside cards (reduce glare in dark) */
-.bg-white\/10{background-color:rgba(255,255,255,0.10)}
-body.dark-mode .bg-white\/10{background-color:rgba(255,255,255,0.04) !important}
-.bg-white\/90{background-color:rgba(255,255,255,0.90)}
-body.dark-mode .bg-white\/90{background-color:rgba(255,255,255,0.06) !important}
-
-/* small colored backgrounds */
-.bg-purple-50{background:rgba(208, 27, 122, 0.06)}
-.bg-pink-50{background:rgba(255,167,200,0.06)}
-body.dark-mode .bg-purple-50, body.dark-mode .bg-pink-50{background-color:rgba(255,255,255,0.03) !important}
-
-/* flag images and avatars — ensure visible border in dark */
-.glass-card img, .c-grad img { border-radius:8px; border:1px solid rgba(255,255,255,0.06) }
-body:not(.dark-mode) .glass-card img { border-color: rgba(255,255,255,0.18) }
-
-/* --------------------
-   ACCESSIBILITY, MOTION, FALLBACKS
-   -------------------- */
-/* keyboard focus */
-:focus{outline: none}
-:focus-visible{outline: none; box-shadow:0 0 0 4px rgba(216,27,122,0.14);}
-
-/* reduced motion */
-@media (prefers-reduced-motion: reduce){
-  html{scroll-behavior:auto}
-  *,*::before,*::after{animation-duration:0.01ms !important;transition-duration:0.01ms !important}
+body.dark-mode .glass-card a .text-pink-800 {
+  color: var(--z-text-strong) !important;
 }
 
-/* fallback when backdrop-filter unsupported */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))){
-  .glass-header{background:rgba(255,255,255,0.95)}
-  .glass-card{background:rgba(255,255,255,0.97)}
-  .glass-sub{background:rgba(246,241,249,0.96)}
-  .c-grad{background:linear-gradient(135deg,#380734,#640f55,#2b0528)}
-  .toast-msg{background:#380734}
-  body.dark-mode .glass-header{background:rgba(20,8,30,0.97)}
-  body.dark-mode .glass-card{background:rgba(20,8,30,0.97) !important}
+body.dark-mode .glass-card .bg-pink-100 {
+  background: rgba(216, 27, 122, 0.15) !important;
+  color: var(--z-pink-bright) !important;
 }
 
 /* --------------------
-   FINAL SAFEGUARDS (target any remaining inline styles)
-   These are last-resort conservative rules: they won't change layout,
-   only adjust colors for readability if an element used raw colors.
+   13. ACCESSIBILITY & FALLBACKS
    -------------------- */
-body.dark-mode [style*="color: #2d062b"]{ color:var(--z-text-strong) !important }
-body.dark-mode [style*="color: #3d0b3a"]{ color:var(--z-text-strong) !important }
-body.dark-mode [style*="background"]{ filter:saturate(0.95) brightness(0.95) }
+:focus { outline: none; }
+:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--z-focus); }
 
-/* --------------------
-   END OF FILE
-   -------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-header, nav[role="tablist"] { background: rgba(255, 255, 255, 0.96); }
+  .glass-card { background: rgba(255, 255, 255, 0.96); }
+  .glass-sub { background: rgba(246, 241, 249, 0.96); }
+  body.dark-mode .glass-header, body.dark-mode nav[role="tablist"] { background: rgba(20, 8, 30, 0.96); }
+  body.dark-mode .glass-card { background: rgba(25, 10, 35, 0.96) !important; }
+}
