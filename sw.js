@@ -1,10 +1,12 @@
-const CACHE_NAME = 'zajil-pwa-v2';
+const CACHE_NAME = 'zajil-pwa-v3';
 const CORE_ASSETS = [
   '/',
   '/index.html',
   '/style.css',
   '/app.js',
-  '/sw.js'
+  '/sw.js',
+  '/manifest.json',
+  '/icon.svg'
 ];
 
 self.addEventListener('install', e => {
