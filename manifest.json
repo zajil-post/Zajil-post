@@ -1,24 +1,20 @@
 {
+  "id": "/",
   "name": "منصة زاجل للنشر",
   "short_name": "زاجل",
   "description": "منصة زاجل للنشر - الرسالة الحقيقية وأسعار العملات",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#1a091e",
-  "theme_color": "#8b1d59",
+  "background_color": "#380734",
+  "theme_color": "#380734",
   "orientation": "portrait",
   "dir": "rtl",
   "lang": "ar",
   "icons": [
     {
-      "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='115' fill='%238b1d59'/><path d='M390 122L110 242l105 42 42 105 133-267z' fill='%23ffffff'/></svg>",
-      "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='115' fill='%238b1d59'/><path d='M390 122L110 242l105 42 42 105 133-267z' fill='%23ffffff'/></svg>",
-      "sizes": "512x512",
+      "src": "/icon.svg",
+      "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
