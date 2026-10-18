@@ -686,6 +686,38 @@ async function saveR() {
   else { alert('⚠️ تعذر الاتصال بالسحابة.'); }
 }
 
+function toggleTheme() {
+  const dark = document.body.classList.toggle('dark-mode');
+  try { localStorage.setItem('zj_theme', dark ? 'dark' : 'light'); } catch (e) {}
+  const icon = document.getElementById('themeIcon');
+  if (icon) icon.className = dark ? 'fa-solid fa-sun text-sm' : 'fa-solid fa-moon text-sm';
+}
+function swapC() {
+  const from = document.getElementById('fSel');
+  const to = document.getElementById('tSel');
+  if (!from || !to) return;
+  const value = from.value;
+  from.value = to.value;
+  to.value = value;
+  calc();
+}
+function triggerInstall() {
+  const modal = document.getElementById('pwaM');
+  if (modal) modal.classList.remove('hidden');
+}
+async function shareSite() {
+  const data = { title: 'منصة زاجل للنشر', text: 'منصة زاجل للنشر | الرسالة الحقيقية', url: location.href };
+  if (navigator.share) {
+    try { await navigator.share(data); } catch (e) {}
+  } else {
+    try {
+      await navigator.clipboard.writeText(data.text + '\n' + data.url);
+      alert('تم نسخ رابط منصة زاجل للمشاركة.');
+    } catch (e) {
+      alert('يمكنك نسخ رابط المنصة من شريط العنوان.');
+    }
+  }
+}
 function setupNativePWA() {
   const svgStr = '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#380734"/><path fill="#FFF" d="M18 14C28 31 46 31 58 41C64 46 64 53 57 59C61 50 56 41 43 37C30 34 22 28 18 14Z"/></svg>';
   const img = new Image();
