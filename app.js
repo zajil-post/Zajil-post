@@ -1,9 +1,7 @@
 if(localStorage.getItem('zj_theme')==='dark')document.body.classList.add('dark-mode');
 
-// إعدادات الاتصال: يستخدم الخادم الوسيط الآمن /api/zajil تلقائياً إن وجد، مع مسار احتياطي لضمان عدم توقف المنصة
+// جميع طلبات البيانات تمر عبر الخادم الوسيط؛ لا يوجد اتصال مباشر احتياطي بمخزن البيانات.
 const PROXY_ENDPOINT = "/api/zajil";
-const FALLBACK_ID = [55,55,100,50,53,101,48,56,45,102,54,55,48,45,52,99,98,99,45,57,101,56,100,45,101,56,53,49,53,48,57,52,51,101,100,48].map(c=>String.fromCharCode(c)).join('');
-const KEY_VERIFIER = [112,107,96,99,102,106,24,26,27,19,27,19];
 
 let taps=0, tmr, deferredPrompt=null, uploadedImgData="", inboxQs=[], totalViews=1;
 let pollDelay=30000, pollTimer=null, loginFails=0, lockUntil=0, lastQSent=0, adminToken="";
@@ -70,19 +68,12 @@ function setConnStatus(ok){
   }
 }
 
-// دالة الاتصال الموحدة (تدعم الخادم الوسيط الآمن مع مسار احتياطي)
+// دالة الاتصال الموحدة؛ لا تتجاوز الخادم الوسيط عند فشله أو رفضه للطلب.
 async function cloudFetch(bucket, method="GET", bodyData=null){
   const headers={"Content-Type":"application/json"};
   if(adminToken)headers["Authorization"]="Bearer "+adminToken;
-  try{
-    const proxyRes=await fetch(`${PROXY_ENDPOINT}?bucket=${encodeURIComponent(bucket)}&t=${Date.now()}`,{
-      method, headers, cache:"no-store", body:bodyData?JSON.stringify(bodyData):null
-    });
-    if(proxyRes.status!==404)return proxyRes;
-  }catch(e){}
-  const directUrl=`https://getpantry.cloud/apiv1/pantry/${FALLBACK_ID}/basket/${bucket}`;
-  return fetch(method==="GET"?`${directUrl}?t=${Date.now()}`:directUrl,{
-    method, headers:{"Content-Type":"application/json"}, cache:"no-store", body:bodyData?JSON.stringify(bodyData):null
+  return fetch(`${PROXY_ENDPOINT}?bucket=${encodeURIComponent(bucket)}&t=${Date.now()}`,{
+    method, headers, cache:"no-store", body:bodyData===null?undefined:JSON.stringify(bodyData)
   });
 }
 
@@ -165,26 +156,42 @@ async function syncCloud(){
 }
 
 async function loadInbox(countVisit){
-  try{
-    const r=await cloudFetch("zajil_inbox","GET");
-    if(r.ok){
-      const d=await r.json();
-      inboxQs=Array.isArray(d.questions)?d.questions.slice(0,50):[];
-      totalViews=(Number(d.views)||1)+(countVisit?1:0);
-      if(countVisit && !sessionStorage.getItem('zj_visited')){
+  if(countVisit && !sessionStorage.getItem('zj_visited')){
+    try{
+      const visitRes=await fetch(`${PROXY_ENDPOINT}?action=visit&bucket=zajil_inbox`,{
+        method:"POST",headers:{"Content-Type":"application/json"},body:"{}"
+      });
+      if(visitRes.ok){
+        const visitData=await visitRes.json();
+        totalViews=Number(visitData.views)||totalViews;
         sessionStorage.setItem('zj_visited','1');
-        await saveInbox();
       }
-    }else if(countVisit){
-      await saveInbox();
-    }
-  }catch(e){}
+    }catch(e){}
+  }
+  if(adminToken){
+    try{
+      const r=await cloudFetch("zajil_inbox","GET");
+      if(r.ok){
+        const d=await r.json();
+        inboxQs=Array.isArray(d.questions)?d.questions.slice(0,50):[];
+        totalViews=Number(d.views)||totalViews;
+      }else if(r.status===401||r.status===403){
+        adminToken="";
+        inboxQs=[];
+        showToast("انتهت صلاحية الجلسة، يرجى تسجيل الدخول مجدداً","warn");
+      }
+    }catch(e){}
+  }else{
+    inboxQs=[];
+  }
   renderInbox();
 }
 
 async function saveInbox(){
+  if(!adminToken)return false;
   try{
     const res=await cloudFetch("zajil_inbox","POST",{questions:inboxQs.slice(0,50),views:totalViews});
+    if(res.status===401||res.status===403)adminToken="";
     return res.ok;
   }catch(e){return false;}
 }
@@ -455,9 +462,15 @@ async function submitQuestion(){
 
   const btn=document.getElementById('btnSendQ');
   btn.disabled=true; btn.textContent="جاري إرسال سؤالك...";
-  await loadInbox(false);
-  inboxQs.unshift({id:Date.now(),sender,text,time:document.getElementById('timeTxt').textContent});
-  const ok=await saveInbox();
+  let ok=false;
+  try{
+    const r=await fetch(`${PROXY_ENDPOINT}?action=submit_question&bucket=zajil_inbox`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({sender,text,time:document.getElementById('timeTxt').textContent})
+    });
+    ok=r.ok;
+  }catch(e){}
   btn.disabled=false;
   btn.innerHTML='<i class="fa-solid fa-paper-plane" aria-hidden="true"></i><span>إرسال السؤال لإدارة زاجل</span>';
   if(ok){
@@ -550,11 +563,6 @@ function closeModal(id){
 }
 function secretTap(){taps++;clearTimeout(tmr);tmr=setTimeout(()=>taps=0,2000);if(taps>=5){taps=0;document.getElementById('logM').classList.remove('hidden');}}
 
-function verifyLocalKey(str){
-  if(str.length!==KEY_VERIFIER.length)return false;
-  return str.split('').every((ch,i)=>(ch.charCodeAt(0)^42)===KEY_VERIFIER[i]);
-}
-
 async function login(){
   if(Date.now() < lockUntil){
     const waitSec=Math.ceil((lockUntil-Date.now())/1000);
@@ -571,11 +579,13 @@ async function login(){
     if(r.ok){
       const d=await r.json();
       if(d.token){authorized=true; adminToken=d.token;}
-    }else if(r.status===404){
-      authorized=verifyLocalKey(pass);
+    }else if(r.status===503){
+      showToast("إعدادات حماية الإدارة غير مكتملة على الخادم","err");
+      return;
     }
   }catch(e){
-    authorized=verifyLocalKey(pass);
+    showToast("تعذر الاتصال بخادم تسجيل الدخول؛ لم يتم تجاوز الحماية","err");
+    return;
   }
 
   if(authorized){
