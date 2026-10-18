@@ -103,8 +103,9 @@ export default async function handler(req, res) {
   if (action === "submit_question" || action === "visit") {
     if (req.method !== "POST") return send(res, 405, { error: "Method not allowed" });
     if (!allowPublicRequest(req, action)) return send(res, 429, { error: "Too many requests" });
+    const inboxUrl = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/zajil_inbox`;
     try {
-      const data = await readBasket(url.replace("/zajil_inbox", "/zajil_inbox"));
+      const data = await readBasket(inboxUrl);
       if (action === "visit") {
         data.views = Math.max(0, Number(data.views) || 0) + 1;
       } else {
@@ -115,7 +116,7 @@ export default async function handler(req, res) {
         const questions = Array.isArray(data.questions) ? data.questions : [];
         data.questions = [{ id: randomUUID(), sender, text, time }].concat(questions).slice(0, 50);
       }
-      await writeBasket(url, data);
+      await writeBasket(inboxUrl, data);
       return send(res, 200, { ok: true, views: Number(data.views) || 0 });
     } catch {
       return send(res, 502, { error: "Storage unavailable" });
