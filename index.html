@@ -103,3 +103,175 @@
     </div>
   </div>
 </header>
+<!-- PART 2/6: Home tab, glass cards, bank status, dollar hero, ticker, and question form -->
+<main class="max-w-md mx-auto px-3.5 space-y-4 mt-3">
+  <div id="tab-home" class="tab-content active space-y-4">
+    <!-- date/time card -->
+    <div class="glass-sub rounded-2xl py-2.5 px-4 flex items-center justify-between shadow-sm">
+      <div class="text-right flex-1">
+        <div id="dateTxt" class="text-[13px] font-bold text-[#3D0B3A] s-txt">--</div>
+        <div class="text-[11px] opacity-75">بتوقيت الخرطوم المباشر</div>
+      </div>
+      <div class="flex items-center gap-2 px-2"><i class="fa-regular fa-calendar-days text-sm text-[#D81B7A]"></i></div>
+      <div class="flex items-center gap-1.5 t-num"><span id="timeTxt" class="text-sm font-bold text-[#3D0B3A] s-txt">--:--</span><i class="fa-regular fa-clock text-xs text-[#D81B7A]"></i></div>
+    </div>
+
+    <!-- bank status grid -->
+    <div class="glass-card rounded-2xl p-3.5 shadow-sm">
+      <div class="flex items-center justify-between mb-2.5">
+        <span class="text-xs font-bold text-[#2D062B] s-txt flex items-center gap-1.5"><i class="fa-solid fa-server text-[#D81B7A]"></i> حالة التطبيقات المصرفية الآن</span>
+        <button onclick="loadCloud(true)" class="text-[11px] text-[#D81B7A] font-bold flex items-center gap-1 active:scale-95 transition"><i class="fa-solid fa-rotate"></i> تحديث الآن</button>
+      </div>
+      <div id="bankStatusGrid" class="grid grid-cols-3 gap-2 text-center" aria-live="polite"></div>
+    </div>
+
+    <!-- dollar hero -->
+    <div class="c-grad rounded-[24px] p-5 shadow-md text-white relative overflow-hidden">
+      <div class="flex justify-between items-center mb-3">
+        <div class="flex items-center gap-2">
+          <img src="https://flagcdn.com/w40/us.png" class="w-6 h-6 rounded-full object-cover border border-white/40" alt="flag US">
+          <span class="text-sm font-bold text-white">الدولار الأمريكي (USD)</span>
+        </div>
+        <span id="heroUpd" class="text-[11px] bg-white/15 px-2.5 py-0.5 rounded-full text-pink-200" aria-hidden="true"></span>
+      </div>
+      <div class="grid grid-cols-2 gap-3 text-center">
+        <div class="bg-white/10 p-3.5 rounded-2xl border border-white/15 backdrop-blur-md">
+          <span class="text-xs text-purple-200 block">سعر الشراء</span>
+          <strong id="heroBuy" class="text-2xl font-bold t-num mt-1 block">--</strong>
+          <small class="text-[11px] text-gray-300">جنيه سوداني</small>
+        </div>
+        <div class="bg-white/10 p-3.5 rounded-2xl border border-white/15 backdrop-blur-md">
+          <span class="text-xs text-purple-200 block">سعر البيع</span>
+          <strong id="heroSell" class="text-2xl font-bold t-num mt-1 block text-[#FF6FB1]">--</strong>
+          <small class="text-[11px] text-gray-300">جنيه سوداني</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- ticker (marquee) -->
+    <div class="bg-gradient-to-l from-[#380734] via-[#480B43] to-[#2B0528] rounded-full p-1.5 flex items-center shadow-md overflow-hidden" role="status" aria-live="off" aria-hidden="false">
+      <span class="bg-gradient-to-r from-[#C81971] to-[#E62988] text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 shrink-0 z-10" aria-hidden="true">
+        <i class="fa-solid fa-bullhorn text-[10px]"></i><span>عاجل</span>
+      </span>
+      <div class="overflow-hidden flex-1 mx-2">
+        <p id="tickerTxt" class="marquee text-white text-xs font-medium" aria-label="العناوين المتحركة"></p>
+      </div>
+    </div>
+
+    <!-- articles / faq list (rendered safely via JS) -->
+    <div class="space-y-3">
+      <div class="flex items-center justify-between px-1">
+        <h3 class="text-[15px] font-bold text-[#2D062B] s-txt flex items-center gap-1.5"><i class="fa-solid fa-circle-question text-[#D81B7A]"></i> الأسئلة الشائعة والشروحات</h3>
+        <a href="https://aywa.sd/bban.php" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-[#D81B7A]">أداة الـ BBAN ←</a>
+      </div>
+      <div id="artList" class="space-y-3" aria-live="polite"></div>
+    </div>
+
+    <!-- question form -->
+    <div class="glass-card rounded-[24px] p-4 shadow-sm space-y-3">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-xl bg-pink-50 text-[#D81B7A] flex items-center justify-center"><i class="fa-solid fa-paper-plane text-sm"></i></div>
+        <div>
+          <h4 class="text-sm font-bold text-[#2D062B] s-txt">عندك سؤال أو استفسار مصرفي؟</h4>
+          <p class="text-[11px] opacity-75">أرسل سؤالك وسنجيب عليه في قسم الأسئلة الشائعة</p>
+        </div>
+      </div>
+      <input type="text" id="qSender" placeholder="اسمك (اختياري)..." class="glass-sub w-full rounded-xl px-3 py-2 text-xs focus:outline-none" aria-label="الاسم (اختياري)">
+      <textarea id="qText" rows="2" placeholder="اكتب سؤالك هنا بوضوح..." class="glass-sub w-full rounded-xl px-3 py-2 text-sm focus:outline-none" aria-label="نص السؤال"></textarea>
+      <button id="btnSendQ" onclick="submitQuestion()" class="b-calc w-full py-2.5 rounded-xl text-white font-bold text-xs shadow flex items-center justify-center gap-1.5" aria-label="إرسال السؤال">
+        <i class="fa-solid fa-paper-plane"></i><span>إرسال السؤال لإدارة زاجل</span>
+      </button>
+    </div>
+  </div>
+</main>
+
+<script>
+/* PART 2 JS: rendering of banks + safe rendering of arts (partial functions, full logic in later parts) */
+
+function renderBanksContainer(banksState) {
+  // banksState: { bankak: 'ok'|'warn'|'err', fawry:..., okash:... }
+  const map = {
+    ok: { t: "يعمل", c: "bg-emerald-50 text-emerald-700 border-emerald-200", d: "bg-emerald-500" },
+    warn: { t: "متذبذب", c: "bg-amber-50 text-amber-700 border-amber-200", d: "bg-amber-500" },
+    err: { t: "لا يعمل", c: "bg-rose-50 text-rose-700 border-rose-200", d: "bg-rose-500" }
+  };
+  const items = [{ k: "bankak", n: "بنكك" }, { k: "fawry", n: "فوري" }, { k: "okash", n: "أوكاش" }];
+  const container = document.getElementById('bankStatusGrid');
+  container.innerHTML = ''; // safe replace of container
+  items.forEach(x => {
+    const m = map[(banksState && banksState[x.k]) || 'ok'];
+    const el = document.createElement('div');
+    el.className = `border rounded-xl p-2 ${m.c} flex items-center justify-center gap-1.5 text-xs font-bold`;
+    const dot = document.createElement('span');
+    dot.className = `w-2 h-2 rounded-full ${m.d}`;
+    dot.setAttribute('aria-hidden', 'true');
+    const txt = document.createElement('span');
+    txt.textContent = `${x.n}: ${m.t}`;
+    el.appendChild(dot);
+    el.appendChild(txt);
+    container.appendChild(el);
+  });
+}
+
+/* renderArts will be used to create article cards safely (textContent only) */
+function renderArts(arts) {
+  const artContainer = document.getElementById('artList');
+  artContainer.innerHTML = '';
+  (arts || []).forEach((a) => {
+    const card = document.createElement('div');
+    card.className = "glass-card rounded-2xl p-4 shadow-sm space-y-2.5";
+
+    if (a.i) {
+      const img = document.createElement('img');
+      img.src = a.i;
+      img.alt = a.t || 'صورة توضيحية';
+      img.className = "w-full max-h-56 object-cover rounded-xl";
+      card.appendChild(img);
+    }
+
+    const topRow = document.createElement('div');
+    topRow.className = "flex items-start justify-between gap-2";
+
+    const titleGroup = document.createElement('div');
+    titleGroup.className = "flex items-start gap-2";
+
+    const badge = document.createElement('span');
+    badge.className = "bg-pink-100 text-[#D81B7A] text-xs font-bold px-2 py-0.5 rounded-lg shrink-0 mt-0.5";
+    badge.textContent = "سؤال";
+
+    const h4 = document.createElement('h4');
+    h4.className = "text-[16px] font-bold text-[#2D062B] s-txt leading-snug";
+    h4.textContent = a.t || '';
+
+    titleGroup.appendChild(badge);
+    titleGroup.appendChild(h4);
+
+    const shareBtn = document.createElement('button');
+    shareBtn.className = "glass-sub text-[#D81B7A] px-2.5 py-1 rounded-xl text-xs font-bold flex items-center gap-1 shrink-0";
+    shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes" aria-hidden="true"></i><span>مشاركة</span>';
+    shareBtn.addEventListener('click', () => sharePostSafe(a));
+
+    topRow.appendChild(titleGroup);
+    topRow.appendChild(shareBtn);
+    card.appendChild(topRow);
+
+    const bodyBox = document.createElement('div');
+    bodyBox.className = "glass-sub p-3.5 rounded-xl text-[14.5px] leading-relaxed whitespace-pre-line";
+    bodyBox.textContent = a.b || '';
+    card.appendChild(bodyBox);
+
+    artContainer.appendChild(card);
+  });
+}
+
+/* small helper for sharing (uses navigator.share or clipboard) */
+function sharePostSafe(a) {
+  const text = `📌 ${a.t || ''}\n\n${a.b || ''}\n\n🕊️ منصة زاجل للنشر | الرسالة الحقيقية\n${location.href}`;
+  if (navigator.share) {
+    navigator.share({ title: a.t, text, url: location.href }).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(text).then(()=> alert("✅ تم نسخ المنشور مع رابط المنصة لمشاركته!"));
+  }
+}
+</script>
+<!-- end of PART 2/6 -->
