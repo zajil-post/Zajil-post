@@ -220,7 +220,9 @@ function renderArts(arts) {
 
     const shareBtn = document.createElement('button');
     shareBtn.className = "glass-sub text-[#D81B7A] px-2.5 py-1 rounded-xl text-xs font-bold flex items-center gap-1 shrink-0";
-    shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i><span>مشاركة</span>';
+    const shareIcon = document.createElement('i'); shareIcon.className = 'fa-solid fa-share-nodes';
+    const shareLabel = document.createElement('span'); shareLabel.textContent = 'مشاركة';
+    shareBtn.appendChild(shareIcon); shareBtn.appendChild(shareLabel);
     shareBtn.addEventListener('click', () => sharePostSafe(a));
 
     topRow.appendChild(titleGroup); topRow.appendChild(shareBtn);
@@ -367,11 +369,18 @@ function getAllCalcList(state) {
 
 function initCalc(state) {
   const all = getAllCalcList(state);
-  const h = all.map(x => `<option value="${x.c}">${x.n} (${x.c})</option>`).join('');
   const fs = document.getElementById('fSel'), ts = document.getElementById('tSel');
   if(!fs || !ts) return;
   const kvF = fs.value || 'SDG', kvT = ts.value || 'EGP';
-  fs.innerHTML = h; ts.innerHTML = h;
+  [fs, ts].forEach(select => {
+    select.replaceChildren();
+    all.forEach(x => {
+      const option = document.createElement('option');
+      option.value = x.c;
+      option.textContent = x.n + ' (' + x.c + ')';
+      select.appendChild(option);
+    });
+  });
   fs.value = kvF; ts.value = kvT;
   calc();
 }
@@ -387,12 +396,29 @@ function calc() {
     const sdgBuy = amt * fObj.b, sdgSell = amt * fObj.s;
     document.getElementById('cResBuy').textContent = fmt(sdgBuy / tObj.b) + ' ' + tObj.c;
     document.getElementById('cResSell').textContent = fmt(sdgSell / tObj.s) + ' ' + tObj.c;
-    document.getElementById('calcAllList').innerHTML = all.filter(x => x.c !== fObj.c).map(x =>
-      `<div class="grid grid-cols-12 items-center py-2 px-2">
-         <div class="col-span-6 flex items-center gap-2"><img src="https://flagcdn.com/w40/${x.f}.png" class="w-5 h-5 rounded-full" alt=""><b>${x.n}</b></div>
-         <div class="col-span-3 text-center font-bold">${fmt(sdgBuy / x.b)}</div>
-         <div class="col-span-3 text-left font-bold text-[#D81B7A]">${fmt(sdgSell / x.s)}</div>
-       </div>`).join('');
+    const calcList = document.getElementById('calcAllList');
+    calcList.replaceChildren();
+    all.filter(x => x.c !== fObj.c).forEach(x => {
+      const row = document.createElement('div');
+      row.className = 'grid grid-cols-12 items-center py-2 px-2';
+      const currency = document.createElement('div');
+      currency.className = 'col-span-6 flex items-center gap-2';
+      const flag = document.createElement('img');
+      flag.src = 'https://flagcdn.com/w40/' + x.f + '.png';
+      flag.className = 'w-5 h-5 rounded-full';
+      flag.alt = '';
+      const name = document.createElement('b');
+      name.textContent = x.n;
+      currency.appendChild(flag); currency.appendChild(name);
+      const buy = document.createElement('div');
+      buy.className = 'col-span-3 text-center font-bold';
+      buy.textContent = fmt(sdgBuy / x.b);
+      const sell = document.createElement('div');
+      sell.className = 'col-span-3 text-left font-bold text-[#D81B7A]';
+      sell.textContent = fmt(sdgSell / x.s);
+      row.appendChild(currency); row.appendChild(buy); row.appendChild(sell);
+      calcList.appendChild(row);
+    });
   } catch (e) {}
 }
 
@@ -655,7 +681,7 @@ async function submitQuestion() {
     const r = await fetch(INBOX_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sender, text }) });
     ok = r.ok;
   } catch (_) {}
-  btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i><span>إرسال السؤال لإدارة زاجل</span>';
+  btn.textContent = 'إرسال السؤال لإدارة زاجل';
   if (ok) { document.getElementById('qText').value = ''; alert('✅ تم إرسال سؤالك بنجاح!'); }
   else alert('⚠️ تعذر الإرسال حالياً.');
 }
