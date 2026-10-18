@@ -257,6 +257,13 @@ function renderBanks(){
 }
 
 // العرض الشامل باستخدام DocumentFragment و textContent لمنع XSS وتحسين الأداء
+let openArtIndex = -1;
+
+function toggleArt(idx){
+  openArtIndex = openArtIndex === idx ? -1 : idx;
+  renderAll();
+}
+
 function renderAll(){
   document.getElementById('heroBuy').textContent=fmt(st.b);
   document.getElementById('heroSell').textContent=fmt(st.s);
@@ -273,43 +280,20 @@ function renderAll(){
   CURR.forEach(x=>{
     const row=document.createElement('div');
     row.className="grid grid-cols-12 items-center py-2.5 px-2 t-num text-xs";
-
-    const c1=document.createElement('div');
-    c1.className="col-span-5 flex items-center gap-2";
-    const img=document.createElement('img');
-    img.src=`https://flagcdn.com/w40/${x.f}.png`;
-    img.alt=`علم ${x.n}`;
-    img.className="w-7 h-7 rounded-full object-cover border";
+    const c1=document.createElement('div'); c1.className="col-span-5 flex items-center gap-2";
+    const img=document.createElement('img'); img.src=`https://flagcdn.com/w40/${x.f}.png`; img.alt=`علم ${x.n}`; img.className="w-7 h-7 rounded-full object-cover border";
     const info=document.createElement('div');
     const nDiv=document.createElement('div'); nDiv.className="font-bold"; nDiv.textContent=x.n;
     const cDiv=document.createElement('div'); cDiv.className="text-[10px] opacity-60 font-bold"; cDiv.textContent=x.c;
-    info.appendChild(nDiv); info.appendChild(cDiv);
-    c1.appendChild(img); c1.appendChild(info);
-
-    const c2=document.createElement('div');
-    c2.className="col-span-3 text-center font-bold";
-    c2.textContent=fmt(st.b*x.rb);
-
-    const c3=document.createElement('div');
-    c3.className="col-span-2 text-center font-bold text-[#D81B7A]";
-    c3.textContent=fmt(st.s*x.rs);
-
-    const c4=document.createElement('div');
-    c4.dir="ltr";
+    info.appendChild(nDiv); info.appendChild(cDiv); c1.appendChild(img); c1.appendChild(info);
+    const c2=document.createElement('div'); c2.className="col-span-3 text-center font-bold"; c2.textContent=fmt(st.b*x.rb);
+    const c3=document.createElement('div'); c3.className="col-span-2 text-center font-bold text-[#D81B7A]"; c3.textContent=fmt(st.s*x.rs);
+    const c4=document.createElement('div'); c4.dir="ltr";
     const cDiff = diffBase * x.rb;
-    if(Math.abs(cDiff) < 0.01){
-      c4.className="col-span-2 text-left font-bold text-gray-400";
-      c4.textContent="• 0";
-    }else if(cDiff > 0){
-      c4.className="col-span-2 text-left font-bold text-emerald-600";
-      c4.textContent=`↑ +${fmt(Math.abs(cDiff))}`;
-    }else{
-      c4.className="col-span-2 text-left font-bold text-rose-600";
-      c4.textContent=`↓ -${fmt(Math.abs(cDiff))}`;
-    }
-
-    row.appendChild(c1); row.appendChild(c2); row.appendChild(c3); row.appendChild(c4);
-    currFrag.appendChild(row);
+    if(Math.abs(cDiff) < 0.01){c4.className="col-span-2 text-left font-bold text-gray-400";c4.textContent="• 0";}
+    else if(cDiff > 0){c4.className="col-span-2 text-left font-bold text-emerald-600";c4.textContent=`↑ +${fmt(Math.abs(cDiff))}`;}
+    else{c4.className="col-span-2 text-left font-bold text-rose-600";c4.textContent=`↓ -${fmt(Math.abs(cDiff))}`;}
+    row.appendChild(c1); row.appendChild(c2); row.appendChild(c3); row.appendChild(c4); currFrag.appendChild(row);
   });
   currBox.appendChild(currFrag);
 
@@ -319,55 +303,77 @@ function renderAll(){
   const artFrag = document.createDocumentFragment();
 
   st.arts.forEach((a, idx) => {
-    const card = document.createElement('div');
-    card.className = "glass-card rounded-2xl p-4 shadow-sm space-y-2.5";
-    
+    const isOpen = openArtIndex === idx;
+    const card = document.createElement('article');
+    card.className = "glass-card rounded-2xl overflow-hidden shadow-sm";
+    card.setAttribute('data-art-index', String(idx));
+
+    const trigger = document.createElement('button');
+    trigger.type = "button";
+    trigger.className = "w-full flex items-center gap-3 p-3.5 text-right focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D81B7A]";
+    trigger.setAttribute('aria-expanded', String(isOpen));
+    trigger.setAttribute('aria-controls', `art-details-${idx}`);
+    trigger.addEventListener('click', () => toggleArt(idx));
+
     if(a.i && isSafeImageUrl(a.i)){
-      const img = document.createElement('img');
-      img.src = a.i;
-      img.alt = String(a.t||"صورة توضيحية").slice(0,100);
-      img.loading = "lazy";
-      img.className = "w-full max-h-56 object-cover rounded-xl";
-      card.appendChild(img);
+      const thumb = document.createElement('img');
+      thumb.src = a.i;
+      thumb.alt = String(a.t||"صورة توضيحية").slice(0,100);
+      thumb.loading = "lazy";
+      thumb.className = "w-[76px] h-[64px] shrink-0 object-cover rounded-xl border border-purple-100/70";
+      trigger.appendChild(thumb);
+    } else {
+      const placeholder = document.createElement('div');
+      placeholder.className = "w-[76px] h-[64px] shrink-0 rounded-xl bg-gradient-to-br from-[#F9E7F1] to-[#EDE3F5] text-[#8B1D59] flex items-center justify-center";
+      const pIcon = document.createElement('i'); pIcon.className = "fa-solid fa-circle-question text-2xl"; pIcon.setAttribute('aria-hidden','true');
+      placeholder.appendChild(pIcon); trigger.appendChild(placeholder);
     }
-    
-    const topRow = document.createElement('div');
-    topRow.className = "flex items-start justify-between gap-2";
-    
+
     const titleGroup = document.createElement('div');
-    titleGroup.className = "flex items-start gap-2";
-    
+    titleGroup.className = "flex-1 min-w-0";
     const badge = document.createElement('span');
-    badge.className = "bg-pink-100 text-[#D81B7A] text-xs font-bold px-2 py-0.5 rounded-lg shrink-0 mt-0.5";
-    badge.textContent = "سؤال";
-    
-    const h4 = document.createElement('h4');
-    h4.className = "text-[16px] font-bold text-[#2D062B] s-txt leading-snug";
-    h4.textContent = String(a.t||"");
-    
-    titleGroup.appendChild(badge);
-    titleGroup.appendChild(h4);
-    
-    const shareBtn = document.createElement('button');
-    shareBtn.className = "glass-sub text-[#D81B7A] px-2.5 py-1 rounded-xl text-xs font-bold flex items-center gap-1 shrink-0";
-    const sIcon = document.createElement('i'); sIcon.className="fa-solid fa-share-nodes";
-    const sSpan = document.createElement('span'); sSpan.textContent="مشاركة";
-    shareBtn.appendChild(sIcon); shareBtn.appendChild(sSpan);
-    shareBtn.addEventListener('click', () => sharePost(idx));
-    
-    topRow.appendChild(titleGroup);
-    topRow.appendChild(shareBtn);
-    card.appendChild(topRow);
-    
-    const bodyBox = document.createElement('div');
-    bodyBox.className = "glass-sub p-3.5 rounded-xl text-[14.5px] leading-relaxed whitespace-pre-line";
-    bodyBox.textContent = String(a.b||"");
-    card.appendChild(bodyBox);
-    
+    badge.className = "inline-block bg-pink-100 text-[#D81B7A] text-[10px] font-bold px-2 py-0.5 rounded-lg mb-1";
+    badge.textContent = "سؤال / شرح";
+    const title = document.createElement('h4');
+    title.className = "text-[14px] font-bold text-[#2D062B] s-txt leading-snug";
+    title.textContent = String(a.t||"");
+    titleGroup.appendChild(badge); titleGroup.appendChild(title); trigger.appendChild(titleGroup);
+
+    const chevron = document.createElement('i');
+    chevron.className = `fa-solid ${isOpen ? "fa-chevron-up" : "fa-chevron-down"} text-[#D81B7A] text-sm shrink-0 transition-transform`;
+    chevron.setAttribute('aria-hidden','true');
+    trigger.appendChild(chevron);
+    card.appendChild(trigger);
+
+    if(isOpen){
+      const details = document.createElement('div');
+      details.id = `art-details-${idx}`;
+      details.className = "px-3.5 pb-3.5 pt-0 space-y-3";
+      if(a.i && isSafeImageUrl(a.i)){
+        const fullImg = document.createElement('img');
+        fullImg.src = a.i; fullImg.alt = String(a.t||"صورة توضيحية").slice(0,100);
+        fullImg.loading = "lazy";
+        fullImg.className = "w-full max-h-72 object-contain rounded-xl bg-white/60";
+        details.appendChild(fullImg);
+      }
+      const bodyBox = document.createElement('div');
+      bodyBox.className = "glass-sub p-3.5 rounded-xl text-[14.5px] leading-relaxed whitespace-pre-line break-words";
+      bodyBox.textContent = String(a.b||"");
+      details.appendChild(bodyBox);
+
+      const shareBtn = document.createElement('button');
+      shareBtn.type = "button";
+      shareBtn.className = "glass-sub text-[#D81B7A] px-3 py-2 rounded-xl text-xs font-bold inline-flex items-center gap-1.5";
+      const sIcon = document.createElement('i'); sIcon.className="fa-solid fa-share-nodes"; sIcon.setAttribute('aria-hidden','true');
+      const sSpan = document.createElement('span'); sSpan.textContent="مشاركة الشرح";
+      shareBtn.appendChild(sIcon); shareBtn.appendChild(sSpan);
+      shareBtn.addEventListener('click', (event) => { event.stopPropagation(); sharePost(idx); });
+      details.appendChild(shareBtn);
+      card.appendChild(details);
+    }
     artFrag.appendChild(card);
   });
   artContainer.appendChild(artFrag);
-
   initCalc();
 }
 
