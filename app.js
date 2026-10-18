@@ -267,7 +267,10 @@ function renderBanks(){
     dot.setAttribute('aria-hidden','true');
     const name=document.createElement('span'); name.textContent=x.n;
     const txt=document.createElement('span'); txt.className="bank-status-label"; txt.textContent=state.label;
-    div.append(dot,name,txt); frag.appendChild(div);
+    const age=document.createElement('span'); age.className="bank-status-age";
+    const ageText=sourceItem?.externalStatus?.sourceAgeText;
+    age.textContent=ageText ? ("منذ "+ageText) : "وقت التحديث غير متاح";
+    div.append(dot,name,txt,age); frag.appendChild(div);
   });
   grid.appendChild(frag);
 }
