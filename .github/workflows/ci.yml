@@ -1,0 +1,34 @@
+name: Basic checks
+
+on:
+  push:
+    branches: [main, hardening/docs-csp-ci]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  syntax-and-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check JavaScript syntax
+        run: |
+          node --check app.js
+          node --check sw.js
+          node --input-type=module --check < api/zajil.js
+      - name: Validate manifest JSON
+        run: node -e "JSON.parse(require('fs').readFileSync('manifest.json', 'utf8'))"
+      - name: Reject inline event attributes
+        run: |
+          if grep -Eiq '\son(click|input|change|submit)\s*=' index.html; then
+            echo "Inline event attributes are not allowed in index.html"
+            exit 1
+          fi
