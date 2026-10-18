@@ -1,6 +1,6 @@
 /* ==========================================
    ZAJIL — COMPLETE COLOR-HARMONIZED LIQUID GLASS
-   Full style.css replacement — Fixed & Validated
+   Full style.css replacement — Fixed Calculator & Cards
    ========================================== */
 
 /* --------------------
@@ -11,12 +11,12 @@
 
   /* backgrounds */
   --z-bg: #f3ebf7;
-  --z-bg-2: #efe5f2;
+  --z-bg-2: #e9d9f2;
   --z-surface: #ffffff;
 
   /* text */
   --z-text: #2A0529;           /* primary text (light mode) */
-  --z-text-weak: #7a5c7d;
+  --z-text-weak: #6E4F72;
   --z-text-strong: #1d0620;    /* headings / emphasis (light mode) */
 
   /* brand */
@@ -26,24 +26,24 @@
   --z-pink-bright: #FF5AB0;
   --z-lav: #A889D8;
 
-  /* glass tokens */
-  --z-glass: rgba(255, 255, 255, 0.62);
-  --z-glass-soft: rgba(250, 244, 252, 0.52);
-  --z-glass-strong: rgba(255, 255, 255, 0.82);
+  /* glass tokens - tuned for crisp Light Mode contrast */
+  --z-glass: rgba(255, 255, 255, 0.78);
+  --z-glass-soft: rgba(246, 238, 250, 0.85);
+  --z-glass-strong: rgba(255, 255, 255, 0.88);
 
   /* borders & highlights */
-  --z-border: rgba(255, 255, 255, 0.82);
-  --z-border-soft: rgba(216, 27, 122, 0.14);
-  --z-specular: rgba(255, 255, 255, 0.25);
+  --z-border: rgba(216, 27, 122, 0.18);
+  --z-border-soft: rgba(100, 15, 85, 0.10);
+  --z-specular: rgba(255, 255, 255, 0.65);
 
   /* shadows / depth */
-  --z-shadow-soft: 0 8px 24px rgba(56, 7, 52, 0.06);
-  --z-shadow-mid: 0 12px 28px rgba(56, 7, 52, 0.12);
-  --z-shadow-inner: inset 0 1px 1px rgba(255, 255, 255, 0.9);
+  --z-shadow-soft: 0 10px 30px -4px rgba(56, 7, 52, 0.08), 0 4px 12px rgba(216, 27, 122, 0.04);
+  --z-shadow-mid: 0 14px 34px -4px rgba(56, 7, 52, 0.16);
+  --z-shadow-inner: inset 0 1.5px 1px rgba(255, 255, 255, 0.95);
 
   /* motion / geometry */
-  --z-blur: 18px;
-  --z-saturation: 160%;
+  --z-blur: 20px;
+  --z-saturation: 170%;
   --z-radius: 24px;
   --z-radius-sm: 18px;
   --z-transition: 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
@@ -54,23 +54,23 @@
 body.dark-mode {
   color-scheme: dark;
 
-  --z-bg: #100713;
-  --z-bg-2: #1a0d1e;
+  --z-bg: #0F0213;
+  --z-bg-2: #190620;
 
   --z-text: #F5EEF7;         /* primary readable text in dark mode */
   --z-text-strong: #FFFFFF;  /* headings / values */
-  --z-text-weak: #c4afca;
+  --z-text-weak: #C9B3CF;
 
-  --z-glass: rgba(39, 17, 43, 0.68);
-  --z-glass-soft: rgba(53, 26, 58, 0.58);
-  --z-glass-strong: rgba(43, 17, 48, 0.84);
+  --z-glass: rgba(34, 8, 42, 0.78);
+  --z-glass-soft: rgba(50, 12, 60, 0.75);
+  --z-glass-strong: rgba(28, 6, 35, 0.88);
 
-  --z-border: rgba(255, 255, 255, 0.12);
-  --z-border-soft: rgba(216, 27, 122, 0.22);
+  --z-border: rgba(216, 27, 122, 0.28);
+  --z-border-soft: rgba(255, 255, 255, 0.10);
 
-  --z-shadow-soft: 0 10px 28px rgba(0, 0, 0, 0.35);
-  --z-shadow-mid: 0 14px 32px rgba(0, 0, 0, 0.45);
-  --z-shadow-inner: inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  --z-shadow-soft: 0 12px 32px rgba(0, 0, 0, 0.45);
+  --z-shadow-mid: 0 16px 38px rgba(0, 0, 0, 0.55);
+  --z-shadow-inner: inset 0 1px 1px rgba(255, 255, 255, 0.14);
 }
 
 /* --------------------
@@ -93,8 +93,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background:
-    radial-gradient(circle at 8% 8%, rgba(216, 27, 122, 0.10), transparent 35%),
-    radial-gradient(circle at 92% 35%, rgba(123, 94, 234, 0.08), transparent 38%),
+    radial-gradient(circle at 12% 10%, rgba(216, 27, 122, 0.12), transparent 38%),
+    radial-gradient(circle at 88% 35%, rgba(100, 15, 85, 0.10), transparent 42%),
     linear-gradient(180deg, var(--z-bg) 0%, var(--z-bg-2) 100%);
   color: var(--z-text);
   padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px));
@@ -107,7 +107,7 @@ body {
 }
 
 /* --------------------
-   3. TABS & VISIBILITY (Restored!)
+   3. TABS & VISIBILITY
    -------------------- */
 .tab-content {
   display: none;
@@ -151,18 +151,8 @@ nav[role="tablist"] {
   box-shadow: var(--z-shadow-soft), var(--z-shadow-inner);
 }
 
-.glass-header::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  border-radius: inherit;
-  background: linear-gradient(115deg, rgba(255, 255, 255, 0.22), transparent 42%, rgba(216, 27, 122, 0.03));
-}
-
 /* --------------------
-   6. GLASS CARD & SUB-SURFACE
+   6. GLASS CARD & SUB-SURFACE (Fixed Light & Dark Contrast!)
    -------------------- */
 .glass-card {
   position: relative;
@@ -170,8 +160,6 @@ nav[role="tablist"] {
   overflow: hidden;
   background: var(--z-glass);
   border: 1px solid var(--z-border);
-  outline: 1px solid var(--z-border-soft);
-  outline-offset: -1px;
   border-radius: var(--z-radius);
   box-shadow: var(--z-shadow-inner), var(--z-shadow-soft);
 }
@@ -183,331 +171,70 @@ nav[role="tablist"] {
   z-index: -1;
   pointer-events: none;
   border-radius: inherit;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.05) 30%, transparent 60%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.10) 35%, transparent 65%);
+}
+
+body.dark-mode .glass-card {
+  background: var(--z-glass) !important;
+  border-color: var(--z-border) !important;
+  color: var(--z-text) !important;
 }
 
 body.dark-mode .glass-card::before {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, transparent 45%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, transparent 45%);
 }
 
-/* Nested soft surface */
+/* Nested soft surface (Inputs, Calc Buy/Sell boxes, Sub-items) */
 .glass-sub {
   background: var(--z-glass-soft);
-  border: 1px solid var(--z-border);
+  border: 1px solid rgba(216, 27, 122, 0.14);
   border-radius: 18px;
-  box-shadow: var(--z-shadow-inner), 0 3px 10px rgba(56, 7, 52, 0.03);
+  box-shadow: var(--z-shadow-inner), 0 4px 12px rgba(56, 7, 52, 0.04);
+  color: var(--z-text-strong);
+}
+
+body.dark-mode .glass-sub {
+  background: var(--z-glass-soft) !important;
+  border-color: rgba(216, 27, 122, 0.25) !important;
+  color: var(--z-text-strong) !important;
 }
 
 /* --------------------
-   7. HERO / C-GRAD (USD Card & Calculator Card)
-   -------------------- */
-.c-grad {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  background:
-    radial-gradient(ellipse at 85% 8%, rgba(255, 122, 192, 0.22), transparent 42%),
-    linear-gradient(135deg, rgba(56, 7, 52, 0.96), rgba(100, 15, 85, 0.94) 52%, rgba(43, 5, 40, 0.98));
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 26px;
-  color: #ffffff;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.25), var(--z-shadow-mid);
-}
-
-.c-grad::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  border-radius: inherit;
-  background: linear-gradient(125deg, rgba(255, 255, 255, 0.10), transparent 38%);
-}
-
-/* Keep text inside .c-grad white in both Light and Dark mode, except white inputs/selects */
-.c-grad h1, .c-grad h2, .c-grad h3, .c-grad h4,
-.c-grad p, .c-grad span, .c-grad small, .c-grad label,
-#heroBuy, #heroSell, #cResBuy, #cResSell {
-  color: #ffffff;
-}
-
-/* --------------------
-   8. BUTTONS / ACTIONS (.b-calc)
+   7. CALCULATOR BUY / SELL BOXES & HEADER (.b-calc)
    -------------------- */
 .b-calc {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(115deg, #5e1151 0%, #a81770 48%, #e82a8a 100%);
+  background: linear-gradient(100deg, #5E1151 0%, #D81B7A 60%, #E82A8A 100%);
   color: #ffffff !important;
-  border-radius: var(--z-radius-sm);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  font-weight: 700;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3), 0 8px 18px rgba(100, 15, 85, 0.24);
-  cursor: pointer;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 8px 20px rgba(216, 27, 122, 0.25);
 }
 
 .b-calc * {
   color: #ffffff !important;
 }
 
-.b-calc:active {
-  transform: scale(0.97);
-  filter: brightness(1.05);
+/* Calculator Buy & Sell Result Numbers (#cResBuy & #cResSell) */
+#cResBuy {
+  color: #2A0529 !important; /* Crisp dark purple in Light Mode */
+  font-weight: 800;
 }
 
-body.dark-mode .b-calc {
-  background: linear-gradient(115deg, #651252, #a51c71 52%, #d92b89);
+#cResSell {
+  color: #D81B7A !important; /* Brand magenta in Light Mode */
+  font-weight: 800;
 }
 
-/* --------------------
-   9. TOASTS / TICKER / NUMBERS
-   -------------------- */
-.t-num {
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum";
+/* In Dark Mode: Make Buy & Sell results super bright and legible */
+body.dark-mode #cResBuy {
+  color: #FFFFFF !important;
+  text-shadow: 0 2px 10px rgba(255, 255, 255, 0.15);
 }
 
-@keyframes ticker {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+body.dark-mode #cResSell {
+  color: #FF5AB0 !important; /* Bright neon-pink for high dark-mode contrast */
+  text-shadow: 0 2px 12px rgba(255, 90, 176, 0.25);
 }
 
-.marquee {
-  display: inline-block;
-  white-space: nowrap;
-  animation: ticker 35s linear infinite;
-}
-
-.toast-msg {
-  border-radius: 18px;
-  padding: 0.75rem 1rem;
-  background: rgba(56, 7, 52, 0.90);
-  color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.20);
-  box-shadow: 0 10px 26px rgba(30, 3, 28, 0.25);
-  animation: toastIn 0.25s ease-out forwards;
-}
-
-@keyframes toastIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-body.dark-mode .toast-msg {
-  background: rgba(28, 9, 33, 0.94);
-}
-
-/* --------------------
-   10. BOTTOM NAVIGATION
-   -------------------- */
-nav[role="tablist"] {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 40;
-  background: var(--z-glass-strong);
-  border-top: 1px solid var(--z-border);
-  box-shadow: 0 -10px 28px rgba(18, 8, 22, 0.10), var(--z-shadow-inner);
-}
-
-.nav-btn {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  padding: 0.5rem 0.25rem;
-  background: transparent;
-  border: 0;
-  transition: transform var(--z-transition), color var(--z-transition);
-}
-
-.nav-btn:active {
-  transform: scale(0.92);
-}
-
-.nav-btn::before {
-  content: "";
-  position: absolute;
-  inset: 6px 10px;
-  border-radius: 16px;
-  background: rgba(216, 27, 122, 0.08);
-  border: 1px solid rgba(216, 27, 122, 0.15);
-  opacity: 0;
-  transform: scale(0.86);
-  transition: all 180ms ease;
-  pointer-events: none;
-}
-
-.nav-btn:active::before,
-.nav-btn[aria-selected="true"]::before {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.nav-btn[aria-selected="true"] {
-  color: var(--z-pink) !important;
-}
-
-body.dark-mode .nav-btn[aria-selected="true"] {
-  color: var(--z-pink-bright) !important;
-}
-
-/* --------------------
-   11. FORM ELEMENTS / INPUTS / SELECTS
-   -------------------- */
-input, textarea, select, button {
-  font: inherit;
-}
-
-input:not([type="checkbox"]):not([type="radio"]),
-textarea,
-select {
-  background: rgba(255, 255, 255, 0.65);
-  border: 1px solid rgba(216, 27, 122, 0.2);
-  border-radius: 14px;
-  color: var(--z-text-strong);
-  transition: box-shadow var(--z-transition), border-color var(--z-transition);
-}
-
-input::placeholder,
-textarea::placeholder {
-  color: var(--z-text-weak);
-}
-
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
-  outline: none;
-  border-color: var(--z-pink);
-  box-shadow: 0 0 0 3px var(--z-focus);
-}
-
-body.dark-mode input:not([type="checkbox"]):not([type="radio"]),
-body.dark-mode textarea,
-body.dark-mode select {
-  background: rgba(26, 10, 30, 0.65) !important;
-  border-color: var(--z-border) !important;
-  color: var(--z-text-strong) !important;
-}
-
-body.dark-mode input::placeholder,
-body.dark-mode textarea::placeholder {
-  color: rgba(255, 255, 255, 0.45) !important;
-}
-
-/* --------------------
-   12. TARGETED FIXES & TAILWIND ESCAPES (Fixed Syntax!)
-   -------------------- */
-
-/* Properly escaped Tailwind arbitrary color classes */
-.text-\[\#D81B7A\] { color: var(--z-pink); }
-.text-\[\#2D062B\] { color: var(--z-text-strong); }
-.text-\[\#3D0B3A\] { color: var(--z-text-strong); }
-
-/* Dark Mode Targeted Text Harmonization (Safe & Non-Destructive) */
-body.dark-mode {
-  color: var(--z-text);
-}
-
-body.dark-mode .glass-card,
-body.dark-mode .glass-sub,
-body.dark-mode .glass-header {
-  color: var(--z-text) !important;
-}
-
-body.dark-mode :is(h1, h2, h3, h4, h5, h6, #dateTxt, #timeTxt, .s-txt) {
-  color: var(--z-text-strong) !important;
-}
-
-body.dark-mode .text-\[\#2D062B\],
-body.dark-mode .text-\[\#3D0B3A\],
-body.dark-mode .text-gray-800,
-body.dark-mode .text-gray-700,
-body.dark-mode .text-gray-900 {
-  color: var(--z-text-strong) !important;
-}
-
-body.dark-mode .text-gray-500,
-body.dark-mode .text-gray-600,
-body.dark-mode .text-gray-400 {
-  color: var(--z-text-weak) !important;
-}
-
-body.dark-mode .text-\[\#D81B7A\] {
-  color: var(--z-pink-bright) !important;
-}
-
-/* White utility overrides in Dark Mode */
-body.dark-mode .glass-card .bg-white,
-body.dark-mode .glass-card .bg-white\/80,
-body.dark-mode .glass-card .bg-white\/90,
-body.dark-mode .glass-sub.bg-white {
-  background-color: rgba(255, 255, 255, 0.05) !important;
-  color: var(--z-text-strong) !important;
-  border-color: var(--z-border) !important;
-}
-
-body.dark-mode .bg-pink-50,
-body.dark-mode .bg-purple-50,
-body.dark-mode .bg-sky-50 {
-  background-color: rgba(255, 255, 255, 0.04) !important;
-  color: var(--z-text-strong) !important;
-}
-
-/* Bank status grid cells */
-body.dark-mode #bankStatusGrid > div {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: var(--z-text-strong) !important;
-}
-
-/* Calculator inner panels in Dark Mode */
-body.dark-mode .c-grad .bg-white,
-body.dark-mode .c-grad .bg-white\/90 {
-  background: rgba(26, 10, 30, 0.72) !important;
-  color: var(--z-text-strong) !important;
-  border-color: rgba(255, 255, 255, 0.14) !important;
-}
-
-/* Social links in More tab */
-body.dark-mode .glass-card a[class*="bg-"] {
-  background-color: rgba(255, 255, 255, 0.05) !important;
-  color: var(--z-text-strong) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-}
-
-body.dark-mode .glass-card a .text-blue-800,
-body.dark-mode .glass-card a .text-sky-800,
-body.dark-mode .glass-card a .text-pink-800 {
-  color: var(--z-text-strong) !important;
-}
-
-body.dark-mode .glass-card .bg-pink-100 {
-  background: rgba(216, 27, 122, 0.15) !important;
-  color: var(--z-pink-bright) !important;
-}
-
-/* --------------------
-   13. ACCESSIBILITY & FALLBACKS
-   -------------------- */
-:focus { outline: none; }
-:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--z-focus); }
-
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass-header, nav[role="tablist"] { background: rgba(255, 255, 255, 0.96); }
-  .glass-card { background: rgba(255, 255, 255, 0.96); }
-  .glass-sub { background: rgba(246, 241, 249, 0.96); }
-  body.dark-mode .glass-header, body.dark-mode nav[role="tablist"] { background: rgba(20, 8, 30, 0.96); }
-  body.dark-mode .glass-card { background: rgba(25, 10, 35, 0.96) !important; }
-}
+/* Fix calculator result boxes if they use bg-pink-50 / bg-purple-50 / bg-gray-50 */
+body.dark-mode .glass-card .bg-pink-50,
+body.dark-mode .glass-card .bg-purple-50,
+body.
