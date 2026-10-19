@@ -43,10 +43,10 @@ paths:
           required: true
           schema:
             type: string
-            enum: [login, submit_question, visit]
+            enum: [login, submit_question, visit, push_config, push_subscribe, push_unsubscribe]
           description: >
             For basket writes, omit action and provide bucket=zajil_live with a
-            bearer token. Public actions do not require a token.
+            bearer token. Public actions do not require a token. push_config is a GET endpoint.
         - in: query
           name: bucket
           schema:
