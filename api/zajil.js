@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual, randomUUID } from "node:crypto";
+import webpush from "web-push";
 
 const TOKEN_TTL_SECONDS = 8 * 60 * 60;
 const publicRateLimits = new Map();
@@ -47,7 +48,8 @@ function allowPublicRequest(req, action) {
   }
   entry.count += 1;
   publicRateLimits.set(key, entry);
-  return entry.count <= (action === "submit_question" ? 5 : 120);
+  const limit = action === "submit_question" ? 5 : action.startsWith("push_") ? 15 : 120;
+  return entry.count <= limit;
 }
 
 async function readBasket(url) {
@@ -67,6 +69,81 @@ async function writeBasket(url, data) {
   return response;
 }
 
+function pushReady() {
+  return Boolean(process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY);
+}
+
+function configurePush() {
+  if (!pushReady()) return false;
+  webpush.setVapidDetails(
+    process.env.VAPID_SUBJECT || "mailto:push@zajil-post.vercel.app",
+    process.env.VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY
+  );
+  return true;
+}
+
+function validSubscription(value) {
+  if (!value || typeof value !== "object" || typeof value.endpoint !== "string" ||
+      typeof value.keys?.p256dh !== "string" || typeof value.keys?.auth !== "string") return false;
+  try {
+    const endpoint = new URL(value.endpoint);
+    return endpoint.protocol === "https:" && value.endpoint.length <= 2048 &&
+      value.keys.p256dh.length <= 256 && value.keys.auth.length <= 256;
+  } catch {
+    return false;
+  }
+}
+
+async function pushSubscriptionsUrl(pantryId) {
+  return `https://getpantry.cloud/apiv1/pantry/${pantryId}/basket/zajil_push_subscriptions`;
+}
+
+async function sendRatePushes(pantryId, oldData, newData) {
+  if (!configurePush()) {
+    console.warn("Rate data saved, but Web Push is not configured (missing VAPID keys).");
+    return { sent: 0, skipped: true };
+  }
+  const oldBuy = Number(oldData?.b), oldSell = Number(oldData?.s);
+  const newBuy = Number(newData?.b), newSell = Number(newData?.s);
+  if (!(oldBuy > 0 && oldSell > 0 && newBuy > 0 && newSell > 0) ||
+      (oldBuy === newBuy && oldSell === newSell)) return { sent: 0, skipped: false };
+
+  const url = await pushSubscriptionsUrl(pantryId);
+  const basket = await readBasket(url);
+  const subscriptions = Array.isArray(basket.subscriptions) ? basket.subscriptions : [];
+  if (!subscriptions.length) return { sent: 0, skipped: false };
+
+  const direction = newBuy > oldBuy || newSell > oldSell
+    ? "ارتفع سعر الدولار"
+    : newBuy < oldBuy || newSell < oldSell
+      ? "انخفض سعر الدولار"
+      : "تغيّرت أسعار الصرف";
+  const payload = JSON.stringify({
+    title: "تحديث أسعار الصرف | زاجل",
+    body: `${direction} — شراء ${Math.round(newBuy).toLocaleString("en-US")}، بيع ${Math.round(newSell).toLocaleString("en-US")} جنيه سوداني`,
+    url: "/?tab=rates",
+    tag: "zajil-rate-update",
+    timestamp: Date.now()
+  });
+
+  const retained = [];
+  let sent = 0;
+  await Promise.all(subscriptions.map(async subscription => {
+    try {
+      await webpush.sendNotification(subscription, payload, { TTL: 60 * 60, urgency: "normal" });
+      retained.push(subscription);
+      sent += 1;
+    } catch (error) {
+      if (error?.statusCode !== 404 && error?.statusCode !== 410) retained.push(subscription);
+    }
+  }));
+  if (retained.length !== subscriptions.length) {
+    await writeBasket(url, { subscriptions: retained });
+  }
+  return { sent, skipped: false };
+}
+
 export default async function handler(req, res) {
   const action = String(req.query.action || "");
   const ADMIN_PASS = process.env.ADMIN_PASS;
@@ -82,6 +159,11 @@ export default async function handler(req, res) {
     return send(res, 405, { error: "Method not allowed" });
   }
 
+  if (action === "push_config") {
+    if (req.method !== "GET") return send(res, 405, { error: "Method not allowed" });
+    return send(res, 200, { publicKey: process.env.VAPID_PUBLIC_KEY || null, configured: pushReady() });
+  }
+
   if (action === "login") {
     if (req.method !== "POST") return send(res, 405, { error: "Method not allowed" });
     if (!ADMIN_PASS || !TOKEN_SECRET || TOKEN_SECRET.length < 32) {
@@ -95,6 +177,34 @@ export default async function handler(req, res) {
   }
 
   if (!PANTRY_ID) return send(res, 503, { error: "Storage is not configured" });
+
+  if (action === "push_subscribe" || action === "push_unsubscribe") {
+    if (req.method !== "POST") return send(res, 405, { error: "Method not allowed" });
+    if (!allowPublicRequest(req, action)) return send(res, 429, { error: "Too many requests" });
+    if (action === "push_subscribe" && !pushReady()) {
+      return send(res, 503, { error: "Web Push is not configured" });
+    }
+    const url = await pushSubscriptionsUrl(PANTRY_ID);
+    try {
+      const basket = await readBasket(url);
+      const current = Array.isArray(basket.subscriptions) ? basket.subscriptions : [];
+      if (action === "push_subscribe") {
+        const subscription = req.body?.subscription;
+        if (!validSubscription(subscription)) return send(res, 400, { error: "Invalid push subscription" });
+        const updated = current.filter(item => item?.endpoint !== subscription.endpoint);
+        updated.push(subscription);
+        await writeBasket(url, { subscriptions: updated.slice(-5000) });
+        return send(res, 200, { ok: true });
+      }
+      const endpoint = typeof req.body?.endpoint === "string" ? req.body.endpoint : "";
+      if (!endpoint || endpoint.length > 2048) return send(res, 400, { error: "Invalid endpoint" });
+      await writeBasket(url, { subscriptions: current.filter(item => item?.endpoint !== endpoint) });
+      return send(res, 200, { ok: true });
+    } catch {
+      return send(res, 502, { error: "Push subscription storage unavailable" });
+    }
+  }
+
   const bucket = req.query.bucket === "zajil_inbox" ? "zajil_inbox" : "zajil_live";
   const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${bucket}`;
   const auth = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "");
@@ -123,12 +233,8 @@ export default async function handler(req, res) {
     }
   }
 
-  if (bucket === "zajil_inbox" && !isAdmin) {
-    return send(res, 403, { error: "Forbidden" });
-  }
-  if (req.method === "POST" && bucket === "zajil_live" && !isAdmin) {
-    return send(res, 403, { error: "Forbidden" });
-  }
+  if (bucket === "zajil_inbox" && !isAdmin) return send(res, 403, { error: "Forbidden" });
+  if (req.method === "POST" && bucket === "zajil_live" && !isAdmin) return send(res, 403, { error: "Forbidden" });
 
   try {
     if (req.method === "GET") {
@@ -136,8 +242,17 @@ export default async function handler(req, res) {
       const data = await upstream.json();
       return res.status(upstream.status).json(data);
     }
-    await writeBasket(url, req.body || {});
-    return send(res, 200, { ok: true });
+
+    const newData = req.body && typeof req.body === "object" ? req.body : {};
+    const oldData = await readBasket(url).catch(() => ({}));
+    await writeBasket(url, newData);
+    let push = { sent: 0, skipped: true };
+    try {
+      push = await sendRatePushes(PANTRY_ID, oldData, newData);
+    } catch (error) {
+      console.error("Rate Push send failed:", error?.message || error);
+    }
+    return send(res, 200, { ok: true, push });
   } catch {
     return send(res, 502, { error: "Storage unavailable" });
   }
