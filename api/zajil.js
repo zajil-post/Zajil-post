@@ -207,7 +207,7 @@ export default async function handler(req, res) {
 
   const bucket = req.query.bucket === "zajil_inbox" ? "zajil_inbox" : "zajil_live";
   const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${bucket}`;
-  const auth = String(req.headers.authorization || "").replace(/^Bearer\\s+/i, "");
+  const auth = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "");
   const isAdmin = Boolean(TOKEN_SECRET && TOKEN_SECRET.length >= 32 && verifyToken(auth, TOKEN_SECRET));
 
   if (action === "submit_question" || action === "visit") {
