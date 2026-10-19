@@ -77,37 +77,77 @@ async function cloudFetch(bucket, method="GET", bodyData=null){
   });
 }
 
-function checkChangesAndNotify(newD){
-  if(!("Notification" in window)||Notification.permission!=="granted")return;
-  const oldB=Number(st.b), oldS=Number(st.s), newB=Number(newD.b), newS=Number(newD.s);
-  const oldBk=JSON.stringify(st.banks||{}), newBk=JSON.stringify(newD.banks||{});
-  if((oldB&&newB&&(oldB!==newB||oldS!==newS)) || (oldBk!==newBk)){
-    try{
-      new Notification("منصة زاجل للنشر 🕊️",{
-        body:`تحديث جديد: الدولار شراء ${fmt(newB)} | بيع ${fmt(newS)} ج.س`,
-        tag:"zajil-rate-update"
-      });
-    }catch(e){}
-  }
+function base64UrlToBytes(value){
+  const padding="=".repeat((4-value.length%4)%4);
+  const base64=(value+padding).replace(/-/g,"+").replace(/_/g,"/");
+  const raw=atob(base64);
+  return Uint8Array.from(raw,c=>c.charCodeAt(0));
 }
 
 async function enableNotif(){
-  if(!("Notification" in window))return showToast("متصفحك لا يدعم الإشعارات المباشرة","warn");
-  const p=await Notification.requestPermission();
-  syncNotifIcon();
-  if(p==="granted"){
-    new Notification("منصة زاجل للنشر 🕊️",{body:"تم تفعيل إشعارات الأسعار وحالة التطبيقات المصرفية بنجاح!"});
-    showToast("✅ تم تفعيل الإشعارات بنجاح");
-  }else{
-    showToast("يرجى السماح بالإشعارات من إعدادات المتصفح","warn");
+  if(!("serviceWorker" in navigator)||!("PushManager" in window)||!("Notification" in window)){
+    return showToast("هذا المتصفح لا يدعم إشعارات Push؛ جرّب تثبيت زاجل على أندرويد","warn");
+  }
+  if(Notification.permission==="denied"){
+    return showToast("الإشعارات محظورة من إعدادات المتصفح؛ فعّلها ثم حاول مجددًا","warn");
+  }
+  try{
+    const registration=await navigator.serviceWorker.ready;
+    let subscription=await registration.pushManager.getSubscription();
+    if(subscription){
+      await subscription.unsubscribe();
+      const removed=await fetch(`${PROXY_ENDPOINT}?action=push_unsubscribe`,{
+        method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({endpoint:subscription.endpoint})
+      });
+      syncNotifIcon();
+      if(!removed.ok) throw new Error("unsubscribe failed");
+      showToast("تم إيقاف إشعارات أسعار زاجل");
+      return;
+    }
+    const permission=await Notification.requestPermission();
+    if(permission!=="granted"){
+      syncNotifIcon();
+      return showToast("لم يتم منح إذن الإشعارات","warn");
+    }
+    const configResponse=await fetch(`${PROXY_ENDPOINT}?action=push_config`,{cache:"no-store"});
+    if(!configResponse.ok)throw new Error("Push is not configured on server");
+    const config=await configResponse.json();
+    if(!config.publicKey)throw new Error("Missing VAPID public key");
+    subscription=await registration.pushManager.subscribe({
+      userVisibleOnly:true,
+      applicationServerKey:base64UrlToBytes(config.publicKey)
+    });
+    const saveResponse=await fetch(`${PROXY_ENDPOINT}?action=push_subscribe`,{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({subscription:subscription.toJSON()})
+    });
+    if(!saveResponse.ok){
+      await subscription.unsubscribe().catch(()=>{});
+      throw new Error("Subscription save failed");
+    }
+    syncNotifIcon();
+    showToast("تم تفعيل إشعارات أسعار الصرف بنجاح");
+  }catch(error){
+    console.error("Push subscription error:",error);
+    showToast("تعذر تفعيل Push؛ تأكد من إعداد مفاتيح الإشعارات على الخادم","err");
   }
 }
 
-function syncNotifIcon(){
-  const ic=document.getElementById('notifIcon');
-  if(ic && "Notification" in window && Notification.permission==="granted"){
-    ic.className="fa-solid fa-bell text-sm text-emerald-600";
-  }
+async function syncNotifIcon(){
+  const ic=document.getElementById("notifIcon");
+  if(!ic)return;
+  let subscribed=false;
+  try{
+    if("serviceWorker" in navigator){
+      const registration=await navigator.serviceWorker.ready;
+      subscribed=Boolean(await registration.pushManager.getSubscription());
+    }
+  }catch(e){}
+  ic.className=subscribed
+    ?"fa-solid fa-bell text-sm text-emerald-600"
+    :"fa-regular fa-bell text-sm text-[#D81B7A]";
+  const button=document.getElementById("notifBtn");
+  if(button)button.setAttribute("aria-label",subscribed?"إيقاف إشعارات الأسعار":"تفعيل إشعارات الأسعار");
 }
 syncNotifIcon();
 
@@ -117,7 +157,6 @@ async function loadCloud(manual=false){
     if(!r.ok)throw new Error("HTTP "+r.status);
     const d=await r.json();
     if(d&&typeof d.b!=="undefined"){
-      if(st.ts>0)checkChangesAndNotify(d);
       const prevB = (Number(d.b)!==Number(st.b)) ? Number(st.b) : (Number(d.prevB)||Number(st.prevB)||Number(d.b));
       st={
         ts:Number(d.ts)||Date.now(),
