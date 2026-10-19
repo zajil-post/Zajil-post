@@ -763,6 +763,15 @@ document.addEventListener('click', event => {
     case 'secretTap': secretTap(); break;
     case 'enableNotif': enableNotif(); break;
     case 'triggerInstall': triggerInstall(); break;
+    case 'onboardingInstall':
+      dismissOnboarding();
+      triggerInstall();
+      break;
+    case 'onboardingNotif':
+      dismissOnboarding();
+      enableNotif();
+      break;
+    case 'dismissOnboarding': dismissOnboarding(true); break;
     case 'toggleTheme': toggleTheme(); break;
     case 'refreshCloud': loadCloud(true); break;
     case 'submitQuestion': submitQuestion(); break;
@@ -806,12 +815,53 @@ window.addEventListener('beforeinstallprompt',e=>{
 });
 window.addEventListener('appinstalled',()=>{deferredPrompt=null;});
 
+// إرشاد أول زيارة: نافذة اختيارية للتثبيت وإشعارات الأسعار.
+function isInstalledPWA(){
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+function dismissOnboarding(remember=true){
+  const modal=document.getElementById('welcomeSetupM');
+  if(modal)modal.classList.add('hidden');
+  if(remember)localStorage.setItem('zj_onboarding_dismissed_v1','1');
+}
+async function updateOnboardingOptions(){
+  const installBtn=document.getElementById('welcomeInstallBtn');
+  const notifBtn=document.getElementById('welcomeNotifBtn');
+  if(installBtn && isInstalledPWA())installBtn.classList.add('hidden');
+  if(notifBtn && 'Notification' in window && Notification.permission==='granted' && 'serviceWorker' in navigator){
+    try{
+      const reg=await navigator.serviceWorker.ready;
+      if(await reg.pushManager.getSubscription()){
+        notifBtn.classList.add('hidden');
+      }
+    }catch(e){}
+  }
+}
+function maybeShowOnboarding(){
+  if(localStorage.getItem('zj_onboarding_dismissed_v1')==='1')return;
+  if(isInstalledPWA() && 'Notification' in window && Notification.permission==='granted')return;
+  const modal=document.getElementById('welcomeSetupM');
+  if(!modal)return;
+  updateOnboardingOptions();
+  window.setTimeout(()=>{
+    if(!document.hidden && localStorage.getItem('zj_onboarding_dismissed_v1')!=='1')modal.classList.remove('hidden');
+  },900);
+}
+window.addEventListener('load',maybeShowOnboarding,{once:true});
+
 // زر التثبيت: يعرض نافذة التثبيت الأصلية حين يدعمها المتصفح.
 async function triggerInstall(){
+  if(isInstalledPWA()){
+    showToast('زاجل مثبت بالفعل على شاشة جهازك');
+    return;
+  }
   if(deferredPrompt){
     deferredPrompt.prompt();
     const choice=await deferredPrompt.userChoice.catch(()=>null);
-    if(choice?.outcome==='accepted')showToast('تم بدء تثبيت زاجل');
+    if(choice?.outcome==='accepted'){
+      showToast('تم بدء تثبيت زاجل');
+      localStorage.setItem('zj_onboarding_dismissed_v1','1');
+    }
     deferredPrompt=null;
   }else{
     document.getElementById('pwaM').classList.remove('hidden');
