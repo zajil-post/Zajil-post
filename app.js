@@ -764,11 +764,11 @@ document.addEventListener('click', event => {
     case 'enableNotif': enableNotif(); break;
     case 'triggerInstall': triggerInstall(); break;
     case 'onboardingInstall':
-      dismissOnboarding(false);
+      dismissOnboarding();
       triggerInstall();
       break;
     case 'onboardingNotif':
-      dismissOnboarding(false);
+      dismissOnboarding();
       enableNotif();
       break;
     case 'dismissOnboarding': dismissOnboarding(true); break;
