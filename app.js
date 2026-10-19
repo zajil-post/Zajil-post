@@ -143,7 +143,7 @@ async function enableNotif(){
     }else if(message.startsWith("config_http_")){
       showToast("تعذر قراءة إعدادات الإشعارات من الخادم ("+message.replace("config_http_","HTTP ")+")","err");
     }else if(message.startsWith("subscribe_http_")){
-      const status=message.split("_")[2]||"";
+      const status=message.slice("subscribe_http_".length).split("_")[0]||"";
       showToast("فشل حفظ اشتراك الإشعارات ("+status+")؛ راجع إعدادات التخزين","err");
     }else if(pushStage==="إنشاء اشتراك المتصفح"){
       showToast("تعذر إنشاء اشتراك الإشعارات في المتصفح؛ تحقق من إعدادات الموقع","err");
