@@ -56,7 +56,10 @@ async function readBasket(url, missingIsEmpty = false) {
   const response = await fetch(url, { headers: { "Content-Type": "application/json" } });
   // Pantry may return 404 before a basket has been created; this is normal for first-time push subscriptions.
   if (missingIsEmpty && response.status === 404) return {};
-  if (!response.ok) throw new Error("Pantry read failed: " + response.status);
+  if (!response.ok) {
+    const detail = await response.text().catch(() => "");
+    throw new Error("Pantry read failed: " + response.status + (detail ? " — " + detail.slice(0, 300) : ""));
+  }
   const data = await response.json();
   return data && typeof data === "object" ? data : {};
 }
@@ -67,7 +70,10 @@ async function writeBasket(url, data) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data)
   });
-  if (!response.ok) throw new Error("Pantry write failed: " + response.status);
+  if (!response.ok) {
+    const detail = await response.text().catch(() => "");
+    throw new Error("Pantry write failed: " + response.status + (detail ? " — " + detail.slice(0, 300) : ""));
+  }
   return response;
 }
 
@@ -202,7 +208,8 @@ export default async function handler(req, res) {
       if (!endpoint || endpoint.length > 2048) return send(res, 400, { error: "Invalid endpoint" });
       await writeBasket(url, { subscriptions: current.filter(item => item?.endpoint !== endpoint) });
       return send(res, 200, { ok: true });
-    } catch {
+    } catch (error) {
+      console.error("[push_subscribe] storage failure:", error?.message || String(error));
       return send(res, 502, { error: "Push subscription storage unavailable" });
     }
   }
