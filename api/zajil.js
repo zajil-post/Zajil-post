@@ -52,8 +52,10 @@ function allowPublicRequest(req, action) {
   return entry.count <= limit;
 }
 
-async function readBasket(url) {
+async function readBasket(url, missingIsEmpty = false) {
   const response = await fetch(url, { headers: { "Content-Type": "application/json" } });
+  // Pantry may return 404 before a basket has been created; this is normal for first-time push subscriptions.
+  if (missingIsEmpty && response.status === 404) return {};
   if (!response.ok) throw new Error("Pantry read failed: " + response.status);
   const data = await response.json();
   return data && typeof data === "object" ? data : {};
@@ -110,7 +112,7 @@ async function sendRatePushes(pantryId, oldData, newData) {
       (oldBuy === newBuy && oldSell === newSell)) return { sent: 0, skipped: false };
 
   const url = await pushSubscriptionsUrl(pantryId);
-  const basket = await readBasket(url);
+  const basket = await readBasket(url, true);
   const subscriptions = Array.isArray(basket.subscriptions) ? basket.subscriptions : [];
   if (!subscriptions.length) return { sent: 0, skipped: false };
 
@@ -186,7 +188,7 @@ export default async function handler(req, res) {
     }
     const url = await pushSubscriptionsUrl(PANTRY_ID);
     try {
-      const basket = await readBasket(url);
+      const basket = await readBasket(url, true);
       const current = Array.isArray(basket.subscriptions) ? basket.subscriptions : [];
       if (action === "push_subscribe") {
         const subscription = req.body?.subscription;
