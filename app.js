@@ -85,6 +85,7 @@ function base64UrlToBytes(value){
 }
 
 async function enableNotif(){
+  let pushStage="تهيئة الإشعارات";
   if(!("serviceWorker" in navigator)||!("PushManager" in window)||!("Notification" in window)){
     return showToast("هذا المتصفح لا يدعم إشعارات Push؛ جرّب تثبيت زاجل على أندرويد","warn");
   }
@@ -92,6 +93,7 @@ async function enableNotif(){
     return showToast("الإشعارات محظورة من إعدادات المتصفح؛ فعّلها ثم حاول مجددًا","warn");
   }
   try{
+    pushStage="الاتصال بعامل الخدمة";
     const registration=await navigator.serviceWorker.ready;
     let subscription=await registration.pushManager.getSubscription();
     if(subscription){
@@ -104,32 +106,50 @@ async function enableNotif(){
       showToast("تم إيقاف إشعارات أسعار زاجل");
       return;
     }
+    pushStage="طلب إذن الإشعارات";
     const permission=await Notification.requestPermission();
     if(permission!=="granted"){
       syncNotifIcon();
       return showToast("لم يتم منح إذن الإشعارات","warn");
     }
+    pushStage="قراءة إعدادات الخادم";
     const configResponse=await fetch(`${PROXY_ENDPOINT}?action=push_config`,{cache:"no-store"});
-    if(!configResponse.ok)throw new Error("Push is not configured on server");
+    if(!configResponse.ok)throw new Error("config_http_"+configResponse.status);
     const config=await configResponse.json();
-    if(!config.publicKey)throw new Error("Missing VAPID public key");
+    if(!config.publicKey)throw new Error("missing_public_key");
+    pushStage="إنشاء اشتراك المتصفح";
     subscription=await registration.pushManager.subscribe({
       userVisibleOnly:true,
       applicationServerKey:base64UrlToBytes(config.publicKey)
     });
+    pushStage="حفظ اشتراك الجهاز";
     const saveResponse=await fetch(`${PROXY_ENDPOINT}?action=push_subscribe`,{
       method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({subscription:subscription.toJSON()})
     });
     if(!saveResponse.ok){
+      let detail="";
+      try{detail=(await saveResponse.json()).error||"";}catch(e){}
       await subscription.unsubscribe().catch(()=>{});
-      throw new Error("Subscription save failed");
+      throw new Error("subscribe_http_"+saveResponse.status+(detail?"_"+detail:""));
     }
     syncNotifIcon();
     showToast("تم تفعيل إشعارات أسعار الصرف بنجاح");
   }catch(error){
-    console.error("Push subscription error:",error);
-    showToast("تعذر تفعيل Push؛ تأكد من إعداد مفاتيح الإشعارات على الخادم","err");
+    console.error("Push subscription error at "+pushStage+":",error);
+    const message=String(error?.message||"");
+    if(message==="missing_public_key"){
+      showToast("الخادم لا يعيد المفتاح العام للإشعارات؛ يلزم فحص إعدادات Vercel","err");
+    }else if(message.startsWith("config_http_")){
+      showToast("تعذر قراءة إعدادات الإشعارات من الخادم ("+message.replace("config_http_","HTTP ")+")","err");
+    }else if(message.startsWith("subscribe_http_")){
+      const status=message.split("_")[2]||"";
+      showToast("فشل حفظ اشتراك الإشعارات ("+status+")؛ راجع إعدادات التخزين","err");
+    }else if(pushStage==="إنشاء اشتراك المتصفح"){
+      showToast("تعذر إنشاء اشتراك الإشعارات في المتصفح؛ تحقق من إعدادات الموقع","err");
+    }else{
+      showToast("تعذر إكمال الإشعارات عند مرحلة: "+pushStage,"err");
+    }
   }
 }
 
