@@ -186,7 +186,7 @@ export default async function handler(req, res) {
 
   if (!PANTRY_ID) return send(res, 503, { error: "Storage is not configured" });
 
-  const requestAuth = String(req.headers.authorization || "").replace(/^Bearer\\s+/i, "");
+  const requestAuth = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "");
   const requestIsAdmin = Boolean(TOKEN_SECRET && TOKEN_SECRET.length >= 32 && verifyToken(requestAuth, TOKEN_SECRET));
   const bankReportsUrl = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/zajil_bank_reports`;
 
