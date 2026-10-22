@@ -63,16 +63,19 @@ jobs:
       - name: Generate Android project
         run: npx cap add android
 
-      - name: Configure Firebase for Android FCM
+      - name: Configure Firebase for Android FCM (when config is available)
         shell: bash
         run: |
           set -euo pipefail
-          if [ ! -s google-services.json ]; then
-            echo "Missing google-services.json. Add the Firebase Android config file to this prototype branch before building FCM-enabled APKs."
-            exit 1
+          if [ -s google-services.json ]; then
+            cp google-services.json android/app/google-services.json
+            # Add the Google Services Gradle plugin to this generated Capacitor project.
+            grep -q 'com.google.gms:google-services' android/build.gradle || sed -i "/dependencies {/a\\        classpath 'com.google.gms:google-services:4.4.4'" android/build.gradle
+            grep -q 'com.google.gms.google-services' android/app/build.gradle || printf "\\napply plugin: 'com.google.gms.google-services'\\n" >> android/app/build.gradle
+            echo "Firebase Android configuration found; FCM will be enabled."
+          else
+            echo "::warning::google-services.json is not present. APK can build, but Android push notifications will not work until Firebase config is added."
           fi
-          cp google-services.json android/app/google-services.json
-          npm install --save-dev @capacitor/push-notifications
 
       - name: Verify APK uses bundled local interface
         shell: bash
