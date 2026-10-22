@@ -740,7 +740,7 @@ async function addArt(){
 // محول BBAN: القواعد غير الموثقة تبقى معطلة ولا تنتج أرقاماً تخمينية.
 const BBAN_BANKS = [
  {id:"khartoum",name:"بنك الخرطوم",brand:"بنكك",status:"active",sample:"040XXXXXXX0001"},
- {id:"omdurman",name:"بنك أم درمان الوطني",brand:"أوكاش",status:"active",sample:"240YYYYYYY00001"},
+ {id:"omdurman",name:"بنك أم درمان الوطني",brand:"أوكاش",status:"active",sample:"24XXXXXXX00001",rule:"omdurman-variable"},
  {id:"faisal",name:"بنك فيصل الإسلامي",brand:"فوري",status:"active",sample:"02XXXXXXXXX0001"},
  {id:"blue_nile",name:"بنك النيل (ساهل)",brand:"ساهل",status:"in-app",sample:"",rule:"in-app-bban"},
  {id:"sudan_islamic",name:"البنك الإسلامي السوداني",brand:"أمن بلس",status:"active",sample:"14000XXXX00001"},
@@ -782,6 +782,7 @@ function renderBbanBankOptions(query=""){
 }
 function bbanPattern(bank){
  if(bank.rule==="bedei-msisdn")return {prefix:"15"+"249",suffix:"",length:9,phone:true};
+ if(bank.rule==="omdurman-variable")return {prefix:"24",suffix:"00001",length:7,phone:false,variable:true};
  const sample=String(bank.sample||"");
  const first=sample.search(/[XY]/);
  if(first<0)return null;
@@ -801,9 +802,9 @@ function selectBbanBank(bank){
  const pattern=bbanPattern(bank),input=document.getElementById("bbanAccount");
  input.value="";input.disabled=!pattern;
  document.getElementById("bbanAccountLabel").textContent=bank.rule==="bedei-msisdn"?"2. رقم هاتف بيدي":"2. رقم الحساب";
- input.placeholder=bank.rule==="bedei-msisdn"?"مثال: 0912345678 أو 912345678":pattern?("أدخل رقم الحساب ("+pattern.length+" أرقام)"):"صيغة الحساب غير متوفرة";
- input.maxLength=pattern?(pattern.phone?10:pattern.length):0;
- document.getElementById("bbanInputHint").textContent=bank.rule==="in-app-bban"?"يتحصل على رقم BBAN من داخل تطبيق البنك مباشرة؛ لا حاجة لتحويل الرقم هنا.":bank.rule==="bedei-msisdn"?"أدخل رقم زين من 9 أرقام يبدأ بـ 9. سيُنشأ الناتج من 14 رقماً.":pattern?("أدخل "+pattern.length+" رقمًا بالضبط؛ سيُضاف رمز البنك واللاحقة ليصبح BBAN من 14 رقمًا."):"لا توجد صيغة محفوظة لهذا البنك حتى الآن، لذلك لن نخمن رقم BBAN.";
+ input.placeholder=bank.rule==="omdurman-variable"?"أدخل 6 أو 7 أرقام":bank.rule==="bedei-msisdn"?"مثال: 0912345678 أو 912345678":pattern?("أدخل رقم الحساب ("+pattern.length+" أرقام)"):"صيغة الحساب غير متوفرة";
+ input.maxLength=pattern?(pattern.variable?7:(pattern.phone?10:pattern.length)):0;
+ document.getElementById("bbanInputHint").textContent=bank.rule==="in-app-bban"?"يتحصل على رقم BBAN من داخل تطبيق البنك مباشرة؛ لا حاجة لتحويل الرقم هنا.":bank.rule==="omdurman-variable"?"بنك أم درمان الوطني: إذا كان رقم الحساب 7 أرقام تُستخدم البادئة 24، وإذا كان 6 أرقام تُستخدم 240. اللاحقة 00001 في الحالتين.":bank.rule==="bedei-msisdn"?"أدخل رقم زين من 9 أرقام يبدأ بـ 9. سيُنشأ الناتج من 14 رقماً.":pattern?("أدخل "+pattern.length+" رقمًا بالضبط؛ سيُضاف رمز البنك واللاحقة ليصبح BBAN من 14 رقمًا."):"لا توجد صيغة محفوظة لهذا البنك حتى الآن، لذلك لن نخمن رقم BBAN.";
  document.getElementById("bbanClear").classList.remove("hidden");
  updateBbanResult();
 }
@@ -833,11 +834,11 @@ function updateBbanResult(){
    if(account.length!==9||!/^9\d{8}$/.test(account)){
      document.getElementById("bbanStatus").classList.remove("hidden");setBbanStatus("أدخل رقم زين من 9 أرقام يبدأ بـ 9، ويمكن إدخاله مع الصفر الأول.","error");return;
    }
- }else if(account.length!==pattern.length){
+ }else if(pattern.variable&&account.length!==6&&account.length!==7){
    document.getElementById("bbanStatus").classList.remove("hidden");
-   setBbanStatus("رقم الحساب يجب أن يتكوّن من "+pattern.length+" رقمًا بالضبط.","error");return;
+   setBbanStatus(pattern.variable?"لبنك أم درمان الوطني أدخل رقم حساب من 6 أو 7 أرقام فقط.":"رقم الحساب يجب أن يتكوّن من "+pattern.length+" رقمًا بالضبط.","error");return;
  }
- currentBbanValue=pattern.phone?("15"+"249"+account):(pattern.prefix+account+pattern.suffix);
+ currentBbanValue=pattern.phone?("15"+"249"+account):pattern.variable?((account.length===7?"24":"240")+account+"00001"):(pattern.prefix+account+pattern.suffix);
  if(!/^\d{14}$/.test(currentBbanValue)){
    currentBbanValue="";document.getElementById("bbanStatus").classList.remove("hidden");
    setBbanStatus("تعذر إنشاء BBAN صالح: يجب أن يتكوّن الناتج من 14 رقمًا بالضبط.","error");return;
