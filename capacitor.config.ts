@@ -4,13 +4,7 @@ const config: CapacitorConfig = {
   appId: 'com.zajilpost.app',
   appName: 'زاجل',
   webDir: 'www',
-  // Prototype wrapper: loads the currently working hosted website.
-  // This does not modify or deploy the production website.
-  server: {
-    url: 'https://zajil-post-grkd1uyl4-zajil-post.vercel.app',
-    cleartext: false,
-    androidScheme: 'https',
-  },
+  // Bundle the interface locally. Backend/API requests remain online.
   android: {
     allowMixedContent: false,
   },
