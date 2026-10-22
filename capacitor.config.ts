@@ -3,7 +3,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'com.zajilpost.app',
   appName: 'زاجل',
-  webDir: '.',
+  webDir: 'www',
   // Prototype wrapper: loads the currently working hosted website.
   // This does not modify or deploy the production website.
   server: {
