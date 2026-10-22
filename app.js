@@ -290,18 +290,52 @@ function switchTab(id,el){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// حالة التطبيقات المصرفية من Status.sd فقط؛ لا نفحص المواقع الرسمية.
+// حالة التطبيقات المصرفية من Status.sd فقط؛ عند تعذر البيانات نعرض آخر حالة محفوظة ووقتها.
 let externalBankState=null;
 const BANK_MONITOR_URL="https://zajil-bank-monitor.a7mdtayb.workers.dev/status";
+const BANK_STATUS_CACHE_KEY="zajil_status_sd_last_known_v1";
+function readBankStatusCache(){
+  try{
+    const value=JSON.parse(localStorage.getItem(BANK_STATUS_CACHE_KEY)||"null");
+    return value&&Array.isArray(value.apps)?value:null;
+  }catch{return null;}
+}
+function saveBankStatusCache(data){
+  try{
+    const previous=readBankStatusCache();
+    const previousApps=previous?.apps||[];
+    const now=new Date().toISOString();
+    const apps=data.apps.map(item=>{
+      const old=previousApps.find(a=>a.id===item.id);
+      const ext=item.externalStatus||{};
+      const hasStatus=Boolean(ext.reportedStatus&&ext.reportedStatus!=="unknown");
+      if(hasStatus)return {...item,_lastKnownAt:now};
+      if(old?.externalStatus?.reportedStatus&&old.externalStatus.reportedStatus!=="unknown"){
+        return {...item,externalStatus:old.externalStatus,_lastKnownAt:old._lastKnownAt||previous.savedAt||null,_usingLastKnown:true};
+      }
+      return {...item,_lastKnownAt:null};
+    });
+    const saved={apps,savedAt:now};
+    localStorage.setItem(BANK_STATUS_CACHE_KEY,JSON.stringify(saved));
+    return saved;
+  }catch{return data;}
+}
 function getExternalBankStatus(item){
   const ext=item?.externalStatus;
-  if(!ext||!ext.reportedStatus||ext.reportedStatus==="unknown")return {key:"unknown",label:"غير معروف"};
+  if(!ext||!ext.reportedStatus||ext.reportedStatus==="unknown")return {key:"unknown",label:"لا توجد حالة مسجلة"};
   const age=Number(ext.sourceAgeMinutes);
-  const stale=!Number.isFinite(age)||age>180;
-  if(ext.reportedStatus==="يعمل")return stale?{key:"ok",label:"يعمل (بيانات قديمة)"}:{key:"ok",label:"يعمل"};
-  if(ext.reportedStatus==="متذبذب")return stale?{key:"warn",label:"متذبذب (بيانات قديمة)"}:{key:"warn",label:"متذبذب"};
-  if(ext.reportedStatus==="متوقف")return stale?{key:"warn",label:"آخر حالة: متوقف (قديمة)"}:{key:"err",label:"متوقف"};
-  return {key:"unknown",label:"غير معروف"};
+  const stale=item?._usingLastKnown||!Number.isFinite(age)||age>180;
+  const suffix=stale?" (آخر حالة مسجلة)":"";
+  if(ext.reportedStatus==="يعمل")return {key:"ok",label:"يعمل"+suffix};
+  if(ext.reportedStatus==="متذبذب")return {key:"warn",label:"متذبذب"+suffix};
+  if(ext.reportedStatus==="متوقف")return {key:stale?"warn":"err",label:"متوقف"+suffix};
+  return {key:"unknown",label:"لا توجد حالة مسجلة"};
+}
+function formatBankStatusTime(value){
+  if(!value)return "وقت الحالة غير متاح";
+  const date=new Date(value);
+  if(Number.isNaN(date.getTime()))return "وقت الحالة غير متاح";
+  return "وقت آخر حالة: "+date.toLocaleString("ar-SD",{timeZone:"Africa/Khartoum",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
 }
 function renderBanks(){
   const map={
@@ -321,28 +355,33 @@ function renderBanks(){
     const m=map[state.key]||map.unknown;
     const div=document.createElement('div');
     div.className=`${m.c} flex flex-col items-center justify-center gap-1.5 rounded-xl p-2 text-xs font-bold`;
-    div.title=sourceItem?.externalStatus?.sourceAgeText?("آخر تحديث لحالة التطبيق في المصدر: "+sourceItem.externalStatus.sourceAgeText):"حالة التطبيق حسب Status.sd";
+    div.title=sourceItem?.externalStatus?.sourceAgeText?("آخر تحديث في Status.sd: "+sourceItem.externalStatus.sourceAgeText):"حالة التطبيق حسب Status.sd";
     const dot=document.createElement('span'); dot.className=m.d;
     dot.setAttribute('aria-hidden','true');
     const name=document.createElement('span'); name.textContent=x.n;
     const txt=document.createElement('span'); txt.className="bank-status-label"; txt.textContent=state.label;
     const age=document.createElement('span'); age.className="bank-status-age";
-    const ageText=sourceItem?.externalStatus?.sourceAgeText;
-    age.textContent=ageText ? ("آخر حالة منذ "+ageText) : "وقت الحالة غير متاح";
+    const hasKnownStatus=Boolean(sourceItem?.externalStatus?.reportedStatus&&sourceItem.externalStatus.reportedStatus!=="unknown");
+    const time=sourceItem?._lastKnownAt||(hasKnownStatus?externalBankState?.savedAt:null);
+    age.textContent=time?formatBankStatusTime(time):(hasKnownStatus&&sourceItem?.externalStatus?.sourceAgeText?("آخر تحديث منذ "+sourceItem.externalStatus.sourceAgeText):"لا توجد حالة سابقة محفوظة");
     div.append(dot,name,txt,age); frag.appendChild(div);
   });
   grid.appendChild(frag);
 }
 async function loadExternalBankStatus(){
+  const cached=readBankStatusCache();
+  if(cached){externalBankState=cached;renderBanks();}
   try{
     const response=await fetch(BANK_MONITOR_URL,{method:"GET",cache:"no-store",mode:"cors",signal:AbortSignal.timeout(8000)});
     if(!response.ok)throw new Error("status source unavailable");
     const data=await response.json();
     if(!Array.isArray(data.apps))throw new Error("invalid status response");
-    externalBankState=data;
+    const saved=saveBankStatusCache(data);
+    externalBankState=saved;
     renderBanks();
   }catch(e){
-    externalBankState=null;
+    // لا نمسح آخر حالة معروفة عند انقطاع المصدر؛ نعرضها مع وقت حفظها.
+    externalBankState=readBankStatusCache()||externalBankState;
     renderBanks();
   }
 }
@@ -711,9 +750,6 @@ async function login(){
     document.getElementById('dBuy').value=st.b;
     document.getElementById('dSell').value=st.s;
     document.getElementById('dTick').value=st.tk;
-    document.getElementById('stBankak').value=st.banks?.bankak||"ok";
-    document.getElementById('stFawry').value=st.banks?.fawry||"ok";
-    document.getElementById('stOkash').value=st.banks?.okash||"ok";
     renderInbox();
     document.getElementById('dashM').classList.remove('hidden');
     showToast("🔓 مرحباً بك في لوحة تحكم زاجل");
@@ -738,11 +774,6 @@ async function saveR(){
   if(newB!==st.b)st.prevB=st.b;
   st.b=newB; st.s=newS;
   st.tk=document.getElementById('dTick').value.trim().slice(0,300)||st.tk;
-  st.banks={
-    bankak:document.getElementById('stBankak').value,
-    fawry:document.getElementById('stFawry').value,
-    okash:document.getElementById('stOkash').value
-  };
   st.upd=document.getElementById('dateTxt').textContent+" • "+document.getElementById('timeTxt').textContent;
   renderAll();
   const ok=await syncCloud();

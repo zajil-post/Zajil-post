@@ -48,7 +48,7 @@ function allowPublicRequest(req, action) {
   }
   entry.count += 1;
   publicRateLimits.set(key, entry);
-  const limit = action === "submit_question" ? 5 : action === "bank_report" ? 3 : action.startsWith("push_") ? 15 : 120;
+  const limit = action === "submit_question" ? 5 : action.startsWith("push_") ? 15 : 120;
   return entry.count <= limit;
 }
 
@@ -188,62 +188,6 @@ export default async function handler(req, res) {
 
   const requestAuth = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "");
   const requestIsAdmin = Boolean(TOKEN_SECRET && TOKEN_SECRET.length >= 32 && verifyToken(requestAuth, TOKEN_SECRET));
-  const bankReportsUrl = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/zajil_bank_reports`;
-
-  if (action === "bank_report") {
-    if (req.method !== "POST") return send(res, 405, { error: "Method not allowed" });
-    if (!allowPublicRequest(req, action)) return send(res, 429, { error: "Too many reports; try again later" });
-    const app = String(req.body?.app || "");
-    const reportedStatus = String(req.body?.reportedStatus || "");
-    const note = String(req.body?.note || "").trim().slice(0, 300);
-    if (!["bankak", "fawry", "okash"].includes(app) || !["working", "unstable", "down"].includes(reportedStatus)) {
-      return send(res, 400, { error: "Invalid bank report" });
-    }
-    try {
-      const data = await readBasket(bankReportsUrl, true);
-      const reports = Array.isArray(data.reports) ? data.reports : [];
-      const report = { id: randomUUID(), app, reportedStatus, note, submittedAt: new Date().toISOString(), reviewStatus: "pending" };
-      await writeBasket(bankReportsUrl, { reports: [report, ...reports].slice(0, 200) });
-      return send(res, 201, { ok: true, message: "Report received for review" });
-    } catch (error) {
-      console.error("[bank_report] storage failure:", error?.message || String(error));
-      return send(res, 502, { error: "Report storage unavailable" });
-    }
-  }
-
-  if (action === "bank_reports") {
-    if (req.method !== "GET") return send(res, 405, { error: "Method not allowed" });
-    try {
-      const data = await readBasket(bankReportsUrl, true);
-      const reports = (Array.isArray(data.reports) ? data.reports : [])
-        .filter(item => item?.reviewStatus === "approved")
-        .slice(0, 20);
-      return send(res, 200, { reports });
-    } catch {
-      return send(res, 502, { error: "Reports unavailable" });
-    }
-  }
-
-  if (action === "bank_reports_admin") {
-    if (!requestIsAdmin) return send(res, 403, { error: "Forbidden" });
-    if (!["GET", "POST"].includes(req.method)) return send(res, 405, { error: "Method not allowed" });
-    try {
-      const data = await readBasket(bankReportsUrl, true);
-      const reports = Array.isArray(data.reports) ? data.reports : [];
-      if (req.method === "GET") return send(res, 200, { reports: reports.slice(0, 100) });
-      const id = String(req.body?.id || "");
-      const decision = String(req.body?.decision || "");
-      if (!id || !["approved", "rejected"].includes(decision)) return send(res, 400, { error: "Invalid review decision" });
-      const index = reports.findIndex(item => item?.id === id);
-      if (index < 0) return send(res, 404, { error: "Report not found" });
-      reports[index] = { ...reports[index], reviewStatus: decision, reviewedAt: new Date().toISOString(), reviewNote: String(req.body?.reviewNote || "").trim().slice(0, 200) };
-      await writeBasket(bankReportsUrl, { reports });
-      return send(res, 200, { ok: true, report: reports[index] });
-    } catch (error) {
-      console.error("[bank_reports_admin] storage failure:", error?.message || String(error));
-      return send(res, 502, { error: "Reports unavailable" });
-    }
-  }
 
   if (action === "push_subscribe" || action === "push_unsubscribe") {
     if (req.method !== "POST") return send(res, 405, { error: "Method not allowed" });
