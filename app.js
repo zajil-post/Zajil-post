@@ -305,30 +305,37 @@ function saveBankStatusCache(data){
     const previous=readBankStatusCache();
     const previousApps=previous?.apps||[];
     const now=new Date().toISOString();
+    const validStatus=value=>["يعمل","متذبذب","متوقف"].includes(value);
     const apps=data.apps.map(item=>{
       const old=previousApps.find(a=>a.id===item.id);
       const ext=item.externalStatus||{};
-      const hasStatus=Boolean(ext.reportedStatus&&ext.reportedStatus!=="unknown");
-      if(hasStatus)return {...item,_lastKnownAt:now};
-      if(old?.externalStatus?.reportedStatus&&old.externalStatus.reportedStatus!=="unknown"){
-        return {...item,externalStatus:old.externalStatus,_lastKnownAt:old._lastKnownAt||previous.savedAt||null,_usingLastKnown:true};
+      const knownStatus=validStatus(ext.reportedStatus)?ext.reportedStatus:(validStatus(item.status)?item.status:null);
+      const knownAt=item.lastKnownAt||item.checkedAt||old?._lastKnownAt||null;
+      if(knownStatus){
+        const externalStatus=validStatus(ext.reportedStatus)?ext:{...ext,reportedStatus:knownStatus};
+        return {...item,externalStatus,_lastKnownAt:item.lastKnownAt||knownAt||now,_usingLastKnown:Boolean(item.statusIsLastKnown||ext.reportedStatus==="unknown")};
+      }
+      if(old){
+        const oldStatus=validStatus(old.externalStatus?.reportedStatus)?old.externalStatus.reportedStatus:(validStatus(old.status)?old.status:null);
+        if(oldStatus)return {...item,status:old.status||oldStatus,externalStatus:{...ext,reportedStatus:oldStatus},lastKnownAt:old.lastKnownAt||old._lastKnownAt||old.checkedAt||null,_lastKnownAt:old._lastKnownAt||old.lastKnownAt||old.checkedAt||null,_usingLastKnown:true};
       }
       return {...item,_lastKnownAt:null};
     });
-    const saved={apps,savedAt:now};
+    const saved={...data,apps,savedAt:now};
     localStorage.setItem(BANK_STATUS_CACHE_KEY,JSON.stringify(saved));
     return saved;
   }catch{return data;}
 }
 function getExternalBankStatus(item){
-  const ext=item?.externalStatus;
-  if(!ext||!ext.reportedStatus||ext.reportedStatus==="unknown")return {key:"unknown",label:"لا توجد حالة مسجلة"};
+  const ext=item?.externalStatus||{};
+  const status=["يعمل","متذبذب","متوقف"].includes(ext.reportedStatus)?ext.reportedStatus:(["يعمل","متذبذب","متوقف"].includes(item?.status)?item.status:null);
+  if(!status)return {key:"unknown",label:"لا توجد حالة مسجلة"};
   const age=Number(ext.sourceAgeMinutes);
-  const stale=item?._usingLastKnown||!Number.isFinite(age)||age>180;
+  const stale=item?._usingLastKnown||item?.statusIsLastKnown||!Number.isFinite(age)||age>180;
   const suffix=stale?" (آخر حالة مسجلة)":"";
-  if(ext.reportedStatus==="يعمل")return {key:"ok",label:"يعمل"+suffix};
-  if(ext.reportedStatus==="متذبذب")return {key:"warn",label:"متذبذب"+suffix};
-  if(ext.reportedStatus==="متوقف")return {key:stale?"warn":"err",label:"متوقف"+suffix};
+  if(status==="يعمل")return {key:"ok",label:"يعمل"+suffix};
+  if(status==="متذبذب")return {key:"warn",label:"متذبذب"+suffix};
+  if(status==="متوقف")return {key:stale?"warn":"err",label:"متوقف"+suffix};
   return {key:"unknown",label:"لا توجد حالة مسجلة"};
 }
 function formatBankStatusTime(value){
@@ -361,8 +368,8 @@ function renderBanks(){
     const name=document.createElement('span'); name.textContent=x.n;
     const txt=document.createElement('span'); txt.className="bank-status-label"; txt.textContent=state.label;
     const age=document.createElement('span'); age.className="bank-status-age";
-    const hasKnownStatus=Boolean(sourceItem?.externalStatus?.reportedStatus&&sourceItem.externalStatus.reportedStatus!=="unknown");
-    const time=sourceItem?._lastKnownAt||(hasKnownStatus?externalBankState?.savedAt:null);
+    const hasKnownStatus=Boolean(["يعمل","متذبذب","متوقف"].includes(sourceItem?.externalStatus?.reportedStatus)||["يعمل","متذبذب","متوقف"].includes(sourceItem?.status));
+    const time=sourceItem?.lastKnownAt||sourceItem?.checkedAt||sourceItem?._lastKnownAt||(hasKnownStatus?externalBankState?.savedAt:null);
     age.textContent=time?formatBankStatusTime(time):(hasKnownStatus&&sourceItem?.externalStatus?.sourceAgeText?("آخر تحديث منذ "+sourceItem.externalStatus.sourceAgeText):"لا توجد حالة سابقة محفوظة");
     div.append(dot,name,txt,age); frag.appendChild(div);
   });
