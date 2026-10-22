@@ -50,6 +50,26 @@ jobs:
       - name: Generate Android project
         run: npx cap add android
 
+      - name: Verify APK uses bundled local interface
+        shell: bash
+        run: |
+          set -euo pipefail
+          CONFIG="android/app/src/main/assets/capacitor.config.json"
+          test -s "$CONFIG"
+          if grep -Eq '"server"[[:space:]]*:[[:space:]]*\{' "$CONFIG"; then
+            echo "Unexpected remote Capacitor server config; refusing to build."
+            cat "$CONFIG"
+            exit 1
+          fi
+          test -f android/app/src/main/assets/public/index.html
+          test -f android/app/src/main/assets/public/app.js
+          grep -q 'منصة زاجل للنشر' android/app/src/main/assets/public/index.html
+          if grep -q 'server.url' capacitor.config.ts; then
+            echo "capacitor.config.ts must not point the app to a remote website."
+            exit 1
+          fi
+          echo "Verified: APK packages the local Zajil interface."
+
       - name: Set up Java 21
         uses: actions/setup-java@v4
         with:
