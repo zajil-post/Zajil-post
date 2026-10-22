@@ -47,6 +47,8 @@ jobs:
           sed -i 's|https://zajil-bank-monitor.a7mdtayb.workers.dev|https://zajil-bank-monitor.a7mdtayb.workers.dev https://zajil-post-grkd1uyl4-zajil-post.vercel.app|' www/index.html
           test -s www/index.html
           test -s www/app.js
+          grep -q 'id="tab-bban"' www/index.html
+          grep -q 'محول BBAN' www/index.html
           test -s www/native-bridge.js
           grep -q 'https://zajil-post-grkd1uyl4-zajil-post.vercel.app/api/zajil' www/app.js
 
