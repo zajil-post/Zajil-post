@@ -739,22 +739,22 @@ async function addArt(){
 
 // محول BBAN: القواعد غير الموثقة تبقى معطلة ولا تنتج أرقاماً تخمينية.
 const BBAN_BANKS = [
- {id:"khartoum",name:"بنك الخرطوم",brand:"بنكك",status:"verified",sample:"040XXXXXXX0001"},
- {id:"omdurman",name:"بنك أم درمان الوطني",brand:"أوكاش",status:"verified",sample:"240YYYYYYY00001"},
- {id:"faisal",name:"بنك فيصل الإسلامي",brand:"فوري",status:"verified",sample:"02XXXXXXXXX0001"},
- {id:"blue_nile",name:"بنك النيل الأزرق المشرق",brand:"المشرق",status:"verified",sample:"150000XXXXXXXX"},
- {id:"sudan_islamic",name:"البنك الإسلامي السوداني",brand:"أمن بلس",status:"verified",sample:"14000XXXX00001"},
- {id:"farmers",name:"بنك المزارع التجاري",brand:"مصرفك",status:"verified",sample:"222XXXXXXXXXXX"},
- {id:"french",name:"البنك الفرنسي السوداني",brand:"",status:"verified",sample:"110XXXXXXX0001"},
- {id:"agricultural",name:"البنك الزراعي السوداني",brand:"الزراعي موبايل",status:"verified",sample:"03XXXXXXXX01001"},
- {id:"alsalam",name:"بنك السلام السوداني",brand:"",status:"verified",sample:"180XXXXXXX0001"},
- {id:"baraka",name:"بنك البركة السوداني",brand:"البركة موبايل",status:"verified",sample:"070XXXXXXX0001"},
- {id:"livestock",name:"بنك الثروة الحيوانية",brand:"",status:"verified",sample:"090XXXXXXX0001"},
- {id:"workers",name:"بنك العمال الوطني",brand:"وطني",status:"verified",sample:"",},
- {id:"realestate",name:"البنك العقاري التجاري",brand:"",status:"verified",sample:"210XXXXXXX00001"},
- {id:"industrial",name:"بنك التنمية الصناعية",brand:"",status:"verified",sample:"130XXXXXXX0001"},
- {id:"united",name:"بنك المال المتحد",brand:"",status:"verified",sample:"170XXXXXXX0001"},
- {id:"cashi",name:"محفظة كاش",brand:"كاشي",status:"verified",sample:"070XXXXXXXXX98"},
+ {id:"khartoum",name:"بنك الخرطوم",brand:"بنكك",status:"active",sample:"040XXXXXXX0001"},
+ {id:"omdurman",name:"بنك أم درمان الوطني",brand:"أوكاش",status:"active",sample:"240YYYYYYY00001"},
+ {id:"faisal",name:"بنك فيصل الإسلامي",brand:"فوري",status:"active",sample:"02XXXXXXXXX0001"},
+ {id:"blue_nile",name:"بنك النيل الأزرق المشرق",brand:"المشرق",status:"active",sample:"150000XXXXXXXX"},
+ {id:"sudan_islamic",name:"البنك الإسلامي السوداني",brand:"أمن بلس",status:"active",sample:"14000XXXX00001"},
+ {id:"farmers",name:"بنك المزارع التجاري",brand:"مصرفك",status:"active",sample:"222XXXXXXXXXXX"},
+ {id:"french",name:"البنك الفرنسي السوداني",brand:"",status:"active",sample:"110XXXXXXX0001"},
+ {id:"agricultural",name:"البنك الزراعي السوداني",brand:"الزراعي موبايل",status:"active",sample:"03XXXXXXXX01001"},
+ {id:"alsalam",name:"بنك السلام السوداني",brand:"",status:"active",sample:"180XXXXXXX0001"},
+ {id:"baraka",name:"بنك البركة السوداني",brand:"البركة موبايل",status:"active",sample:"070XXXXXXX0001"},
+ {id:"livestock",name:"بنك الثروة الحيوانية",brand:"",status:"active",sample:"090XXXXXXX0001"},
+ {id:"workers",name:"بنك العمال الوطني",brand:"وطني",status:"active",sample:"",},
+ {id:"realestate",name:"البنك العقاري التجاري",brand:"",status:"active",sample:"210XXXXXXX00001"},
+ {id:"industrial",name:"بنك التنمية الصناعية",brand:"",status:"active",sample:"130XXXXXXX0001"},
+ {id:"united",name:"بنك المال المتحد",brand:"",status:"active",sample:"170XXXXXXX0001"},
+ {id:"cashi",name:"محفظة كاش",brand:"كاشي",status:"active",sample:"070XXXXXXXXX98"},
  {id:"bedei",name:"محفظة زين",brand:"بيدي",status:"verified",rule:"bedei-msisdn"}
 ];
 let selectedBbanBank=null, currentBbanValue="";
@@ -774,7 +774,7 @@ function renderBbanBankOptions(query=""){
    const name=document.createElement("span");name.className="block text-sm font-bold text-[#2D062B]";name.textContent=bank.name;
    const brand=document.createElement("span");brand.className="block text-[11px] opacity-65 mt-0.5";brand.textContent=bank.brand||"لا توجد علامة تطبيق موثقة";
    info.append(name,brand);
-   const status=document.createElement("span");status.className=bank.status==="verified"?"text-[10px] font-bold text-emerald-700":"text-[10px] font-bold text-amber-700";status.textContent=bank.status==="verified"?"متحقق":"قيد التحقق";
+   const status=document.createElement("span");status.className=(bank.status==="verified"||bank.status==="active")?"text-[10px] font-bold text-emerald-700":"text-[10px] font-bold text-amber-700";status.textContent=bank.status==="verified"?"متحقق":bank.status==="active"?"14 رقم":"قيد التحقق";
    btn.append(icon,info,status);btn.addEventListener("click",()=>selectBbanBank(bank));box.appendChild(btn);
  });
  box.classList.remove("hidden");
