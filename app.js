@@ -88,7 +88,7 @@ const isNativeAndroid = Boolean(window.Capacitor?.isNativePlatform?.());
 if (isNativeAndroid) {
   document.body.classList.add("native-app");
   // Android status bar must occupy its own system area, not overlap the web header.
-  Promise.resolve(window.Capacitor?.Plugins?.StatusBar?.setOverlaysWebView?.({overlay:false})).catch(()=>{});
+  Promise.resolve(window.__ZajilNative?.StatusBar?.setOverlaysWebView?.({overlay:false})).catch(()=>{});
   Promise.resolve(window.Capacitor?.Plugins?.StatusBar?.setBackgroundColor?.({color:"#380734"})).catch(()=>{});
   Promise.resolve(window.Capacitor?.Plugins?.StatusBar?.setStyle?.({style:"LIGHT"})).catch(()=>{});
 }
@@ -96,7 +96,7 @@ if (isNativeAndroid) {
 async function enableNotif(){
   if (isNativeAndroid) {
     try {
-      const push = window.Capacitor?.Plugins?.PushNotifications;
+      const push = window.__ZajilNative?.PushNotifications;
       if (!push) return showToast("تعذر فتح إذن إشعارات أندرويد؛ أعد بناء النسخة التجريبية","err");
       const result = await push.requestPermissions();
       if (result.receive === "granted") {
