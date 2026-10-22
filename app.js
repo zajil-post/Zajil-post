@@ -742,7 +742,7 @@ const BBAN_BANKS = [
  {id:"khartoum",name:"بنك الخرطوم",brand:"بنكك",status:"active",sample:"040XXXXXXX0001"},
  {id:"omdurman",name:"بنك أم درمان الوطني",brand:"أوكاش",status:"active",sample:"240YYYYYYY00001"},
  {id:"faisal",name:"بنك فيصل الإسلامي",brand:"فوري",status:"active",sample:"02XXXXXXXXX0001"},
- {id:"blue_nile",name:"بنك النيل الأزرق المشرق",brand:"المشرق",status:"active",sample:"150000XXXXXXXX"},
+ {id:"blue_nile",name:"بنك النيل (ساهل)",brand:"ساهل",status:"in-app",sample:"",rule:"in-app-bban"},
  {id:"sudan_islamic",name:"البنك الإسلامي السوداني",brand:"أمن بلس",status:"active",sample:"14000XXXX00001"},
  {id:"farmers",name:"بنك المزارع التجاري",brand:"مصرفك",status:"active",sample:"222XXXXXXXXXXX"},
  {id:"french",name:"البنك الفرنسي السوداني",brand:"",status:"active",sample:"110XXXXXXX0001"},
@@ -750,7 +750,7 @@ const BBAN_BANKS = [
  {id:"alsalam",name:"بنك السلام السوداني",brand:"",status:"active",sample:"180XXXXXXX0001"},
  {id:"baraka",name:"بنك البركة السوداني",brand:"البركة موبايل",status:"active",sample:"070XXXXXXX0001"},
  {id:"livestock",name:"بنك الثروة الحيوانية",brand:"",status:"active",sample:"090XXXXXXX0001"},
- {id:"workers",name:"بنك العمال الوطني",brand:"وطني",status:"active",sample:"",},
+ {id:"workers",name:"بنك العمال الوطني",brand:"وطني",status:"in-app",sample:"",rule:"in-app-bban"},
  {id:"realestate",name:"البنك العقاري التجاري",brand:"",status:"active",sample:"210XXXXXXX00001"},
  {id:"industrial",name:"بنك التنمية الصناعية",brand:"",status:"active",sample:"130XXXXXXX0001"},
  {id:"united",name:"بنك المال المتحد",brand:"",status:"active",sample:"170XXXXXXX0001"},
@@ -774,7 +774,7 @@ function renderBbanBankOptions(query=""){
    const name=document.createElement("span");name.className="block text-sm font-bold text-[#2D062B]";name.textContent=bank.name;
    const brand=document.createElement("span");brand.className="block text-[11px] opacity-65 mt-0.5";brand.textContent=bank.brand||"لا توجد علامة تطبيق موثقة";
    info.append(name,brand);
-   const status=document.createElement("span");status.className=(bank.status==="verified"||bank.status==="active")?"text-[10px] font-bold text-emerald-700":"text-[10px] font-bold text-amber-700";status.textContent=bank.status==="verified"?"متحقق":bank.status==="active"?"14 رقم":"قيد التحقق";
+   const status=document.createElement("span");status.className=(bank.status==="verified"||bank.status==="active")?"text-[10px] font-bold text-emerald-700":"text-[10px] font-bold text-amber-700";status.textContent=bank.status==="verified"?"متحقق":bank.status==="active"?"14 رقم":bank.status==="in-app"?"من التطبيق":"قيد التحقق";
    btn.append(icon,info,status);btn.addEventListener("click",()=>selectBbanBank(bank));box.appendChild(btn);
  });
  box.classList.remove("hidden");
@@ -820,7 +820,7 @@ function updateBbanResult(){
  const bank=selectedBbanBank,pattern=bbanPattern(bank);
  if(!pattern){
    document.getElementById("bbanStatus").classList.remove("hidden");
-   setBbanStatus("لا توجد صيغة محفوظة لهذا البنك؛ لن نخمن رقم BBAN.");
+   setBbanStatus(bank.rule==="in-app-bban"?"يتحصل على رقم BBAN من داخل تطبيق البنك مباشرة.":"لا توجد صيغة محفوظة لهذا البنك؛ لن نخمن رقم BBAN.");
    return;
  }
  if(!raw){document.getElementById("bbanStatus").classList.add("hidden");return;}
