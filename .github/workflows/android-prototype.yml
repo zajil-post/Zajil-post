@@ -33,8 +33,19 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Prepare Capacitor web directory
-        run: mkdir -p www && printf '<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>جاري فتح زاجل…</body></html>' > www/index.html
+      - name: Bundle Zajil web interface for Android
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p www
+          cp index.html style.css manifest.json icon.svg www/
+          cp app.js www/app.js
+          # The Android app bundles the UI locally; only data/API calls use Vercel.
+          sed -i 's|const PROXY_ENDPOINT = "/api/zajil";|const PROXY_ENDPOINT = "https://zajil-post-grkd1uyl4-zajil-post.vercel.app/api/zajil";|' www/app.js
+          sed -i 's|https://zajil-bank-monitor.a7mdtayb.workers.dev|https://zajil-bank-monitor.a7mdtayb.workers.dev https://zajil-post-grkd1uyl4-zajil-post.vercel.app|' www/index.html
+          test -s www/index.html
+          test -s www/app.js
+          grep -q 'https://zajil-post-grkd1uyl4-zajil-post.vercel.app/api/zajil' www/app.js
 
       - name: Generate Android project
         run: npx cap add android
@@ -44,6 +55,19 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+
+      - name: Set Android target API 36
+        shell: bash
+        run: |
+          set -euo pipefail
+          GRADLE_FILE="android/variables.gradle"
+          if [ -f "$GRADLE_FILE" ]; then
+            sed -i 's/targetSdkVersion = [0-9]*/targetSdkVersion = 36/' "$GRADLE_FILE"
+            sed -i 's/compileSdkVersion = [0-9]*/compileSdkVersion = 36/' "$GRADLE_FILE"
+          else
+            echo "Capacitor Android variables.gradle not found"
+            exit 1
+          fi
 
       - name: Build debug APK
         working-directory: android
