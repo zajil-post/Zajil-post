@@ -711,9 +711,6 @@ async function login(){
     document.getElementById('dBuy').value=st.b;
     document.getElementById('dSell').value=st.s;
     document.getElementById('dTick').value=st.tk;
-    document.getElementById('stBankak').value=st.banks?.bankak||"ok";
-    document.getElementById('stFawry').value=st.banks?.fawry||"ok";
-    document.getElementById('stOkash').value=st.banks?.okash||"ok";
     renderInbox();
     document.getElementById('dashM').classList.remove('hidden');
     showToast("🔓 مرحباً بك في لوحة تحكم زاجل");
@@ -738,11 +735,6 @@ async function saveR(){
   if(newB!==st.b)st.prevB=st.b;
   st.b=newB; st.s=newS;
   st.tk=document.getElementById('dTick').value.trim().slice(0,300)||st.tk;
-  st.banks={
-    bankak:document.getElementById('stBankak').value,
-    fawry:document.getElementById('stFawry').value,
-    okash:document.getElementById('stOkash').value
-  };
   st.upd=document.getElementById('dateTxt').textContent+" • "+document.getElementById('timeTxt').textContent;
   renderAll();
   const ok=await syncCloud();
