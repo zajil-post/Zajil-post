@@ -14,6 +14,7 @@ on:
       - 'manifest.json'
       - 'icon.svg'
       - 'native-bridge.js'
+      - 'google-services.json'
   workflow_dispatch:
 
 permissions:
@@ -61,6 +62,17 @@ jobs:
 
       - name: Generate Android project
         run: npx cap add android
+
+      - name: Configure Firebase for Android FCM
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -s google-services.json ]; then
+            echo "Missing google-services.json. Add the Firebase Android config file to this prototype branch before building FCM-enabled APKs."
+            exit 1
+          fi
+          cp google-services.json android/app/google-services.json
+          npm install --save-dev @capacitor/push-notifications
 
       - name: Verify APK uses bundled local interface
         shell: bash
