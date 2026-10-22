@@ -803,7 +803,7 @@ function selectBbanBank(bank){
  document.getElementById("bbanAccountLabel").textContent=bank.rule==="bedei-msisdn"?"2. رقم هاتف بيدي":"2. رقم الحساب";
  input.placeholder=bank.rule==="bedei-msisdn"?"مثال: 0912345678 أو 912345678":pattern?("أدخل رقم الحساب ("+pattern.length+" أرقام)"):"صيغة الحساب غير متوفرة";
  input.maxLength=pattern?(pattern.phone?10:pattern.length):0;
- document.getElementById("bbanInputHint").textContent=bank.rule==="bedei-msisdn"?"أدخل رقم زين من 9 أرقام يبدأ بـ 9. سيُنشأ الناتج من 14 رقماً.":pattern?("أدخل "+pattern.length+" رقمًا بالضبط؛ سيُضاف رمز البنك واللاحقة ليصبح BBAN من 14 رقمًا."):"لا توجد صيغة محفوظة لهذا البنك حتى الآن، لذلك لن نخمن رقم BBAN.";
+ document.getElementById("bbanInputHint").textContent=bank.rule==="in-app-bban"?"يتحصل على رقم BBAN من داخل تطبيق البنك مباشرة؛ لا حاجة لتحويل الرقم هنا.":bank.rule==="bedei-msisdn"?"أدخل رقم زين من 9 أرقام يبدأ بـ 9. سيُنشأ الناتج من 14 رقماً.":pattern?("أدخل "+pattern.length+" رقمًا بالضبط؛ سيُضاف رمز البنك واللاحقة ليصبح BBAN من 14 رقمًا."):"لا توجد صيغة محفوظة لهذا البنك حتى الآن، لذلك لن نخمن رقم BBAN.";
  document.getElementById("bbanClear").classList.remove("hidden");
  updateBbanResult();
 }
