@@ -292,7 +292,7 @@ function switchTab(id,el){
 
 // حالة التطبيقات المصرفية من Status.sd فقط؛ عند تعذر البيانات نعرض آخر حالة محفوظة ووقتها.
 let externalBankState=null;
-const BANK_MONITOR_URL="https://zajil-bank-monitor.a7mdtayb.workers.dev/status";
+const BANK_MONITOR_URL="https://zajil-bank-monitor.a7hmdtayb.workers.dev/status";
 const BANK_STATUS_CACHE_KEY="zajil_status_sd_last_known_v1";
 function readBankStatusCache(){
   try{
