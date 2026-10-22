@@ -42,6 +42,9 @@ jobs:
           cp index.html style.css manifest.json icon.svg www/
           cp app.js www/app.js
           npx esbuild native-bridge.js --bundle --format=iife --outfile=www/native-bridge.js
+          # Native APK only: remove admin login/dashboard from the app UI, keep website unchanged.
+          printf '\n/* Native app: admin console is website-only. */\n#logM, #dashM { display: none !important; }\n' >> www/style.css
+          sed -i 's/function secretTap(){/function secretTap(){if(isNativeAndroid)return;/' www/app.js
           # The Android app bundles the UI locally; only data/API calls use Vercel.
           sed -i 's|const PROXY_ENDPOINT = "/api/zajil";|const PROXY_ENDPOINT = "https://zajil-post-grkd1uyl4-zajil-post.vercel.app/api/zajil";|' www/app.js
           # Replace the removed bank-monitor origin with the app's API origin in CSP.
@@ -51,6 +54,8 @@ jobs:
           test -s www/app.js
           grep -q 'id="tab-bban"' www/index.html
           grep -q 'محول BBAN' www/index.html
+          grep -q '#logM, #dashM { display: none !important; }' www/style.css
+          grep -q 'function secretTap(){if(isNativeAndroid)return;' www/app.js
           test -s www/native-bridge.js
           grep -q 'https://zajil-post-grkd1uyl4-zajil-post.vercel.app/api/zajil' www/app.js
 
