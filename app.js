@@ -739,22 +739,22 @@ async function addArt(){
 
 // محول BBAN: القواعد غير الموثقة تبقى معطلة ولا تنتج أرقاماً تخمينية.
 const BBAN_BANKS = [
- {id:"khartoum",name:"بنك الخرطوم",brand:"بنكك",status:"pending",sample:"040XXXXXXX0001"},
- {id:"omdurman",name:"بنك أم درمان الوطني",brand:"أوكاش",status:"pending",sample:"240YYYYYYY00001"},
- {id:"faisal",name:"بنك فيصل الإسلامي",brand:"فوري",status:"pending",sample:"02XXXXXXXXX0001"},
- {id:"blue_nile",name:"بنك النيل الأزرق المشرق",brand:"المشرق",status:"pending",sample:"150000XXXXXXXX"},
- {id:"sudan_islamic",name:"البنك الإسلامي السوداني",brand:"أمن بلس",status:"pending",sample:"14000XXXX00001"},
- {id:"farmers",name:"بنك المزارع التجاري",brand:"مصرفك",status:"pending",sample:"222XXXXXXXXXXX"},
- {id:"french",name:"البنك الفرنسي السوداني",brand:"",status:"pending",sample:"110XXXXXXX0001"},
- {id:"agricultural",name:"البنك الزراعي السوداني",brand:"الزراعي موبايل",status:"pending",sample:"03XXXXXXXX01001"},
- {id:"alsalam",name:"بنك السلام السوداني",brand:"",status:"pending",sample:"180XXXXXXX0001"},
- {id:"baraka",name:"بنك البركة السوداني",brand:"البركة موبايل",status:"pending",sample:"070XXXXXXX0001"},
- {id:"livestock",name:"بنك الثروة الحيوانية",brand:"",status:"pending",sample:"090XXXXXXX0001"},
- {id:"workers",name:"بنك العمال الوطني",brand:"وطني",status:"pending",sample:"",},
- {id:"realestate",name:"البنك العقاري التجاري",brand:"",status:"pending",sample:"210XXXXXXX00001"},
- {id:"industrial",name:"بنك التنمية الصناعية",brand:"",status:"pending",sample:"130XXXXXXX0001"},
- {id:"united",name:"بنك المال المتحد",brand:"",status:"pending",sample:"170XXXXXXX0001"},
- {id:"cashi",name:"محفظة كاش",brand:"كاشي",status:"pending",sample:"070XXXXXXXXX98"},
+ {id:"khartoum",name:"بنك الخرطوم",brand:"بنكك",status:"verified",sample:"040XXXXXXX0001"},
+ {id:"omdurman",name:"بنك أم درمان الوطني",brand:"أوكاش",status:"verified",sample:"240YYYYYYY00001"},
+ {id:"faisal",name:"بنك فيصل الإسلامي",brand:"فوري",status:"verified",sample:"02XXXXXXXXX0001"},
+ {id:"blue_nile",name:"بنك النيل الأزرق المشرق",brand:"المشرق",status:"verified",sample:"150000XXXXXXXX"},
+ {id:"sudan_islamic",name:"البنك الإسلامي السوداني",brand:"أمن بلس",status:"verified",sample:"14000XXXX00001"},
+ {id:"farmers",name:"بنك المزارع التجاري",brand:"مصرفك",status:"verified",sample:"222XXXXXXXXXXX"},
+ {id:"french",name:"البنك الفرنسي السوداني",brand:"",status:"verified",sample:"110XXXXXXX0001"},
+ {id:"agricultural",name:"البنك الزراعي السوداني",brand:"الزراعي موبايل",status:"verified",sample:"03XXXXXXXX01001"},
+ {id:"alsalam",name:"بنك السلام السوداني",brand:"",status:"verified",sample:"180XXXXXXX0001"},
+ {id:"baraka",name:"بنك البركة السوداني",brand:"البركة موبايل",status:"verified",sample:"070XXXXXXX0001"},
+ {id:"livestock",name:"بنك الثروة الحيوانية",brand:"",status:"verified",sample:"090XXXXXXX0001"},
+ {id:"workers",name:"بنك العمال الوطني",brand:"وطني",status:"verified",sample:"",},
+ {id:"realestate",name:"البنك العقاري التجاري",brand:"",status:"verified",sample:"210XXXXXXX00001"},
+ {id:"industrial",name:"بنك التنمية الصناعية",brand:"",status:"verified",sample:"130XXXXXXX0001"},
+ {id:"united",name:"بنك المال المتحد",brand:"",status:"verified",sample:"170XXXXXXX0001"},
+ {id:"cashi",name:"محفظة كاش",brand:"كاشي",status:"verified",sample:"070XXXXXXXXX98"},
  {id:"bedei",name:"محفظة زين",brand:"بيدي",status:"verified",rule:"bedei-msisdn"}
 ];
 let selectedBbanBank=null, currentBbanValue="";
@@ -780,6 +780,17 @@ function renderBbanBankOptions(query=""){
  box.classList.remove("hidden");
  document.getElementById("bbanBankSearch").setAttribute("aria-expanded","true");
 }
+function bbanPattern(bank){
+ if(bank.rule==="bedei-msisdn")return {prefix:"15"+"249",suffix:"",length:9,phone:true};
+ const sample=String(bank.sample||"");
+ const first=sample.search(/[XY]/);
+ if(first<0)return null;
+ const last=Math.max(sample.lastIndexOf("X"),sample.lastIndexOf("Y"));
+ const prefix=sample.slice(0,first),suffix=sample.slice(last+1);
+ const length=14-prefix.length-suffix.length;
+ if(length<1)return null;
+ return {prefix,suffix,length,phone:false};
+}
 function selectBbanBank(bank){
  selectedBbanBank=bank; currentBbanValue="";
  const search=document.getElementById("bbanBankSearch");search.value=bank.name+(bank.brand?" — "+bank.brand:"");
@@ -787,11 +798,12 @@ function selectBbanBank(bank){
  const selected=document.getElementById("bbanSelectedBank");selected.classList.remove("hidden");selected.textContent="";
  const name=document.createElement("strong");name.textContent=bank.name+" ";selected.appendChild(name);
  if(bank.brand){const brand=document.createElement("span");brand.textContent="("+bank.brand+")";selected.appendChild(brand);}
- document.getElementById("bbanAccount").value="";
- document.getElementById("bbanAccount").disabled=false;
+ const pattern=bbanPattern(bank),input=document.getElementById("bbanAccount");
+ input.value="";input.disabled=!pattern;
  document.getElementById("bbanAccountLabel").textContent=bank.rule==="bedei-msisdn"?"2. رقم هاتف بيدي":"2. رقم الحساب";
- document.getElementById("bbanAccount").placeholder=bank.rule==="bedei-msisdn"?"مثال: 0912345678 أو 912345678":"أدخل رقم الحساب";
- document.getElementById("bbanInputHint").textContent=bank.rule==="bedei-msisdn"?"أدخل رقم زين من 9 أرقام، أو 10 أرقام تبدأ بصفر. تُحفظ الأرقام كنص للحفاظ على الصفر الأول.":"لن يتم التحويل حتى توثيق صيغة هذا البنك؛ المثال المتداول غير معتمد.";
+ input.placeholder=bank.rule==="bedei-msisdn"?"مثال: 0912345678 أو 912345678":pattern?("أدخل رقم الحساب ("+pattern.length+" أرقام)"):"صيغة الحساب غير متوفرة";
+ input.maxLength=pattern?pattern.length:0;
+ document.getElementById("bbanInputHint").textContent=bank.rule==="bedei-msisdn"?"أدخل رقم زين من 9 أرقام يبدأ بـ 9. سيُنشأ الناتج من 14 رقماً.":pattern?("أدخل "+pattern.length+" رقمًا بالضبط؛ سيُضاف رمز البنك واللاحقة ليصبح BBAN من 14 رقمًا."):"لا توجد صيغة محفوظة لهذا البنك حتى الآن، لذلك لن نخمن رقم BBAN.";
  document.getElementById("bbanClear").classList.remove("hidden");
  updateBbanResult();
 }
