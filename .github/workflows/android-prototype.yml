@@ -44,7 +44,9 @@ jobs:
           npx esbuild native-bridge.js --bundle --format=iife --outfile=www/native-bridge.js
           # The Android app bundles the UI locally; only data/API calls use Vercel.
           sed -i 's|const PROXY_ENDPOINT = "/api/zajil";|const PROXY_ENDPOINT = "https://zajil-post-grkd1uyl4-zajil-post.vercel.app/api/zajil";|' www/app.js
-          sed -i 's|https://zajil-bank-monitor.a7mdtayb.workers.dev|https://zajil-bank-monitor.a7mdtayb.workers.dev https://zajil-post-grkd1uyl4-zajil-post.vercel.app|' www/index.html
+          # Replace the removed bank-monitor origin with the app's API origin in CSP.
+          sed -i 's|https://zajil-bank-monitor.a7mdtayb.workers.dev|https://zajil-post-grkd1uyl4-zajil-post.vercel.app|' www/index.html
+          ! grep -q 'zajil-bank-monitor.a7mdtayb.workers.dev' www/index.html
           test -s www/index.html
           test -s www/app.js
           grep -q 'id="tab-bban"' www/index.html
