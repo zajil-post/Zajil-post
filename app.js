@@ -84,7 +84,7 @@ function base64UrlToBytes(value){
   return Uint8Array.from(raw,c=>c.charCodeAt(0));
 }
 
-const isNativeAndroid = Boolean(window.Capacitor?.isNativePlatform?.());
+const isNativeAndroid = Boolean(window.__ZajilNative?.isNativePlatform?.());
 if (isNativeAndroid) {
   document.body.classList.add("native-app");
   // Android status bar must occupy its own system area, not overlap the web header.
