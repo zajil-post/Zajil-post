@@ -74,6 +74,26 @@
         <button data-action="refreshCloud" class="text-[11px] text-[#D81B7A] font-bold flex items-center gap-1 active:scale-95 transition" aria-label="تحديث البيانات الآن"><i class="fa-solid fa-rotate" aria-hidden="true"></i> تحديث الآن</button>
       </div>
       <div id="bankStatusGrid" class="grid grid-cols-3 gap-2 text-center" aria-live="polite"></div>
+      <div class="mt-3 border-t border-purple-100/60 pt-3 space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-xs font-bold text-[#4A1246]">بلغنا عن مشكلة في خدمة مصرفية</span>
+          <span class="text-[10px] text-gray-500">تُراجع البلاغات قبل النشر</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <select id="bankReportApp" aria-label="اختر التطبيق المصرفي" class="glass-sub rounded-xl p-2 text-xs">
+            <option value="bankak">بنكك</option><option value="fawry">فوري</option><option value="okash">أوكاش</option>
+          </select>
+          <select id="bankReportStatus" aria-label="الحالة التي لاحظتها" class="glass-sub rounded-xl p-2 text-xs">
+            <option value="unstable">متذبذب / بطيء</option><option value="down">متوقف</option><option value="working">يعمل</option>
+          </select>
+        </div>
+        <input id="bankReportNote" maxlength="300" aria-label="تفاصيل اختيارية عن المشكلة" placeholder="تفاصيل اختيارية: وقت المشكلة أو نوع العملية..." class="glass-sub w-full rounded-xl px-3 py-2 text-xs">
+        <button data-action="submitBankReport" class="w-full rounded-xl py-2.5 text-xs font-bold text-white bg-gradient-to-l from-[#380734] to-[#D81B7A]">إرسال البلاغ للمراجعة</button>
+        <div class="pt-1">
+          <div class="text-[11px] font-bold text-[#4A1246] mb-1">بلاغات المتابعين التي راجعتها زاجل</div>
+          <div id="bankCommunityReports" class="space-y-1.5"><p class="text-[10px] text-gray-500">جاري تحميل البلاغات...</p></div>
+        </div>
+      </div>
     </div>
 
     <div class="c-grad rounded-[24px] p-5 shadow-md text-white relative overflow-hidden">
@@ -358,9 +378,19 @@
       </div>
       <div id="inboxList" class="space-y-2 max-h-44 overflow-y-auto"></div>
     </div>
+
+    <div class="p-3 rounded-2xl bg-purple-50/60 space-y-2">
+      <div class="font-bold text-[#6B0F5B] flex justify-between items-center gap-2">
+        <span>4. مراجعة بلاغات البنوك</span>
+        <button data-action="loadBankReportsAdmin" class="text-[10px] bg-white px-2 py-1 rounded border text-[#D81B7A]">تحديث ↻</button>
+      </div>
+      <p class="text-[10px] text-gray-500 leading-relaxed">البلاغات لا تغيّر الحالة الآلية تلقائياً. راجع المصدر والتفاصيل قبل اعتمادها للنشر.</p>
+      <div id="bankReportsAdminList" class="space-y-2 max-h-64 overflow-y-auto"></div>
+    </div>
   </div>
 </div>
 
 <script src="app.js"></script>
+<script src="bank-status.js"></script>
 </body>
 </html>
