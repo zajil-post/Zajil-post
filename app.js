@@ -290,109 +290,6 @@ function switchTab(id,el){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// حالة التطبيقات المصرفية من Status.sd فقط؛ عند تعذر البيانات نعرض آخر حالة محفوظة ووقتها.
-let externalBankState=null;
-const BANK_MONITOR_URL="https://zajil-bank-monitor.a7hmdtayb.workers.dev/status";
-const BANK_STATUS_CACHE_KEY="zajil_status_sd_last_known_v1";
-function readBankStatusCache(){
-  try{
-    const value=JSON.parse(localStorage.getItem(BANK_STATUS_CACHE_KEY)||"null");
-    return value&&Array.isArray(value.apps)?value:null;
-  }catch{return null;}
-}
-function saveBankStatusCache(data){
-  try{
-    const previous=readBankStatusCache();
-    const previousApps=previous?.apps||[];
-    const now=new Date().toISOString();
-    const validStatus=value=>["يعمل","متذبذب","متوقف"].includes(value);
-    const apps=data.apps.map(item=>{
-      const old=previousApps.find(a=>a.id===item.id);
-      const ext=item.externalStatus||{};
-      const knownStatus=validStatus(ext.reportedStatus)?ext.reportedStatus:(validStatus(item.status)?item.status:null);
-      const knownAt=item.lastKnownAt||item.checkedAt||old?._lastKnownAt||null;
-      if(knownStatus){
-        const externalStatus=validStatus(ext.reportedStatus)?ext:{...ext,reportedStatus:knownStatus};
-        return {...item,externalStatus,_lastKnownAt:item.lastKnownAt||knownAt||now,_usingLastKnown:Boolean(item.statusIsLastKnown||ext.reportedStatus==="unknown")};
-      }
-      if(old){
-        const oldStatus=validStatus(old.externalStatus?.reportedStatus)?old.externalStatus.reportedStatus:(validStatus(old.status)?old.status:null);
-        if(oldStatus)return {...item,status:old.status||oldStatus,externalStatus:{...ext,reportedStatus:oldStatus},lastKnownAt:old.lastKnownAt||old._lastKnownAt||old.checkedAt||null,_lastKnownAt:old._lastKnownAt||old.lastKnownAt||old.checkedAt||null,_usingLastKnown:true};
-      }
-      return {...item,_lastKnownAt:null};
-    });
-    const saved={...data,apps,savedAt:now};
-    localStorage.setItem(BANK_STATUS_CACHE_KEY,JSON.stringify(saved));
-    return saved;
-  }catch{return data;}
-}
-function getExternalBankStatus(item){
-  const ext=item?.externalStatus||{};
-  const status=["يعمل","متذبذب","متوقف"].includes(ext.reportedStatus)?ext.reportedStatus:(["يعمل","متذبذب","متوقف"].includes(item?.status)?item.status:null);
-  if(!status)return {key:"unknown",label:"لا توجد حالة مسجلة"};
-  const age=Number(ext.sourceAgeMinutes);
-  const stale=item?._usingLastKnown||item?.statusIsLastKnown||!Number.isFinite(age)||age>180;
-  const suffix=stale?" (آخر حالة مسجلة)":"";
-  if(status==="يعمل")return {key:"ok",label:"يعمل"+suffix};
-  if(status==="متذبذب")return {key:"warn",label:"متذبذب"+suffix};
-  if(status==="متوقف")return {key:stale?"warn":"err",label:"متوقف"+suffix};
-  return {key:"unknown",label:"لا توجد حالة مسجلة"};
-}
-function formatBankStatusTime(value){
-  if(!value)return "وقت الحالة غير متاح";
-  const date=new Date(value);
-  if(Number.isNaN(date.getTime()))return "وقت الحالة غير متاح";
-  return "وقت آخر حالة: "+date.toLocaleString("ar-SD",{timeZone:"Africa/Khartoum",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
-}
-function renderBanks(){
-  const map={
-    ok:{c:"bank-dot-wrap bank-ok",d:"bank-dot bank-dot-green"},
-    warn:{c:"bank-dot-wrap bank-warn",d:"bank-dot bank-dot-yellow"},
-    err:{c:"bank-dot-wrap bank-err",d:"bank-dot bank-dot-red"},
-    unknown:{c:"bank-dot-wrap bank-unknown",d:"bank-dot bank-dot-gray"}
-  };
-  const items=[{k:"bankak",n:"بنكك"},{k:"fawry",n:"فوري"},{k:"okash",n:"أوكاش"}];
-  const grid=document.getElementById('bankStatusGrid');
-  if(!grid)return;
-  grid.textContent='';
-  const frag=document.createDocumentFragment();
-  items.forEach(x=>{
-    const sourceItem=externalBankState?.apps?.find(a=>a.id===x.k);
-    const state=getExternalBankStatus(sourceItem);
-    const m=map[state.key]||map.unknown;
-    const div=document.createElement('div');
-    div.className=`${m.c} flex flex-col items-center justify-center gap-1.5 rounded-xl p-2 text-xs font-bold`;
-    div.title=sourceItem?.externalStatus?.sourceAgeText?("آخر تحديث في Status.sd: "+sourceItem.externalStatus.sourceAgeText):"حالة التطبيق حسب Status.sd";
-    const dot=document.createElement('span'); dot.className=m.d;
-    dot.setAttribute('aria-hidden','true');
-    const name=document.createElement('span'); name.textContent=x.n;
-    const txt=document.createElement('span'); txt.className="bank-status-label"; txt.textContent=state.label;
-    const age=document.createElement('span'); age.className="bank-status-age";
-    const hasKnownStatus=Boolean(["يعمل","متذبذب","متوقف"].includes(sourceItem?.externalStatus?.reportedStatus)||["يعمل","متذبذب","متوقف"].includes(sourceItem?.status));
-    const time=sourceItem?.lastKnownAt||sourceItem?.checkedAt||sourceItem?._lastKnownAt||(hasKnownStatus?externalBankState?.savedAt:null);
-    age.textContent=time?formatBankStatusTime(time):(hasKnownStatus&&sourceItem?.externalStatus?.sourceAgeText?("آخر تحديث منذ "+sourceItem.externalStatus.sourceAgeText):"لا توجد حالة سابقة محفوظة");
-    div.append(dot,name,txt,age); frag.appendChild(div);
-  });
-  grid.appendChild(frag);
-}
-async function loadExternalBankStatus(){
-  const cached=readBankStatusCache();
-  if(cached){externalBankState=cached;renderBanks();}
-  try{
-    const response=await fetch(BANK_MONITOR_URL,{method:"GET",cache:"no-store",mode:"cors",signal:AbortSignal.timeout(8000)});
-    if(!response.ok)throw new Error("status source unavailable");
-    const data=await response.json();
-    if(!Array.isArray(data.apps))throw new Error("invalid status response");
-    const saved=saveBankStatusCache(data);
-    externalBankState=saved;
-    renderBanks();
-  }catch(e){
-    // لا نمسح آخر حالة معروفة عند انقطاع المصدر؛ نعرضها مع وقت حفظها.
-    externalBankState=readBankStatusCache()||externalBankState;
-    renderBanks();
-  }
-}
-
 // العرض الشامل باستخدام DocumentFragment و textContent لمنع XSS وتحسين الأداء
 let openArtIndex = -1;
 
@@ -407,7 +304,6 @@ function renderAll(){
   document.getElementById('heroUpd').textContent=st.upd;
   document.getElementById('ratesUpdSub').textContent="آخر تحديث: "+st.upd;
   document.getElementById('tickerTxt').textContent=st.tk;
-  renderBanks();
 
   const diffBase = Number(st.b) - Number(st.prevB || st.b);
   const currBox = document.getElementById('currList');
@@ -521,7 +417,7 @@ function sharePost(idx){
   else if(navigator.clipboard){navigator.clipboard.writeText(txt);showToast("✅ تم نسخ المنشور مع رابط المنصة!");}
 }
 function shareSite(){
-  const txt=`🕊️ *منصة زاجل للنشر | الرسالة الحقيقية*\nتابع أسعار العملات لحظة بلحظة، وحالة التطبيقات المصرفية (بنكك، فوري، أوكاش)، وحاسبة العملات والشروحات عبر الرابط:\n${location.href}`;
+  const txt=`🕊️ *منصة زاجل للنشر | الرسالة الحقيقية*\nتابع أسعار العملات لحظة بلحظة، وحاسبة العملات والشروحات عبر الرابط:\n${location.href}`;
   if(navigator.share){navigator.share({title:"منصة زاجل للنشر",text:txt,url:location.href}).catch(()=>{});}
   else if(navigator.clipboard){navigator.clipboard.writeText(txt);showToast("✅ تم نسخ رابط المنصة لمشاركته!");}
 }
@@ -941,4 +837,4 @@ document.addEventListener('visibilitychange',()=>{
   if(document.visibilityState==='visible'){loadCloud(false);schedulePoll();}
 });
 
-renderAll(); loadCloud(false); loadInbox(true); loadExternalBankStatus(); setInterval(loadExternalBankStatus,180000); schedulePoll();
+renderAll(); loadCloud(false); loadInbox(true); schedulePoll();
