@@ -84,7 +84,34 @@ function base64UrlToBytes(value){
   return Uint8Array.from(raw,c=>c.charCodeAt(0));
 }
 
+const isNativeAndroid = Boolean(window.Capacitor?.isNativePlatform?.());
+if (isNativeAndroid) {
+  document.body.classList.add("native-app");
+  // Android status bar must occupy its own system area, not overlap the web header.
+  Promise.resolve(window.Capacitor?.Plugins?.StatusBar?.setOverlaysWebView?.({overlay:false})).catch(()=>{});
+  Promise.resolve(window.Capacitor?.Plugins?.StatusBar?.setBackgroundColor?.({color:"#380734"})).catch(()=>{});
+  Promise.resolve(window.Capacitor?.Plugins?.StatusBar?.setStyle?.({style:"LIGHT"})).catch(()=>{});
+}
+
 async function enableNotif(){
+  if (isNativeAndroid) {
+    try {
+      const push = window.Capacitor?.Plugins?.PushNotifications;
+      if (!push) return showToast("تعذر فتح إذن إشعارات أندرويد؛ أعد بناء النسخة التجريبية","err");
+      const result = await push.requestPermissions();
+      if (result.receive === "granted") {
+        showToast("تم منح زاجل إذن الإشعارات");
+        const ic=document.getElementById("notifIcon");
+        if(ic)ic.className="fa-solid fa-bell text-sm text-emerald-600";
+      } else {
+        showToast("لم يتم منح إذن الإشعارات؛ يمكنك تفعيله من إعدادات الهاتف","warn");
+      }
+    } catch (error) {
+      console.error("Native notification permission error:", error);
+      showToast("تعذر طلب إذن الإشعارات من أندرويد","err");
+    }
+    return;
+  }
   let pushStage="تهيئة الإشعارات";
   if(!("serviceWorker" in navigator)||!("PushManager" in window)||!("Notification" in window)){
     return showToast("هذا المتصفح لا يدعم إشعارات Push؛ جرّب تثبيت زاجل على أندرويد","warn");
@@ -771,7 +798,7 @@ window.addEventListener('appinstalled',()=>{deferredPrompt=null;});
 
 // إرشاد أول زيارة: نافذة اختيارية للتثبيت وإشعارات الأسعار.
 function isInstalledPWA(){
-  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  return isNativeAndroid || window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 }
 function dismissOnboarding(remember=true){
   const modal=document.getElementById('welcomeSetupM');
@@ -792,6 +819,13 @@ async function updateOnboardingOptions(){
   }
 }
 function maybeShowOnboarding(){
+  // A native APK is already installed: never show the web/PWA install walkthrough.
+  if(isNativeAndroid){
+    const modal=document.getElementById('welcomeSetupM');
+    if(modal)modal.classList.add('hidden');
+    localStorage.setItem('zj_onboarding_dismissed_v1','1');
+    return;
+  }
   if(localStorage.getItem('zj_onboarding_dismissed_v1')==='1')return;
   if(isInstalledPWA() && 'Notification' in window && Notification.permission==='granted')return;
   const modal=document.getElementById('welcomeSetupM');
@@ -805,6 +839,10 @@ window.addEventListener('load',maybeShowOnboarding,{once:true});
 
 // زر التثبيت: يعرض نافذة التثبيت الأصلية حين يدعمها المتصفح.
 async function triggerInstall(){
+  if(isNativeAndroid){
+    showToast('زاجل مثبت بالفعل على جهازك');
+    return;
+  }
   if(isInstalledPWA()){
     showToast('زاجل مثبت بالفعل على شاشة جهازك');
     return;
