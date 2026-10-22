@@ -361,8 +361,9 @@ function renderBanks(){
     const name=document.createElement('span'); name.textContent=x.n;
     const txt=document.createElement('span'); txt.className="bank-status-label"; txt.textContent=state.label;
     const age=document.createElement('span'); age.className="bank-status-age";
-    const time=sourceItem?._lastKnownAt||externalBankState?.savedAt;
-    age.textContent=time?formatBankStatusTime(time):(sourceItem?.externalStatus?.sourceAgeText?("آخر تحديث منذ "+sourceItem.externalStatus.sourceAgeText):"لا يتوفر وقت للحالة");
+    const hasKnownStatus=Boolean(sourceItem?.externalStatus?.reportedStatus&&sourceItem.externalStatus.reportedStatus!=="unknown");
+    const time=sourceItem?._lastKnownAt||(hasKnownStatus?externalBankState?.savedAt:null);
+    age.textContent=time?formatBankStatusTime(time):(hasKnownStatus&&sourceItem?.externalStatus?.sourceAgeText?("آخر تحديث منذ "+sourceItem.externalStatus.sourceAgeText):"لا توجد حالة سابقة محفوظة");
     div.append(dot,name,txt,age); frag.appendChild(div);
   });
   grid.appendChild(frag);
