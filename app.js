@@ -736,6 +736,126 @@ async function addArt(){
 }
 
 
+
+// محول BBAN: القواعد غير الموثقة تبقى معطلة ولا تنتج أرقاماً تخمينية.
+const BBAN_BANKS = [
+ {id:"khartoum",name:"بنك الخرطوم",brand:"بنكك",status:"pending",sample:"040XXXXXXX0001"},
+ {id:"omdurman",name:"بنك أم درمان الوطني",brand:"أوكاش",status:"pending",sample:"240YYYYYYY00001"},
+ {id:"faisal",name:"بنك فيصل الإسلامي",brand:"فوري",status:"pending",sample:"02XXXXXXXXX0001"},
+ {id:"blue_nile",name:"بنك النيل الأزرق المشرق",brand:"المشرق",status:"pending",sample:"150000XXXXXXXX"},
+ {id:"sudan_islamic",name:"البنك الإسلامي السوداني",brand:"أمن بلس",status:"pending",sample:"14000XXXX00001"},
+ {id:"farmers",name:"بنك المزارع التجاري",brand:"مصرفك",status:"pending",sample:"222XXXXXXXXXXX"},
+ {id:"french",name:"البنك الفرنسي السوداني",brand:"",status:"pending",sample:"110XXXXXXX0001"},
+ {id:"agricultural",name:"البنك الزراعي السوداني",brand:"الزراعي موبايل",status:"pending",sample:"03XXXXXXXX01001"},
+ {id:"alsalam",name:"بنك السلام السوداني",brand:"",status:"pending",sample:"180XXXXXXX0001"},
+ {id:"baraka",name:"بنك البركة السوداني",brand:"البركة موبايل",status:"pending",sample:"070XXXXXXX0001"},
+ {id:"livestock",name:"بنك الثروة الحيوانية",brand:"",status:"pending",sample:"090XXXXXXX0001"},
+ {id:"workers",name:"بنك العمال الوطني",brand:"وطني",status:"pending",sample:"",},
+ {id:"realestate",name:"البنك العقاري التجاري",brand:"",status:"pending",sample:"210XXXXXXX00001"},
+ {id:"industrial",name:"بنك التنمية الصناعية",brand:"",status:"pending",sample:"130XXXXXXX0001"},
+ {id:"united",name:"بنك المال المتحد",brand:"",status:"pending",sample:"170XXXXXXX0001"},
+ {id:"cashi",name:"محفظة كاش",brand:"كاشي",status:"pending",sample:"070XXXXXXXXX98"},
+ {id:"bedei",name:"محفظة زين",brand:"بيدي",status:"verified",rule:"bedei-msisdn"}
+];
+let selectedBbanBank=null, currentBbanValue="";
+function normalizeDigits(value){
+ return String(value||"").replace(/[٠-٩]/g,d=>String("٠١٢٣٤٥٦٧٨٩".indexOf(d))).replace(/[۰-۹]/g,d=>String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)));
+}
+function renderBbanBankOptions(query=""){
+ const box=document.getElementById("bbanBankOptions"); if(!box)return;
+ const q=String(query||"").trim().toLocaleLowerCase("ar");
+ const matches=BBAN_BANKS.filter(b=>(b.name+" "+b.brand).toLocaleLowerCase("ar").includes(q));
+ box.textContent="";
+ if(!matches.length){const p=document.createElement("p");p.className="p-3 text-xs opacity-70";p.textContent="لا توجد نتائج مطابقة.";box.appendChild(p);}
+ matches.forEach(bank=>{
+   const btn=document.createElement("button");btn.type="button";btn.role="option";btn.className="w-full text-right p-3 flex items-center gap-3 hover:bg-purple-50 active:bg-pink-50";
+   const icon=document.createElement("span");icon.className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#380734] to-[#D81B7A] text-white flex items-center justify-center shrink-0";icon.innerHTML='<i class="fa-solid fa-building-columns" aria-hidden="true"></i>';
+   const info=document.createElement("span");info.className="min-w-0 flex-1";
+   const name=document.createElement("span");name.className="block text-sm font-bold text-[#2D062B]";name.textContent=bank.name;
+   const brand=document.createElement("span");brand.className="block text-[11px] opacity-65 mt-0.5";brand.textContent=bank.brand||"لا توجد علامة تطبيق موثقة";
+   info.append(name,brand);
+   const status=document.createElement("span");status.className=bank.status==="verified"?"text-[10px] font-bold text-emerald-700":"text-[10px] font-bold text-amber-700";status.textContent=bank.status==="verified"?"متحقق":"قيد التحقق";
+   btn.append(icon,info,status);btn.addEventListener("click",()=>selectBbanBank(bank));box.appendChild(btn);
+ });
+ box.classList.remove("hidden");
+ document.getElementById("bbanBankSearch").setAttribute("aria-expanded","true");
+}
+function selectBbanBank(bank){
+ selectedBbanBank=bank; currentBbanValue="";
+ const search=document.getElementById("bbanBankSearch");search.value=bank.name+(bank.brand?" — "+bank.brand:"");
+ document.getElementById("bbanBankOptions").classList.add("hidden");search.setAttribute("aria-expanded","false");
+ const selected=document.getElementById("bbanSelectedBank");selected.classList.remove("hidden");selected.textContent="";
+ const name=document.createElement("strong");name.textContent=bank.name+" ";selected.appendChild(name);
+ if(bank.brand){const brand=document.createElement("span");brand.textContent="("+bank.brand+")";selected.appendChild(brand);}
+ document.getElementById("bbanAccount").value="";
+ document.getElementById("bbanAccount").disabled=false;
+ document.getElementById("bbanAccountLabel").textContent=bank.rule==="bedei-msisdn"?"2. رقم هاتف بيدي":"2. رقم الحساب";
+ document.getElementById("bbanAccount").placeholder=bank.rule==="bedei-msisdn"?"مثال: 0912345678 أو 912345678":"أدخل رقم الحساب";
+ document.getElementById("bbanInputHint").textContent=bank.rule==="bedei-msisdn"?"أدخل رقم زين من 9 أرقام، أو 10 أرقام تبدأ بصفر. تُحفظ الأرقام كنص للحفاظ على الصفر الأول.":"لن يتم التحويل حتى توثيق صيغة هذا البنك؛ المثال المتداول غير معتمد.";
+ document.getElementById("bbanClear").classList.remove("hidden");
+ updateBbanResult();
+}
+function setBbanStatus(message,type="info"){
+ const el=document.getElementById("bbanStatus");el.textContent=message;el.className="rounded-2xl p-3 text-xs leading-6";
+ el.classList.add(type==="error"?"bg-rose-50 text-rose-800":type==="success"?"bg-emerald-50 text-emerald-800":"bg-amber-50 text-amber-900");
+}
+function updateBbanResult(){
+ const input=document.getElementById("bbanAccount"),card=document.getElementById("bbanResultCard"),groups=document.getElementById("bbanResultGroups");
+ const raw=normalizeDigits(input.value).replace(/[\s-]/g,"");
+ document.getElementById("bbanClear").classList.toggle("hidden",!input.value);
+ card.classList.add("hidden");groups.textContent="";currentBbanValue="";
+ if(!selectedBbanBank){document.getElementById("bbanStatus").classList.add("hidden");return;}
+ const bank=selectedBbanBank;
+ if(bank.status!=="verified"||bank.rule!=="bedei-msisdn"){
+   document.getElementById("bbanStatus").classList.remove("hidden");
+   setBbanStatus("صيغة هذا البنك قيد التحقق. لن نعرض رقم BBAN حتى تتوفر صيغة موثقة ومصدر يمكن مراجعته.");
+   return;
+ }
+ if(!raw){document.getElementById("bbanStatus").classList.add("hidden");return;}
+ if(!/^\d+$/.test(raw)){
+   document.getElementById("bbanStatus").classList.remove("hidden");setBbanStatus("استخدم الأرقام فقط دون حروف أو رموز.","error");return;
+ }
+ let phone=raw;
+ if(phone.length===10&&phone.startsWith("0"))phone=phone.slice(1);
+ if(phone.length!==9||!/^9\d{8}$/.test(phone)){
+   document.getElementById("bbanStatus").classList.remove("hidden");setBbanStatus("رقم بيدي غير صالح. أدخل رقم زين السوداني من 9 أرقام يبدأ بـ 9، أو 10 أرقام تبدأ بـ 0.","error");return;
+ }
+ currentBbanValue="15"+"249"+phone;
+ document.getElementById("bbanStatus").classList.add("hidden");
+ const chunks=currentBbanValue.match(/.{1,4}/g)||[];
+ chunks.forEach(chunk=>{const span=document.createElement("span");span.className="rounded-lg border border-white/15 bg-white/10 px-2.5 py-2";span.textContent=chunk;groups.appendChild(span);});
+ card.classList.remove("hidden");
+}
+async function copyBbanResult(){
+ if(!currentBbanValue)return;
+ try{await navigator.clipboard.writeText(currentBbanValue);}
+ catch(e){
+   const ta=document.createElement("textarea");ta.value=currentBbanValue;ta.setAttribute("readonly","");ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();
+   const ok=document.execCommand("copy");ta.remove();if(!ok)return showToast("تعذر النسخ؛ حدد الرقم وانسخه يدوياً","err");
+ }
+ showToast("تم نسخ رقم BBAN");
+}
+document.addEventListener("input",event=>{
+ if(event.target.id==="bbanBankSearch")renderBbanBankOptions(event.target.value);
+ if(event.target.id==="bbanAccount"){
+   const normalized=normalizeDigits(event.target.value);
+   if(normalized!==event.target.value){const pos=event.target.selectionStart;event.target.value=normalized;try{event.target.setSelectionRange(pos,pos);}catch(e){}}
+   updateBbanResult();
+ }
+});
+document.addEventListener("focusin",event=>{if(event.target.id==="bbanBankSearch")renderBbanBankOptions(event.target.value);});
+document.addEventListener("click",event=>{
+ if(event.target.closest("#bbanBankSearch")||event.target.closest("#bbanBankOptions"))return;
+ document.getElementById("bbanBankOptions")?.classList.add("hidden");
+ document.getElementById("bbanBankSearch")?.setAttribute("aria-expanded","false");
+ const control=event.target.closest("[data-action]");
+ if(!control)return;
+ if(control.dataset.action==="bbanClear"){
+  const input=document.getElementById("bbanAccount");input.value="";updateBbanResult();input.focus();
+ }
+ if(control.dataset.action==="bbanCopy")copyBbanResult();
+});
+
 // Centralized UI event delegation: no inline JavaScript handlers in HTML.
 document.addEventListener('click', event => {
   const control = event.target.closest('[data-action]');
