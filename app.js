@@ -1,7 +1,7 @@
 if(localStorage.getItem('zj_theme')==='dark')document.body.classList.add('dark-mode');
 
 // جميع طلبات البيانات تمر عبر الخادم الوسيط؛ لا يوجد اتصال مباشر احتياطي بمخزن البيانات.
-const PROXY_ENDPOINT = "/api/zajil";
+const PROXY_ENDPOINT = "https://zajil-post-grkd1uyl4-zajil-post.vercel.app/api/zajil";
 
 let taps=0, tmr, deferredPrompt=null, uploadedImgData="", inboxQs=[], totalViews=1;
 let pollDelay=30000, pollTimer=null, loginFails=0, lockUntil=0, lastQSent=0, adminToken="";
