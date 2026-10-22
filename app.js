@@ -836,7 +836,10 @@ function updateBbanResult(){
    }
  }else if(pattern.variable&&account.length!==6&&account.length!==7){
    document.getElementById("bbanStatus").classList.remove("hidden");
-   setBbanStatus(pattern.variable?"لبنك أم درمان الوطني أدخل رقم حساب من 6 أو 7 أرقام فقط.":"رقم الحساب يجب أن يتكوّن من "+pattern.length+" رقمًا بالضبط.","error");return;
+   setBbanStatus("لبنك أم درمان الوطني أدخل رقم حساب من 6 أو 7 أرقام فقط.","error");return;
+ }else if(!pattern.variable&&account.length!==pattern.length){
+   document.getElementById("bbanStatus").classList.remove("hidden");
+   setBbanStatus("رقم الحساب يجب أن يتكوّن من "+pattern.length+" رقمًا بالضبط.","error");return;
  }
  currentBbanValue=pattern.phone?("15"+"249"+account):pattern.variable?((account.length===7?"24":"240")+account+"00001"):(pattern.prefix+account+pattern.suffix);
  if(!/^\d{14}$/.test(currentBbanValue)){
