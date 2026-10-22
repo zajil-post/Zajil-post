@@ -821,6 +821,11 @@ function updateBbanResult(){
    document.getElementById("bbanStatus").classList.remove("hidden");setBbanStatus("رقم بيدي غير صالح. أدخل رقم زين السوداني من 9 أرقام يبدأ بـ 9، أو 10 أرقام تبدأ بـ 0.","error");return;
  }
  currentBbanValue="15"+"249"+phone;
+ // القاعدة العامة: أي BBAN معروض يجب أن يكون 14 رقماً بالضبط.
+ if(!/^\\d{14}$/.test(currentBbanValue)){
+   currentBbanValue="";document.getElementById("bbanStatus").classList.remove("hidden");
+   setBbanStatus("تعذر إنشاء BBAN صالح: يجب أن يتكوّن الناتج من 14 رقماً بالضبط.","error");return;
+ }
  document.getElementById("bbanStatus").classList.add("hidden");
  const chunks=currentBbanValue.match(/.{1,4}/g)||[];
  chunks.forEach(chunk=>{const span=document.createElement("span");span.className="rounded-lg border border-white/15 bg-white/10 px-2.5 py-2";span.textContent=chunk;groups.appendChild(span);});
