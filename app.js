@@ -817,30 +817,37 @@ function updateBbanResult(){
  document.getElementById("bbanClear").classList.toggle("hidden",!input.value);
  card.classList.add("hidden");groups.textContent="";currentBbanValue="";
  if(!selectedBbanBank){document.getElementById("bbanStatus").classList.add("hidden");return;}
- const bank=selectedBbanBank;
- if(bank.status!=="verified"||bank.rule!=="bedei-msisdn"){
+ const bank=selectedBbanBank,pattern=bbanPattern(bank);
+ if(!pattern){
    document.getElementById("bbanStatus").classList.remove("hidden");
-   setBbanStatus("صيغة هذا البنك قيد التحقق. لن نعرض رقم BBAN حتى تتوفر صيغة موثقة ومصدر يمكن مراجعته.");
+   setBbanStatus("لا توجد صيغة محفوظة لهذا البنك؛ لن نخمن رقم BBAN.");
    return;
  }
  if(!raw){document.getElementById("bbanStatus").classList.add("hidden");return;}
  if(!/^\d+$/.test(raw)){
    document.getElementById("bbanStatus").classList.remove("hidden");setBbanStatus("استخدم الأرقام فقط دون حروف أو رموز.","error");return;
  }
- let phone=raw;
- if(phone.length===10&&phone.startsWith("0"))phone=phone.slice(1);
- if(phone.length!==9||!/^9\d{8}$/.test(phone)){
-   document.getElementById("bbanStatus").classList.remove("hidden");setBbanStatus("رقم بيدي غير صالح. أدخل رقم زين السوداني من 9 أرقام يبدأ بـ 9، أو 10 أرقام تبدأ بـ 0.","error");return;
+ let account=raw;
+ if(pattern.phone){
+   if(account.length===10&&account.startsWith("0"))account=account.slice(1);
+   if(account.length!==9||!/^9\d{8}$/.test(account)){
+     document.getElementById("bbanStatus").classList.remove("hidden");setBbanStatus("أدخل رقم زين من 9 أرقام يبدأ بـ 9، ويمكن إدخاله مع الصفر الأول.","error");return;
+   }
+ }else if(account.length!==pattern.length){
+   document.getElementById("bbanStatus").classList.remove("hidden");
+   setBbanStatus("رقم الحساب يجب أن يتكوّن من "+pattern.length+" رقمًا بالضبط.","error");return;
  }
- currentBbanValue="15"+"249"+phone;
- // القاعدة العامة: أي BBAN معروض يجب أن يكون 14 رقماً بالضبط.
- if(!/^\\d{14}$/.test(currentBbanValue)){
+ currentBbanValue=pattern.phone?("15"+"249"+account):(pattern.prefix+account+pattern.suffix);
+ if(!/^\d{14}$/.test(currentBbanValue)){
    currentBbanValue="";document.getElementById("bbanStatus").classList.remove("hidden");
-   setBbanStatus("تعذر إنشاء BBAN صالح: يجب أن يتكوّن الناتج من 14 رقماً بالضبط.","error");return;
+   setBbanStatus("تعذر إنشاء BBAN صالح: يجب أن يتكوّن الناتج من 14 رقمًا بالضبط.","error");return;
  }
  document.getElementById("bbanStatus").classList.add("hidden");
- const chunks=currentBbanValue.match(/.{1,4}/g)||[];
- chunks.forEach(chunk=>{const span=document.createElement("span");span.className="rounded-lg border border-white/15 bg-white/10 px-2.5 py-2";span.textContent=chunk;groups.appendChild(span);});
+ const prefix=pattern.prefix||"",suffix=pattern.suffix||"";
+ const prefixEl=document.createElement("span");prefixEl.className="text-white/45 font-medium";prefixEl.textContent=prefix;
+ const accountEl=document.createElement("span");accountEl.className="text-white font-black";accountEl.textContent=account;
+ const suffixEl=document.createElement("span");suffixEl.className="text-white/45 font-medium";suffixEl.textContent=suffix;
+ groups.append(prefixEl,accountEl,suffixEl);
  card.classList.remove("hidden");
 }
 async function copyBbanResult(){
