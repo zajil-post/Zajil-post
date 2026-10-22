@@ -93,22 +93,50 @@ if (isNativeAndroid) {
   Promise.resolve(window.Capacitor?.Plugins?.StatusBar?.setStyle?.({style:"LIGHT"})).catch(()=>{});
 }
 
+// Native FCM token lifecycle: register each device and keep its server subscription current.
+if (isNativeAndroid && window.__ZajilNative?.PushNotifications) {
+  const nativePush = window.__ZajilNative.PushNotifications;
+  nativePush.addListener("registration", async ({ value }) => {
+    try {
+      const response = await fetch(`${PROXY_ENDPOINT}?action=fcm_subscribe`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: value })
+      });
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      showToast("زاجل جاهز لإرسال تنبيهات تغيّر الأسعار");
+      const ic=document.getElementById("notifIcon");
+      if(ic)ic.className="fa-solid fa-bell text-sm text-emerald-600";
+    } catch (error) {
+      console.error("FCM token registration failed:", error);
+      showToast("تم تفعيل الإذن لكن تعذر تسجيل الجهاز على الخادم","err");
+    }
+  });
+  nativePush.addListener("registrationError", error => {
+    console.error("FCM registration error:", error);
+    showToast("تعذر تسجيل الجهاز في خدمة الإشعارات","err");
+  });
+  nativePush.addListener("pushNotificationReceived", notification => {
+    console.info("Zajil rate push received:", notification?.title || "");
+  });
+}
+
 async function enableNotif(){
   if (isNativeAndroid) {
     try {
       const push = window.__ZajilNative?.PushNotifications;
-      if (!push) return showToast("تعذر فتح إذن إشعارات أندرويد؛ أعد بناء النسخة التجريبية","err");
+      if (!push) return showToast("تعذر تهيئة إشعارات أندرويد؛ أعد بناء النسخة التجريبية","err");
       const result = await push.requestPermissions();
-      if (result.receive === "granted") {
-        showToast("تم منح زاجل إذن الإشعارات");
-        const ic=document.getElementById("notifIcon");
-        if(ic)ic.className="fa-solid fa-bell text-sm text-emerald-600";
-      } else {
+      if (result.receive !== "granted") {
         showToast("لم يتم منح إذن الإشعارات؛ يمكنك تفعيله من إعدادات الهاتف","warn");
+        return;
       }
+      await push.register();
+      showToast("تم منح الإذن؛ جارٍ تسجيل جهازك لاستقبال تغيّرات الأسعار");
+      const ic=document.getElementById("notifIcon");
+      if(ic)ic.className="fa-solid fa-bell text-sm text-emerald-600";
     } catch (error) {
-      console.error("Native notification permission error:", error);
-      showToast("تعذر طلب إذن الإشعارات من أندرويد","err");
+      console.error("Native notification registration error:", error);
+      showToast("تعذر تسجيل إشعارات أندرويد؛ تأكد من إعداد Firebase في نسخة التطبيق","err");
     }
     return;
   }
