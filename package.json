@@ -6,6 +6,14 @@
     "node": ">=20"
   },
   "dependencies": {
-    "web-push": "^3.6.7"
+    "web-push": "^3.6.7",
+    "@capacitor/core": "^7.4.3"
+  },
+  "scripts": {
+    "android:sync": "cap sync android"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.3",
+    "@capacitor/android": "^7.4.3"
   }
 }
