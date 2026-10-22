@@ -206,38 +206,50 @@
     </div>
   </div>
 
-  <div id="tab-more" class="tab-content space-y-3.5" role="tabpanel">
-    <div class="c-grad rounded-[24px] p-4 shadow-md text-white flex items-center justify-between">
-      <div>
-        <h3 class="text-sm font-bold">شارك منصة زاجل مع أصدقائك</h3>
-        <p class="text-[11px] text-purple-200 mt-0.5">لتصل الرسالة الحقيقية وأسعار الصرف للجميع</p>
+  <div id="tab-bban" class="tab-content space-y-4" role="tabpanel" aria-labelledby="bbanTabBtn">
+    <section class="c-grad rounded-[26px] p-5 text-white shadow-lg relative overflow-hidden">
+      <div class="relative z-10 flex items-start gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-white/15 border border-white/20 backdrop-blur-md flex items-center justify-center shrink-0"><i class="fa-solid fa-building-columns text-xl" aria-hidden="true"></i></div>
+        <div><h2 class="text-xl font-bold">محول BBAN</h2><p class="text-xs leading-6 text-purple-100 mt-1">حوّل رقم حسابك إلى BBAN بسهولة، واختر البنك لمعرفة الصيغة المناسبة لحسابك.</p></div>
       </div>
-      <button data-action="shareSite" class="b-calc px-4 py-2.5 rounded-xl text-xs font-bold shadow flex items-center gap-1.5 shrink-0">
-        <i class="fa-solid fa-share-nodes" aria-hidden="true"></i><span>مشاركة الموقع</span>
-      </button>
-    </div>
+      <div class="absolute -left-8 -bottom-12 w-36 h-36 rounded-full border border-white/10"></div>
+    </section>
 
-    <div class="glass-card rounded-[24px] p-5 shadow-sm space-y-3 text-[13px] leading-relaxed">
-      <h3 class="font-bold text-base text-[#2D062B] s-txt pb-2 border-b border-purple-100/40">حول منصة زاجل للنشر | Zajil</h3>
-      <p><b>زاجل للنشر</b> منصة إعلامية ومعلوماتية سودانية، انطلقت في <b>سبتمبر 2019</b> عبر حالة الواتساب، بهدف نقل أخبار السودان ومشاركة المعلومات والخدمات التي تهم المواطن السوداني.</p>
-      <p>على مدار رحلتها، توسعت زاجل لتشمل الأخبار، والاقتصاد السوداني، وأسعار الصرف وتحديثات الجنيه السوداني مقابل العملات الأخرى، والتحديثات المصرفية، وخدمات السفر والجامعات، ومشاركة المعلومات التي تساعد الناس على الوصول إلى ما يحتاجونه بسهولة.</p>
-      <div class="glass-sub p-3 rounded-2xl text-[#3D0B3A] font-medium">«نؤمن في زاجل بأن المعلومة حق، وأن رسالتنا تقوم على خدمة المتابعين، ونقل الأخبار والمعلومات، ومتابعة المستجدات التي تمس حياتهم اليومية، بعيداً عن الأجندات والمصالح الخفية.»</div>
-      <p class="font-bold text-[#D81B7A] text-center">رسالتنا مستمرة… وزاجل دائماً ما تحمل الرسالة الحقيقية.</p>
-    </div>
+    <section class="glass-card rounded-[26px] p-4 shadow-sm space-y-4">
+      <div class="space-y-2">
+        <label for="bbanBankSearch" class="block text-sm font-bold text-[#2D062B] s-txt">1. اختر البنك أو المحفظة</label>
+        <div class="relative">
+          <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-[#D81B7A] text-sm" aria-hidden="true"></i>
+          <input id="bbanBankSearch" type="search" autocomplete="off" placeholder="ابحث باسم البنك أو التطبيق..." aria-label="ابحث عن البنك" aria-controls="bbanBankOptions" aria-expanded="false" class="glass-sub w-full rounded-2xl py-3 pr-9 pl-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-200">
+        </div>
+        <div id="bbanBankOptions" role="listbox" aria-label="البنوك والمحافظ" class="hidden max-h-56 overflow-y-auto rounded-2xl border border-purple-100 bg-white/95 shadow-lg divide-y divide-purple-50"></div>
+        <div id="bbanSelectedBank" class="hidden glass-sub rounded-xl p-3 text-sm"></div>
+      </div>
 
-    <div class="glass-card rounded-[24px] p-5 shadow-sm space-y-2.5 text-xs font-bold">
-      <h3 class="text-sm text-[#2D062B] s-txt pb-2 border-b border-purple-100/40">تابعوا زاجل عبر منصاتنا الرسمية</h3>
-      <a href="https://www.facebook.com/zajil.post" target="_blank" rel="noopener noreferrer" class="flex justify-between p-3.5 rounded-xl bg-blue-50/80 text-blue-800 backdrop-blur-sm"><span><i class="fa-brands fa-facebook ml-2" aria-hidden="true"></i>فيسبوك زاجل</span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
-      <a href="https://t.me/zajil_post" target="_blank" rel="noopener noreferrer" class="flex justify-between p-3.5 rounded-xl bg-sky-50/80 text-sky-800 backdrop-blur-sm"><span><i class="fa-brands fa-telegram ml-2" aria-hidden="true"></i>تلجرام زاجل</span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
-      <a href="https://instagram.com/zajil.post" target="_blank" rel="noopener noreferrer" class="flex justify-between p-3.5 rounded-xl bg-pink-50/80 text-pink-800 backdrop-blur-sm"><span><i class="fa-brands fa-instagram ml-2" aria-hidden="true"></i>إنستغرام (@zajil.post)</span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
-      <a href="https://whatsapp.com/channel/0029Vax0vtQ2ZjCuuF4u0k0x" target="_blank" rel="noopener noreferrer" class="flex justify-between p-3.5 rounded-xl bg-emerald-50/80 text-emerald-800 backdrop-blur-sm"><span><i class="fa-brands fa-whatsapp ml-2" aria-hidden="true"></i>قناة واتساب زاجل</span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
-    </div>
+      <div class="space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <label id="bbanAccountLabel" for="bbanAccount" class="text-sm font-bold text-[#2D062B] s-txt">2. رقم الحساب</label>
+          <button id="bbanClear" type="button" class="text-xs font-bold text-[#D81B7A] hidden" data-action="bbanClear">مسح <i class="fa-solid fa-xmark mr-1" aria-hidden="true"></i></button>
+        </div>
+        <input id="bbanAccount" type="text" inputmode="numeric" autocomplete="off" autocapitalize="off" spellcheck="false" dir="ltr" placeholder="أدخل رقم الحساب" aria-label="رقم الحساب" class="w-full bg-white/80 border border-purple-100 rounded-2xl px-4 py-3.5 text-lg font-bold tracking-wider text-left focus:outline-none focus:ring-2 focus:ring-pink-200" disabled>
+        <p id="bbanInputHint" class="text-[11px] leading-5 opacity-70">اختر البنك أولاً. لا تُرسل أرقام الحسابات إلى أي خدمة خارجية.</p>
+      </div>
 
-    <div class="glass-card rounded-[24px] p-5 shadow-sm space-y-2 text-xs">
-      <h3 class="font-bold text-sm text-[#2D062B] s-txt pb-2 border-b border-purple-100/40">إبراء ذمة</h3>
-      <p class="opacity-80 leading-relaxed">• الأسعار المنشورة في المنصة استرشادية فقط لحركة السوق الموازي ولا تمثل سعراً رسمياً ملزماً.</p>
-      <p class="text-center font-bold text-[#D81B7A] pt-2">منصة زاجل للنشر | الرسالة الحقيقية.</p>
-    </div>
+      <div id="bbanStatus" class="hidden rounded-2xl p-3 text-xs leading-6" role="status" aria-live="polite"></div>
+
+      <div id="bbanResultCard" class="hidden rounded-[22px] bg-gradient-to-br from-[#380734] via-[#4A0B43] to-[#260322] p-4 text-white shadow-lg space-y-3">
+        <div class="flex items-center justify-between gap-2"><div><p class="text-[11px] text-purple-200">رقم BBAN الناتج</p><h3 class="text-sm font-bold mt-1">راجع الرقم قبل التحويل</h3></div><span class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center"><i class="fa-solid fa-shield-halved text-pink-200" aria-hidden="true"></i></span></div>
+        <div id="bbanResultGroups" dir="ltr" class="flex flex-wrap gap-2 justify-start text-lg font-bold tracking-wider"></div>
+        <button type="button" data-action="bbanCopy" class="w-full rounded-xl bg-white text-[#380734] font-bold text-sm py-3 flex items-center justify-center gap-2 active:scale-[.99] transition"><i class="fa-regular fa-copy" aria-hidden="true"></i> نسخ رقم BBAN</button>
+        <p class="text-[10px] text-purple-200 leading-5">هذا الناتج مبني على صيغة موثقة ضمن الأداة. راجع الرقم داخل تطبيق البنك قبل تنفيذ أي تحويل.</p>
+      </div>
+    </section>
+
+    <section class="glass-sub rounded-2xl p-4 space-y-2">
+      <div class="flex items-center gap-2 text-[#D81B7A] font-bold text-sm"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><span>مهم قبل الاستخدام</span></div>
+      <p class="text-xs leading-6 opacity-80">لا يتم إنشاء رقم BBAN للبنوك التي لم تُتحقق صيغتها بعد. ستظهر هذه البنوك في القائمة، مع توضيح أن الصيغة قيد التحقق بدلاً من تخمين رقم قد يؤدي إلى تحويل خاطئ.</p>
+      <p class="text-[10px] opacity-65">قاعدة البنوك قابلة للتوسعة والتحديث داخل المشروع.</p>
+    </section>
   </div>
 </main>
 <nav class="fixed bottom-0 inset-x-0 z-40 bg-[#250423]/90 backdrop-blur-xl text-white border-t border-purple-900/40 shadow-2xl" role="tablist" aria-label="التنقل الرئيسي">
@@ -245,7 +257,7 @@
     <button data-action="switchTab" data-tab="home" role="tab" aria-selected="true" class="nav-btn flex flex-col items-center justify-center gap-1 text-[#F42C90] font-bold"><i class="fa-solid fa-house text-base" aria-hidden="true"></i><span>الرئيسية</span></button>
     <button data-action="switchTab" data-tab="rates" role="tab" aria-selected="false" class="nav-btn flex flex-col items-center justify-center gap-1 text-gray-300"><i class="fa-solid fa-chart-line text-base" aria-hidden="true"></i><span>الأسعار</span></button>
     <button data-action="switchTab" data-tab="calc" role="tab" aria-selected="false" class="nav-btn flex flex-col items-center justify-center gap-1 text-gray-300"><i class="fa-solid fa-calculator text-base" aria-hidden="true"></i><span>الحاسبة</span></button>
-    <button data-action="switchTab" data-tab="more" role="tab" aria-selected="false" class="nav-btn flex flex-col items-center justify-center gap-1 text-gray-300"><i class="fa-solid fa-ellipsis text-base" aria-hidden="true"></i><span>المزيد</span></button>
+    <button id="bbanTabBtn" data-action="switchTab" data-tab="bban" role="tab" aria-selected="false" class="nav-btn flex flex-col items-center justify-center gap-1 text-gray-300"><i class="fa-solid fa-building-columns text-base" aria-hidden="true"></i><span>محول BBAN</span></button>
   </div>
 </nav>
 
