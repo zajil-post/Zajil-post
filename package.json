@@ -6,6 +6,19 @@
     "node": ">=20"
   },
   "dependencies": {
-    "web-push": "^3.6.7"
+    "web-push": "^3.6.7",
+    "firebase-admin": "^13.5.0",
+    "@capacitor/core": "^7.4.3",
+    "@capacitor/status-bar": "^7.0.0",
+    "@capacitor/push-notifications": "^7.0.0"
+  },
+  "scripts": {
+    "android:sync": "cap sync android"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.3",
+    "@capacitor/android": "^7.4.3",
+    "typescript": "^5.8.3",
+    "esbuild": "^0.25.0"
   }
 }

@@ -1,0 +1,129 @@
+name: Android Prototype APK
+
+on:
+  push:
+    branches:
+      - app/android-prototype
+    paths:
+      - 'package.json'
+      - 'capacitor.config.ts'
+      - '.github/workflows/android-prototype.yml'
+      - 'index.html'
+      - 'app.js'
+      - 'style.css'
+      - 'manifest.json'
+      - 'icon.svg'
+      - 'native-bridge.js'
+      - 'google-services.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-debug-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout prototype branch
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Bundle Zajil web interface for Android
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p www
+          cp index.html style.css manifest.json icon.svg www/
+          cp app.js www/app.js
+          npx esbuild native-bridge.js --bundle --format=iife --outfile=www/native-bridge.js
+          # Native APK only: remove admin login/dashboard from the app UI, keep website unchanged.
+          printf '\n/* Native app: admin console is website-only. */\n#logM, #dashM { display: none !important; }\n' >> www/style.css
+          sed -i 's/function secretTap(){/function secretTap(){if(isNativeAndroid)return;/' www/app.js
+          # The Android app bundles the UI locally; only data/API calls use Vercel.
+          sed -i 's|const PROXY_ENDPOINT = "/api/zajil";|const PROXY_ENDPOINT = "https://zajil-post-grkd1uyl4-zajil-post.vercel.app/api/zajil";|' www/app.js
+          # Replace the removed bank-monitor origin with the app's API origin in CSP.
+          sed -i 's|https://zajil-bank-monitor.a7mdtayb.workers.dev|https://zajil-post-grkd1uyl4-zajil-post.vercel.app|' www/index.html
+          ! grep -q 'zajil-bank-monitor.a7mdtayb.workers.dev' www/index.html
+          test -s www/index.html
+          test -s www/app.js
+          grep -q 'id="tab-bban"' www/index.html
+          grep -q 'محول BBAN' www/index.html
+          grep -q '#logM, #dashM { display: none !important; }' www/style.css
+          grep -q 'function secretTap(){if(isNativeAndroid)return;' www/app.js
+          test -s www/native-bridge.js
+          grep -q 'https://zajil-post-grkd1uyl4-zajil-post.vercel.app/api/zajil' www/app.js
+
+      - name: Generate Android project
+        run: npx cap add android
+
+      - name: Configure Firebase for Android FCM (when config is available)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -s google-services.json ]; then
+            cp google-services.json android/app/google-services.json
+            # Add the Google Services Gradle plugin to this generated Capacitor project.
+            grep -q 'com.google.gms:google-services' android/build.gradle || sed -i "/dependencies {/a\\        classpath 'com.google.gms:google-services:4.4.4'" android/build.gradle
+            grep -q 'com.google.gms.google-services' android/app/build.gradle || printf "\\napply plugin: 'com.google.gms.google-services'\\n" >> android/app/build.gradle
+            echo "Firebase Android configuration found; FCM will be enabled."
+          else
+            echo "::warning::google-services.json is not present. APK can build, but Android push notifications will not work until Firebase config is added."
+          fi
+
+      - name: Verify APK uses bundled local interface
+        shell: bash
+        run: |
+          set -euo pipefail
+          CONFIG="android/app/src/main/assets/capacitor.config.json"
+          test -s "$CONFIG"
+          if grep -Eq '"server"[[:space:]]*:[[:space:]]*\{' "$CONFIG"; then
+            echo "Unexpected remote Capacitor server config; refusing to build."
+            cat "$CONFIG"
+            exit 1
+          fi
+          test -f android/app/src/main/assets/public/index.html
+          test -f android/app/src/main/assets/public/app.js
+          grep -q 'منصة زاجل للنشر' android/app/src/main/assets/public/index.html
+          if grep -q 'server.url' capacitor.config.ts; then
+            echo "capacitor.config.ts must not point the app to a remote website."
+            exit 1
+          fi
+          echo "Verified: APK packages the local Zajil interface."
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set Android target API 36
+        shell: bash
+        run: |
+          set -euo pipefail
+          GRADLE_FILE="android/variables.gradle"
+          if [ -f "$GRADLE_FILE" ]; then
+            sed -i 's/targetSdkVersion = [0-9]*/targetSdkVersion = 36/' "$GRADLE_FILE"
+            sed -i 's/compileSdkVersion = [0-9]*/compileSdkVersion = 36/' "$GRADLE_FILE"
+          else
+            echo "Capacitor Android variables.gradle not found"
+            exit 1
+          fi
+
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug
+
+      - name: Upload test APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: zajil-android-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14

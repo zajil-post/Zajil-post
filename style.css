@@ -882,3 +882,11 @@ body.dark-mode #tab-calc #calcAllList .text-\[\#D81B7A\] {
 @media (prefers-reduced-motion: reduce) {
   #tab-calc #calcAllList > div { transition: none; }
 }
+
+
+/* Android native app: keep the app header clear of system status/navigation bars. */
+body.native-app { padding-top: 0; }
+body.native-app .glass-header { top: 0; padding-top: max(1rem, env(safe-area-inset-top, 24px)); }
+body.native-app #welcomeSetupM,
+body.native-app #pwaM,
+body.native-app [data-action="onboardingInstall"] { display: none !important; }

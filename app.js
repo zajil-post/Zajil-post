@@ -1,7 +1,7 @@
 if(localStorage.getItem('zj_theme')==='dark')document.body.classList.add('dark-mode');
 
 // جميع طلبات البيانات تمر عبر الخادم الوسيط؛ لا يوجد اتصال مباشر احتياطي بمخزن البيانات.
-const PROXY_ENDPOINT = "/api/zajil";
+const PROXY_ENDPOINT = "https://zajil-post-grkd1uyl4-zajil-post.vercel.app/api/zajil";
 
 let taps=0, tmr, deferredPrompt=null, uploadedImgData="", inboxQs=[], totalViews=1;
 let pollDelay=30000, pollTimer=null, loginFails=0, lockUntil=0, lastQSent=0, adminToken="";
@@ -84,7 +84,62 @@ function base64UrlToBytes(value){
   return Uint8Array.from(raw,c=>c.charCodeAt(0));
 }
 
+const isNativeAndroid = Boolean(window.__ZajilNative?.isNativePlatform?.());
+if (isNativeAndroid) {
+  document.body.classList.add("native-app");
+  // Android status bar must occupy its own system area, not overlap the web header.
+  Promise.resolve(window.__ZajilNative?.StatusBar?.setOverlaysWebView?.({overlay:false})).catch(()=>{});
+  Promise.resolve(window.Capacitor?.Plugins?.StatusBar?.setBackgroundColor?.({color:"#380734"})).catch(()=>{});
+  Promise.resolve(window.Capacitor?.Plugins?.StatusBar?.setStyle?.({style:"LIGHT"})).catch(()=>{});
+}
+
+// Native FCM token lifecycle: register each device and keep its server subscription current.
+if (isNativeAndroid && window.__ZajilNative?.PushNotifications) {
+  const nativePush = window.__ZajilNative.PushNotifications;
+  nativePush.addListener("registration", async ({ value }) => {
+    try {
+      const response = await fetch(`${PROXY_ENDPOINT}?action=fcm_subscribe`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: value })
+      });
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      showToast("زاجل جاهز لإرسال تنبيهات تغيّر الأسعار");
+      const ic=document.getElementById("notifIcon");
+      if(ic)ic.className="fa-solid fa-bell text-sm text-emerald-600";
+    } catch (error) {
+      console.error("FCM token registration failed:", error);
+      showToast("تم تفعيل الإذن لكن تعذر تسجيل الجهاز على الخادم","err");
+    }
+  });
+  nativePush.addListener("registrationError", error => {
+    console.error("FCM registration error:", error);
+    showToast("تعذر تسجيل الجهاز في خدمة الإشعارات","err");
+  });
+  nativePush.addListener("pushNotificationReceived", notification => {
+    console.info("Zajil rate push received:", notification?.title || "");
+  });
+}
+
 async function enableNotif(){
+  if (isNativeAndroid) {
+    try {
+      const push = window.__ZajilNative?.PushNotifications;
+      if (!push) return showToast("تعذر تهيئة إشعارات أندرويد؛ أعد بناء النسخة التجريبية","err");
+      const result = await push.requestPermissions();
+      if (result.receive !== "granted") {
+        showToast("لم يتم منح إذن الإشعارات؛ يمكنك تفعيله من إعدادات الهاتف","warn");
+        return;
+      }
+      await push.register();
+      showToast("تم منح الإذن؛ جارٍ تسجيل جهازك لاستقبال تغيّرات الأسعار");
+      const ic=document.getElementById("notifIcon");
+      if(ic)ic.className="fa-solid fa-bell text-sm text-emerald-600";
+    } catch (error) {
+      console.error("Native notification registration error:", error);
+      showToast("تعذر تسجيل إشعارات أندرويد؛ تأكد من إعداد Firebase في نسخة التطبيق","err");
+    }
+    return;
+  }
   let pushStage="تهيئة الإشعارات";
   if(!("serviceWorker" in navigator)||!("PushManager" in window)||!("Notification" in window)){
     return showToast("هذا المتصفح لا يدعم إشعارات Push؛ جرّب تثبيت زاجل على أندرويد","warn");
@@ -709,6 +764,154 @@ async function addArt(){
 }
 
 
+
+// محول BBAN: القواعد غير الموثقة تبقى معطلة ولا تنتج أرقاماً تخمينية.
+const BBAN_BANKS = [
+ {id:"khartoum",name:"بنك الخرطوم",brand:"بنكك",status:"active",sample:"040XXXXXXX0001"},
+ {id:"omdurman",name:"بنك أم درمان الوطني",brand:"أوكاش",status:"active",sample:"24XXXXXXX00001",rule:"omdurman-variable"},
+ {id:"faisal",name:"بنك فيصل الإسلامي",brand:"فوري",status:"active",sample:"02XXXXXXXXX0001"},
+ {id:"blue_nile",name:"بنك النيل (ساهل)",brand:"ساهل",status:"in-app",sample:"",rule:"in-app-bban"},
+ {id:"sudan_islamic",name:"البنك الإسلامي السوداني",brand:"أمن بلس",status:"active",sample:"14000XXXX00001"},
+ {id:"farmers",name:"بنك المزارع التجاري",brand:"مصرفك",status:"active",sample:"222XXXXXXXXXXX"},
+ {id:"french",name:"البنك الفرنسي السوداني",brand:"",status:"active",sample:"110XXXXXXX0001"},
+ {id:"agricultural",name:"البنك الزراعي السوداني",brand:"الزراعي موبايل",status:"active",sample:"03XXXXXXXX01001"},
+ {id:"alsalam",name:"بنك السلام السوداني",brand:"",status:"active",sample:"180XXXXXXX0001"},
+ {id:"baraka",name:"بنك البركة السوداني",brand:"البركة موبايل",status:"active",sample:"070XXXXXXX0001"},
+ {id:"livestock",name:"بنك الثروة الحيوانية",brand:"",status:"active",sample:"090XXXXXXX0001"},
+ {id:"workers",name:"بنك العمال الوطني",brand:"وطني",status:"in-app",sample:"",rule:"in-app-bban"},
+ {id:"realestate",name:"البنك العقاري التجاري",brand:"",status:"active",sample:"210XXXXXXX00001"},
+ {id:"industrial",name:"بنك التنمية الصناعية",brand:"",status:"active",sample:"130XXXXXXX0001"},
+ {id:"united",name:"بنك المال المتحد",brand:"",status:"active",sample:"170XXXXXXX0001"},
+ {id:"cashi",name:"محفظة كاش",brand:"كاشي",status:"active",sample:"070XXXXXXXXX98"},
+ {id:"bedei",name:"محفظة زين",brand:"بيدي",status:"verified",rule:"bedei-msisdn"}
+];
+let selectedBbanBank=null, currentBbanValue="";
+function normalizeDigits(value){
+ return String(value||"").replace(/[٠-٩]/g,d=>String("٠١٢٣٤٥٦٧٨٩".indexOf(d))).replace(/[۰-۹]/g,d=>String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)));
+}
+function renderBbanBankOptions(query=""){
+ const box=document.getElementById("bbanBankOptions"); if(!box)return;
+ const q=String(query||"").trim().toLocaleLowerCase("ar");
+ const matches=BBAN_BANKS.filter(b=>(b.name+" "+b.brand).toLocaleLowerCase("ar").includes(q));
+ box.textContent="";
+ if(!matches.length){const p=document.createElement("p");p.className="p-3 text-xs opacity-70";p.textContent="لا توجد نتائج مطابقة.";box.appendChild(p);}
+ matches.forEach(bank=>{
+   const btn=document.createElement("button");btn.type="button";btn.role="option";btn.className="w-full text-right p-3 flex items-center gap-3 hover:bg-purple-50 active:bg-pink-50";
+   const icon=document.createElement("span");icon.className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#380734] to-[#D81B7A] text-white flex items-center justify-center shrink-0";icon.innerHTML='<i class="fa-solid fa-building-columns" aria-hidden="true"></i>';
+   const info=document.createElement("span");info.className="min-w-0 flex-1";
+   const name=document.createElement("span");name.className="block text-sm font-bold text-[#2D062B]";name.textContent=bank.name;
+   const brand=document.createElement("span");brand.className="block text-[11px] opacity-65 mt-0.5";brand.textContent=bank.brand||"لا توجد علامة تطبيق موثقة";
+   info.append(name,brand);
+   const status=document.createElement("span");status.className=(bank.status==="verified"||bank.status==="active")?"text-[10px] font-bold text-emerald-700":"text-[10px] font-bold text-amber-700";status.textContent=bank.status==="verified"?"متحقق":bank.status==="active"?"14 رقم":bank.status==="in-app"?"من التطبيق":"قيد التحقق";
+   btn.append(icon,info,status);btn.addEventListener("click",()=>selectBbanBank(bank));box.appendChild(btn);
+ });
+ box.classList.remove("hidden");
+ document.getElementById("bbanBankSearch").setAttribute("aria-expanded","true");
+}
+function bbanPattern(bank){
+ if(bank.rule==="bedei-msisdn")return {prefix:"15"+"249",suffix:"",length:9,phone:true};
+ if(bank.rule==="omdurman-variable")return {prefix:"24",suffix:"00001",length:7,phone:false,variable:true};
+ const sample=String(bank.sample||"");
+ const first=sample.search(/[XY]/);
+ if(first<0)return null;
+ const last=Math.max(sample.lastIndexOf("X"),sample.lastIndexOf("Y"));
+ const prefix=sample.slice(0,first),suffix=sample.slice(last+1);
+ const length=14-prefix.length-suffix.length;
+ if(length<1)return null;
+ return {prefix,suffix,length,phone:false};
+}
+function selectBbanBank(bank){
+ selectedBbanBank=bank; currentBbanValue="";
+ const search=document.getElementById("bbanBankSearch");search.value=bank.name+(bank.brand?" — "+bank.brand:"");
+ document.getElementById("bbanBankOptions").classList.add("hidden");search.setAttribute("aria-expanded","false");
+ const selected=document.getElementById("bbanSelectedBank");selected.classList.remove("hidden");selected.textContent="";
+ const name=document.createElement("strong");name.textContent=bank.name+" ";selected.appendChild(name);
+ if(bank.brand){const brand=document.createElement("span");brand.textContent="("+bank.brand+")";selected.appendChild(brand);}
+ const pattern=bbanPattern(bank),input=document.getElementById("bbanAccount");
+ input.value="";input.disabled=!pattern;
+ document.getElementById("bbanAccountLabel").textContent=bank.rule==="bedei-msisdn"?"2. رقم هاتف بيدي":"2. رقم الحساب";
+ input.placeholder=bank.rule==="omdurman-variable"?"أدخل 6 أو 7 أرقام":bank.rule==="bedei-msisdn"?"مثال: 0912345678 أو 912345678":pattern?("أدخل رقم الحساب ("+pattern.length+" أرقام)"):"صيغة الحساب غير متوفرة";
+ input.maxLength=pattern?(pattern.variable?7:(pattern.phone?10:pattern.length)):0;
+ document.getElementById("bbanInputHint").textContent=bank.rule==="in-app-bban"?"يتحصل على رقم BBAN من داخل تطبيق البنك مباشرة؛ لا حاجة لتحويل الرقم هنا.":bank.rule==="omdurman-variable"?"بنك أم درمان الوطني: إذا كان رقم الحساب 7 أرقام تُستخدم البادئة 24، وإذا كان 6 أرقام تُستخدم 240. اللاحقة 00001 في الحالتين.":bank.rule==="bedei-msisdn"?"أدخل رقم زين من 9 أرقام يبدأ بـ 9. سيُنشأ الناتج من 14 رقماً.":pattern?("أدخل "+pattern.length+" رقمًا بالضبط؛ سيُضاف رمز البنك واللاحقة ليصبح BBAN من 14 رقمًا."):"لا توجد صيغة محفوظة لهذا البنك حتى الآن، لذلك لن نخمن رقم BBAN.";
+ document.getElementById("bbanClear").classList.remove("hidden");
+ updateBbanResult();
+}
+function setBbanStatus(message,type="info"){
+ const el=document.getElementById("bbanStatus");el.textContent=message;el.className="rounded-2xl p-3 text-xs leading-6";
+ el.classList.add(type==="error"?"bg-rose-50 text-rose-800":type==="success"?"bg-emerald-50 text-emerald-800":"bg-amber-50 text-amber-900");
+}
+function updateBbanResult(){
+ const input=document.getElementById("bbanAccount"),card=document.getElementById("bbanResultCard"),groups=document.getElementById("bbanResultGroups");
+ const raw=normalizeDigits(input.value).replace(/[\s-]/g,"");
+ document.getElementById("bbanClear").classList.toggle("hidden",!input.value);
+ card.classList.add("hidden");groups.textContent="";currentBbanValue="";
+ if(!selectedBbanBank){document.getElementById("bbanStatus").classList.add("hidden");return;}
+ const bank=selectedBbanBank,pattern=bbanPattern(bank);
+ if(!pattern){
+   document.getElementById("bbanStatus").classList.remove("hidden");
+   setBbanStatus(bank.rule==="in-app-bban"?"يتحصل على رقم BBAN من داخل تطبيق البنك مباشرة.":"لا توجد صيغة محفوظة لهذا البنك؛ لن نخمن رقم BBAN.");
+   return;
+ }
+ if(!raw){document.getElementById("bbanStatus").classList.add("hidden");return;}
+ if(!/^\d+$/.test(raw)){
+   document.getElementById("bbanStatus").classList.remove("hidden");setBbanStatus("استخدم الأرقام فقط دون حروف أو رموز.","error");return;
+ }
+ let account=raw;
+ if(pattern.phone){
+   if(account.length===10&&account.startsWith("0"))account=account.slice(1);
+   if(account.length!==9||!/^9\d{8}$/.test(account)){
+     document.getElementById("bbanStatus").classList.remove("hidden");setBbanStatus("أدخل رقم زين من 9 أرقام يبدأ بـ 9، ويمكن إدخاله مع الصفر الأول.","error");return;
+   }
+ }else if(pattern.variable&&account.length!==6&&account.length!==7){
+   document.getElementById("bbanStatus").classList.remove("hidden");
+   setBbanStatus("لبنك أم درمان الوطني أدخل رقم حساب من 6 أو 7 أرقام فقط.","error");return;
+ }else if(!pattern.variable&&account.length!==pattern.length){
+   document.getElementById("bbanStatus").classList.remove("hidden");
+   setBbanStatus("رقم الحساب يجب أن يتكوّن من "+pattern.length+" رقمًا بالضبط.","error");return;
+ }
+ currentBbanValue=pattern.phone?("15"+"249"+account):pattern.variable?((account.length===7?"24":"240")+account+"00001"):(pattern.prefix+account+pattern.suffix);
+ if(!/^\d{14}$/.test(currentBbanValue)){
+   currentBbanValue="";document.getElementById("bbanStatus").classList.remove("hidden");
+   setBbanStatus("تعذر إنشاء BBAN صالح: يجب أن يتكوّن الناتج من 14 رقمًا بالضبط.","error");return;
+ }
+ document.getElementById("bbanStatus").classList.add("hidden");
+ const prefix=pattern.prefix||"",suffix=pattern.suffix||"";
+ const prefixEl=document.createElement("span");prefixEl.className="text-white/45 font-medium";prefixEl.textContent=prefix;
+ const accountEl=document.createElement("span");accountEl.className="text-white font-black";accountEl.textContent=account;
+ const suffixEl=document.createElement("span");suffixEl.className="text-white/45 font-medium";suffixEl.textContent=suffix;
+ groups.append(prefixEl,accountEl,suffixEl);
+ card.classList.remove("hidden");
+}
+async function copyBbanResult(){
+ if(!currentBbanValue)return;
+ try{await navigator.clipboard.writeText(currentBbanValue);}
+ catch(e){
+   const ta=document.createElement("textarea");ta.value=currentBbanValue;ta.setAttribute("readonly","");ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();
+   const ok=document.execCommand("copy");ta.remove();if(!ok)return showToast("تعذر النسخ؛ حدد الرقم وانسخه يدوياً","err");
+ }
+ showToast("تم نسخ رقم BBAN");
+}
+document.addEventListener("input",event=>{
+ if(event.target.id==="bbanBankSearch")renderBbanBankOptions(event.target.value);
+ if(event.target.id==="bbanAccount"){
+   const normalized=normalizeDigits(event.target.value);
+   if(normalized!==event.target.value){const pos=event.target.selectionStart;event.target.value=normalized;try{event.target.setSelectionRange(pos,pos);}catch(e){}}
+   updateBbanResult();
+ }
+});
+document.addEventListener("focusin",event=>{if(event.target.id==="bbanBankSearch")renderBbanBankOptions(event.target.value);});
+document.addEventListener("click",event=>{
+ if(event.target.closest("#bbanBankSearch")||event.target.closest("#bbanBankOptions"))return;
+ document.getElementById("bbanBankOptions")?.classList.add("hidden");
+ document.getElementById("bbanBankSearch")?.setAttribute("aria-expanded","false");
+ const control=event.target.closest("[data-action]");
+ if(!control)return;
+ if(control.dataset.action==="bbanClear"){
+  const input=document.getElementById("bbanAccount");input.value="";updateBbanResult();input.focus();
+ }
+ if(control.dataset.action==="bbanCopy")copyBbanResult();
+});
+
 // Centralized UI event delegation: no inline JavaScript handlers in HTML.
 document.addEventListener('click', event => {
   const control = event.target.closest('[data-action]');
@@ -771,7 +974,7 @@ window.addEventListener('appinstalled',()=>{deferredPrompt=null;});
 
 // إرشاد أول زيارة: نافذة اختيارية للتثبيت وإشعارات الأسعار.
 function isInstalledPWA(){
-  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  return isNativeAndroid || window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 }
 function dismissOnboarding(remember=true){
   const modal=document.getElementById('welcomeSetupM');
@@ -792,6 +995,13 @@ async function updateOnboardingOptions(){
   }
 }
 function maybeShowOnboarding(){
+  // A native APK is already installed: never show the web/PWA install walkthrough.
+  if(isNativeAndroid){
+    const modal=document.getElementById('welcomeSetupM');
+    if(modal)modal.classList.add('hidden');
+    localStorage.setItem('zj_onboarding_dismissed_v1','1');
+    return;
+  }
   if(localStorage.getItem('zj_onboarding_dismissed_v1')==='1')return;
   if(isInstalledPWA() && 'Notification' in window && Notification.permission==='granted')return;
   const modal=document.getElementById('welcomeSetupM');
@@ -805,6 +1015,10 @@ window.addEventListener('load',maybeShowOnboarding,{once:true});
 
 // زر التثبيت: يعرض نافذة التثبيت الأصلية حين يدعمها المتصفح.
 async function triggerInstall(){
+  if(isNativeAndroid){
+    showToast('زاجل مثبت بالفعل على جهازك');
+    return;
+  }
   if(isInstalledPWA()){
     showToast('زاجل مثبت بالفعل على شاشة جهازك');
     return;

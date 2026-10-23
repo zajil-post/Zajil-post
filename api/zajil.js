@@ -1,5 +1,7 @@
 import { createHmac, timingSafeEqual, randomUUID } from "node:crypto";
 import webpush from "web-push";
+import { cert, getApps, initializeApp } from "firebase-admin/app";
+import { getMessaging } from "firebase-admin/messaging";
 
 const TOKEN_TTL_SECONDS = 8 * 60 * 60;
 const publicRateLimits = new Map();
@@ -107,49 +109,85 @@ async function pushSubscriptionsUrl(pantryId) {
   return `https://getpantry.cloud/apiv1/pantry/${pantryId}/basket/zajil_push_subscriptions`;
 }
 
-async function sendRatePushes(pantryId, oldData, newData) {
-  if (!configurePush()) {
-    console.warn("Rate data saved, but Web Push is not configured (missing VAPID keys).");
-    return { sent: 0, skipped: true };
+function firebaseMessaging() {
+  const raw = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+  if (!raw) return null;
+  try {
+    const serviceAccount = JSON.parse(raw);
+    const app = getApps().length ? getApps()[0] : initializeApp({ credential: cert(serviceAccount) });
+    return getMessaging(app);
+  } catch (error) {
+    console.error("Firebase Admin configuration invalid:", error?.message || error);
+    return null;
   }
+}
+
+async function sendRatePushes(pantryId, oldData, newData) {
   const oldBuy = Number(oldData?.b), oldSell = Number(oldData?.s);
   const newBuy = Number(newData?.b), newSell = Number(newData?.s);
   if (!(oldBuy > 0 && oldSell > 0 && newBuy > 0 && newSell > 0) ||
-      (oldBuy === newBuy && oldSell === newSell)) return { sent: 0, skipped: false };
-
-  const url = await pushSubscriptionsUrl(pantryId);
-  const basket = await readBasket(url, true);
-  const subscriptions = Array.isArray(basket.subscriptions) ? basket.subscriptions : [];
-  if (!subscriptions.length) return { sent: 0, skipped: false };
+      (oldBuy === newBuy && oldSell === newSell)) return { webSent: 0, fcmSent: 0, skipped: true };
 
   const direction = newBuy > oldBuy || newSell > oldSell
     ? "ارتفع سعر الدولار"
     : newBuy < oldBuy || newSell < oldSell
       ? "انخفض سعر الدولار"
       : "تغيّرت أسعار الصرف";
-  const payload = JSON.stringify({
-    title: "تحديث أسعار الصرف | زاجل",
-    body: `${direction} — شراء ${Math.round(newBuy).toLocaleString("en-US")}، بيع ${Math.round(newSell).toLocaleString("en-US")} جنيه سوداني`,
-    url: "/?tab=rates",
-    tag: "zajil-rate-update",
-    timestamp: Date.now()
-  });
+  const title = "تحديث أسعار الصرف | زاجل";
+  const body = `${direction} — شراء ${Math.round(newBuy).toLocaleString("en-US")}، بيع ${Math.round(newSell).toLocaleString("en-US")} جنيه سوداني`;
+  let webSent = 0;
+  let fcmSent = 0;
 
-  const retained = [];
-  let sent = 0;
-  await Promise.all(subscriptions.map(async subscription => {
+  // Web Push for browsers/PWA. This channel is optional and independent of Android FCM.
+  if (configurePush()) {
     try {
-      await webpush.sendNotification(subscription, payload, { TTL: 60 * 60, urgency: "normal" });
-      retained.push(subscription);
-      sent += 1;
+      const url = await pushSubscriptionsUrl(pantryId);
+      const basket = await readBasket(url, true);
+      const subscriptions = Array.isArray(basket.subscriptions) ? basket.subscriptions : [];
+      const retained = [];
+      await Promise.all(subscriptions.map(async subscription => {
+        try {
+          await webpush.sendNotification(subscription, JSON.stringify({
+            title, body, url: "/?tab=rates", tag: "zajil-rate-update", timestamp: Date.now()
+          }), { TTL: 60 * 60, urgency: "normal" });
+          retained.push(subscription); webSent += 1;
+        } catch (error) {
+          if (error?.statusCode !== 404 && error?.statusCode !== 410) retained.push(subscription);
+        }
+      }));
+      if (retained.length !== subscriptions.length) await writeBasket(url, { subscriptions: retained });
     } catch (error) {
-      if (error?.statusCode !== 404 && error?.statusCode !== 410) retained.push(subscription);
+      console.error("Web Push send failed:", error?.message || error);
     }
-  }));
-  if (retained.length !== subscriptions.length) {
-    await writeBasket(url, { subscriptions: retained });
   }
-  return { sent, skipped: false };
+
+  // Native Android push via Firebase Cloud Messaging.
+  const messaging = firebaseMessaging();
+  if (messaging) {
+    const url = `https://getpantry.cloud/apiv1/pantry/${pantryId}/basket/zajil_fcm_tokens`;
+    try {
+      const basket = await readBasket(url, true);
+      const tokens = Array.isArray(basket.tokens) ? basket.tokens.filter(t => typeof t === "string" && t.length > 20) : [];
+      if (tokens.length) {
+        const response = await messaging.sendEachForMulticast({
+          tokens,
+          notification: { title, body },
+          data: { url: "/?tab=rates", type: "rate_update", buy: String(newBuy), sell: String(newSell) },
+          android: { priority: "high", notification: { channelId: "zajil_rates", sound: "default" } }
+        });
+        fcmSent = response.successCount;
+        const invalid = new Set();
+        response.responses.forEach((result, index) => {
+          const code = result.error?.code || "";
+          if (code.includes("registration-token-not-registered") || code.includes("invalid-registration-token")) invalid.add(tokens[index]);
+        });
+        if (invalid.size) await writeBasket(url, { tokens: tokens.filter(t => !invalid.has(t)) });
+      }
+    } catch (error) {
+      console.error("FCM rate push failed:", error?.message || error);
+    }
+  }
+  return { webSent, fcmSent, skipped: false };
 }
 
 export default async function handler(req, res) {
@@ -165,6 +203,30 @@ export default async function handler(req, res) {
   if (!["GET", "POST"].includes(req.method)) {
     res.setHeader("Allow", "GET, POST, OPTIONS");
     return send(res, 405, { error: "Method not allowed" });
+  }
+
+  if (action === "fcm_subscribe" || action === "fcm_unsubscribe") {
+    if (req.method !== "POST") return send(res, 405, { error: "Method not allowed" });
+    if (!allowPublicRequest(req, action)) return send(res, 429, { error: "Too many requests" });
+    if (action === "fcm_subscribe" && !firebaseMessaging()) {
+      return send(res, 503, { error: "Firebase Cloud Messaging is not configured" });
+    }
+    if (!PANTRY_ID) return send(res, 503, { error: "Storage is not configured" });
+    const token = typeof req.body?.token === "string" ? req.body.token.trim() : "";
+    if (!token || token.length > 4096) return send(res, 400, { error: "Invalid FCM token" });
+    const url = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/zajil_fcm_tokens`;
+    try {
+      const basket = await readBasket(url, true);
+      const tokens = Array.isArray(basket.tokens) ? basket.tokens.filter(t => typeof t === "string") : [];
+      const updated = action === "fcm_subscribe"
+        ? [...tokens.filter(t => t !== token), token].slice(-5000)
+        : tokens.filter(t => t !== token);
+      await writeBasket(url, { tokens: updated });
+      return send(res, 200, { ok: true });
+    } catch (error) {
+      console.error("[fcm_subscribe] storage failure:", error?.message || String(error));
+      return send(res, 502, { error: "FCM token storage unavailable" });
+    }
   }
 
   if (action === "push_config") {

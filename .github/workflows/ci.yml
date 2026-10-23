@@ -24,7 +24,6 @@ jobs:
       - name: Check JavaScript syntax
         run: |
           node --check app.js
-          node --check bank-status.js
           node --check sw.js
           node --input-type=module --check < api/zajil.js
       - name: Validate manifest JSON

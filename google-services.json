@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1041015334725",
+    "project_id": "zajil-notifications",
+    "storage_bucket": "zajil-notifications.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1041015334725:android:c350c71524b38cda3b402c",
+        "android_client_info": {
+          "package_name": "com.zajilpost.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQiXy2DW9c1AuUakgP28_dS-_88Q1T-Lg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
